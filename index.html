@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌿 Sandbox</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #f0f7f0;
+    --panel:     #e4f2e4;
+    --panel2:    #d5ebd5;
+    --accent:    #7dba7d;
+    --accent2:   #5aa05a;
+    --accent3:   #a8d8a8;
+    --text:      #2d4a2d;
+    --text-soft: #5a7a5a;
+    --border:    #b8d8b8;
+    --shadow:    0 4px 20px rgba(90,160,90,0.15);
+    --radius:    14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    background-image: radial-gradient(circle at 20% 20%, #c8e8c8 0%, transparent 50%),
+                      radial-gradient(circle at 80% 80%, #b8ddb8 0%, transparent 50%);
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 900px;
+    justify-content: space-between;
+  }
+
+  .title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: var(--accent2);
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .title span { font-size: 22px; }
+
+  .pause-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    padding: 10px 22px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 10px rgba(90,160,90,0.3);
+    transition: all 0.2s;
+    letter-spacing: 0.2px;
+  }
+
+  .pause-btn:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(90,160,90,0.35); }
+  .pause-btn.paused { background: #a8c890; }
+
+  .pause-icon { font-size: 16px; }
+
+  .main {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+    max-width: 900px;
+    align-items: flex-start;
+  }
+
+  /* Toolbar */
+  .toolbar {
+    background: var(--panel);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    box-shadow: var(--shadow);
+    min-width: 90px;
+  }
+
+  .tool-section-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-soft);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    padding: 4px 6px 2px;
+  }
+
+  .tool-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 8px;
+    border-radius: 10px;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-soft);
+    transition: all 0.15s;
+    width: 100%;
+  }
+
+  .tool-btn:hover { background: var(--panel2); color: var(--text); }
+  .tool-btn.active { background: white; border-color: var(--accent); color: var(--accent2); box-shadow: 0 2px 8px rgba(90,160,90,0.2); }
+
+  .tool-icon { font-size: 20px; line-height: 1; }
+
+  .divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+  /* Canvas wrapper */
+  .canvas-wrap {
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1.5px solid var(--border);
+    cursor: crosshair;
+    flex: 1;
+  }
+
+  canvas {
+    display: block;
+    background: #1a2e1a;
+  }
+
+  .canvas-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  /* Size panel */
+  .size-panel {
+    background: var(--panel);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 12px;
+    box-shadow: var(--shadow);
+    min-width: 90px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .size-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-soft);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+  }
+
+  .size-preview {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+  }
+
+  .size-dot {
+    border-radius: 50%;
+    background: var(--accent);
+    transition: all 0.2s;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 4px;
+    background: var(--panel2);
+    outline: none;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(90,160,90,0.3);
+    transition: background 0.2s;
+  }
+
+  input[type=range]::-webkit-slider-thumb:hover { background: var(--accent2); }
+
+  .size-value {
+    font-size: 12px;
+    color: var(--text-soft);
+    text-align: center;
+    font-weight: 500;
+  }
+
+  .clear-btn {
+    background: white;
+    color: #c06060;
+    border: 1.5px solid #e0b0b0;
+    border-radius: 10px;
+    padding: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    margin-top: 6px;
+  }
+
+  .clear-btn:hover { background: #fff0f0; border-color: #c06060; }
+
+  /* Status bar */
+  .status {
+    display: flex;
+    gap: 14px;
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--text-soft);
+    font-weight: 500;
+    align-items: center;
+  }
+
+  .status-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  .status-dot.paused { background: #c0a060; animation: none; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .particle-count { color: var(--accent2); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title"><span>🌿</span> Sandbox</div>
+  <button class="pause-btn" id="pauseBtn" onclick="togglePause()">
+    <span class="pause-icon">⏸</span> <span id="pauseLabel">Pause</span>
+  </button>
+</header>
+
+<div class="main">
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="tool-section-label">Werkzeug</div>
+
+    <button class="tool-btn active" id="tool-sand" onclick="setTool('sand')" title="Sand">
+      <span class="tool-icon">🟡</span>
+      Sand
+    </button>
+    <button class="tool-btn" id="tool-water" onclick="setTool('water')" title="Wasser">
+      <span class="tool-icon">💧</span>
+      Wasser
+    </button>
+    <button class="tool-btn" id="tool-wind" onclick="setTool('wind')" title="Wind">
+      <span class="tool-icon">💨</span>
+      Wind
+    </button>
+    <button class="tool-btn" id="tool-wall" onclick="setTool('wall')" title="Wand">
+      <span class="tool-icon">🪨</span>
+      Wand
+    </button>
+
+    <div class="divider"></div>
+    <div class="tool-section-label">Bearbeiten</div>
+
+    <button class="tool-btn" id="tool-erase" onclick="setTool('erase')" title="Radierer">
+      <span class="tool-icon">🧹</span>
+      Radier
+    </button>
+  </div>
+
+  <!-- Canvas -->
+  <div class="canvas-wrap">
+    <canvas id="sim" width="640" height="480"></canvas>
+  </div>
+
+  <!-- Size panel -->
+  <div class="size-panel">
+    <div class="size-label">Größe</div>
+    <div class="size-preview">
+      <div class="size-dot" id="sizeDot" style="width:16px;height:16px;"></div>
+    </div>
+    <input type="range" id="brushSize" min="1" max="20" value="4" oninput="updateSize()">
+    <div class="size-value" id="sizeValue">4 px</div>
+    <button class="clear-btn" onclick="clearAll()">🗑 Löschen</button>
+  </div>
+</div>
+
+<div class="status">
+  <span><span class="status-dot" id="statusDot"></span> <span id="statusText">Läuft</span></span>
+  <span>Partikel: <span class="particle-count" id="partCount">0</span></span>
+  <span id="currentTool">Werkzeug: Sand</span>
+</div>
+
+<script>
+const canvas = document.getElementById('sim');
+const ctx = canvas.getContext('2d');
+const W = canvas.width;
+const H = canvas.height;
+const CELL = 4;
+const COLS = Math.floor(W / CELL);
+const ROWS = Math.floor(H / CELL);
+
+// Types
+const EMPTY = 0;
+const SAND  = 1;
+const WATER = 2;
+const WALL  = 3;
+const WIND  = 4;
+
+// Colors
+const COLORS = {
+  [EMPTY]: null,
+  [SAND]:  ['#e8c97a','#d4b560','#f0d48a','#c8a848'],
+  [WATER]: ['#6ab4d8','#5aa0c8','#7ac4e8','#4e90b8'],
+  [WALL]:  ['#7a9a7a','#6a8a6a','#8aaa8a','#5a7a5a'],
+  [WIND]:  ['#c8e8c8','#b8d8b8','#d8f0d8','#a8c8a8'],
+};
+
+let grid = new Uint8Array(COLS * ROWS);
+let colorGrid = new Uint8Array(COLS * ROWS); // color variant per cell
+let updated = new Uint8Array(COLS * ROWS);
+
+let paused = false;
+let currentTool = 'sand';
+let brushSize = 4;
+let isDrawing = false;
+let mouseX = 0, mouseY = 0;
+
+function idx(x, y) { return y * COLS + x; }
+function get(x, y) { return (x>=0&&x<COLS&&y>=0&&y<ROWS) ? grid[idx(x,y)] : WALL; }
+function set(x, y, t) { if(x>=0&&x<COLS&&y>=0&&y<ROWS){ grid[idx(x,y)]=t; colorGrid[idx(x,y)]=Math.floor(Math.random()*4); } }
+
+function clearAll() {
+  grid.fill(0);
+  colorGrid.fill(0);
+}
+
+function setTool(t) {
+  currentTool = t;
+  document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tool-'+t).classList.add('active');
+  const names = {sand:'Sand',water:'Wasser',wall:'Wand',wind:'Wind',erase:'Radierer'};
+  document.getElementById('currentTool').textContent = 'Werkzeug: ' + names[t];
+}
+
+function updateSize() {
+  brushSize = +document.getElementById('brushSize').value;
+  document.getElementById('sizeValue').textContent = brushSize + ' px';
+  const dot = document.getElementById('sizeDot');
+  const s = Math.max(8, brushSize * 3);
+  dot.style.width = s + 'px';
+  dot.style.height = s + 'px';
+}
+
+function togglePause() {
+  paused = !paused;
+  const btn = document.getElementById('pauseBtn');
+  btn.classList.toggle('paused', paused);
+  document.getElementById('pauseLabel').textContent = paused ? 'Weiter' : 'Pause';
+  document.querySelector('.pause-icon').textContent = paused ? '▶' : '⏸';
+  document.getElementById('statusDot').className = 'status-dot' + (paused ? ' paused' : '');
+  document.getElementById('statusText').textContent = paused ? 'Pausiert' : 'Läuft';
+}
+
+function draw(cx, cy) {
+  const r = brushSize;
+  const type = currentTool === 'erase' ? EMPTY
+             : currentTool === 'sand'  ? SAND
+             : currentTool === 'water' ? WATER
+             : currentTool === 'wall'  ? WALL
+             : WIND;
+
+  for (let dy = -r; dy <= r; dy++) {
+    for (let dx = -r; dx <= r; dx++) {
+      if (dx*dx + dy*dy <= r*r) {
+        set(cx+dx, cy+dy, type);
+      }
+    }
+  }
+}
+
+// Simulation step
+function step() {
+  if (paused) return;
+  updated.fill(0);
+
+  for (let y = ROWS-1; y >= 0; y--) {
+    // Alternate left/right to avoid bias
+    const leftToRight = Math.random() < 0.5;
+    for (let xi = 0; xi < COLS; xi++) {
+      const x = leftToRight ? xi : COLS-1-xi;
+      const i = idx(x,y);
+      const t = grid[i];
+      if (updated[i]) continue;
+
+      if (t === SAND) {
+        // Fall down
+        if (y < ROWS-1 && get(x,y+1)===EMPTY) {
+          updated[i]=1;
+          set(x,y+1,SAND); colorGrid[idx(x,y+1)]=colorGrid[i];
+          set(x,y,EMPTY);
+          updated[idx(x,y+1)]=1;
+        } else if (y < ROWS-1 && get(x,y+1)===WATER) {
+          // Sand sinks through water
+          updated[i]=1;
+          let wc = colorGrid[idx(x,y+1)];
+          set(x,y+1,SAND); colorGrid[idx(x,y+1)]=colorGrid[i];
+          set(x,y,WATER); colorGrid[i]=wc;
+          updated[idx(x,y+1)]=1;
+        } else {
+          // Slide diagonally
+          const dir = Math.random()<0.5?1:-1;
+          if (y < ROWS-1 && get(x+dir,y+1)===EMPTY) {
+            updated[i]=1;
+            set(x+dir,y+1,SAND); colorGrid[idx(x+dir,y+1)]=colorGrid[i];
+            set(x,y,EMPTY);
+            updated[idx(x+dir,y+1)]=1;
+          } else if (y < ROWS-1 && get(x-dir,y+1)===EMPTY) {
+            updated[i]=1;
+            set(x-dir,y+1,SAND); colorGrid[idx(x-dir,y+1)]=colorGrid[i];
+            set(x,y,EMPTY);
+            updated[idx(x-dir,y+1)]=1;
+          }
+        }
+      } else if (t === WATER) {
+        // Fall down
+        if (y < ROWS-1 && get(x,y+1)===EMPTY) {
+          updated[i]=1;
+          set(x,y+1,WATER); colorGrid[idx(x,y+1)]=colorGrid[i];
+          set(x,y,EMPTY);
+          updated[idx(x,y+1)]=1;
+        } else {
+          // Spread sideways
+          const dir = Math.random()<0.5?1:-1;
+          if (get(x+dir,y)===EMPTY) {
+            updated[i]=1;
+            set(x+dir,y,WATER); colorGrid[idx(x+dir,y)]=colorGrid[i];
+            set(x,y,EMPTY);
+            updated[idx(x+dir,y)]=1;
+          } else if (get(x-dir,y)===EMPTY) {
+            updated[i]=1;
+            set(x-dir,y,WATER); colorGrid[idx(x-dir,y)]=colorGrid[i];
+            set(x,y,EMPTY);
+            updated[idx(x-dir,y)]=1;
+          } else if (y < ROWS-1 && get(x+dir,y+1)===EMPTY) {
+            updated[i]=1;
+            set(x+dir,y+1,WATER); colorGrid[idx(x+dir,y+1)]=colorGrid[i];
+            set(x,y,EMPTY);
+            updated[idx(x+dir,y+1)]=1;
+          } else if (y < ROWS-1 && get(x-dir,y+1)===EMPTY) {
+            updated[i]=1;
+            set(x-dir,y+1,WATER); colorGrid[idx(x-dir,y+1)]=colorGrid[i];
+            set(x,y,EMPTY);
+            updated[idx(x-dir,y+1)]=1;
+          }
+        }
+      } else if (t === WIND) {
+        // Wind: move sideways + push sand/water
+        const dir = 1;
+        // Drift wind itself
+        if (Math.random() < 0.3 && get(x+dir,y)===EMPTY) {
+          updated[i]=1;
+          set(x+dir,y,WIND); colorGrid[idx(x+dir,y)]=colorGrid[i];
+          set(x,y,EMPTY);
+          updated[idx(x+dir,y)]=1;
+        } else if (Math.random() < 0.05 && y > 0 && get(x,y-1)===EMPTY) {
+          updated[i]=1;
+          set(x,y-1,WIND); colorGrid[idx(x,y-1)]=colorGrid[i];
+          set(x,y,EMPTY);
+          updated[idx(x,y-1)]=1;
+        } else if (Math.random() < 0.05 && y < ROWS-1 && get(x,y+1)===EMPTY) {
+          updated[i]=1;
+          set(x,y+1,WIND); colorGrid[idx(x,y+1)]=colorGrid[i];
+          set(x,y,EMPTY);
+          updated[idx(x,y+1)]=1;
+        } else if (Math.random() < 0.02) {
+          // Wind dissipates
+          updated[i]=1;
+          set(x,y,EMPTY);
+        } else {
+          // Push neighbors
+          if (get(x+1,y)===SAND || get(x+1,y)===WATER) {
+            if(get(x+2,y)===EMPTY){
+              const nc=colorGrid[idx(x+1,y)], nt=get(x+1,y);
+              set(x+2,y,nt); colorGrid[idx(x+2,y)]=nc;
+              set(x+1,y,WIND); colorGrid[idx(x+1,y)]=colorGrid[i];
+              set(x,y,EMPTY);
+              updated[i]=1;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Render
+function render() {
+  ctx.clearRect(0, 0, W, H);
+  // Background
+  ctx.fillStyle = '#1a2e1a';
+  ctx.fillRect(0,0,W,H);
+
+  let count = 0;
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const i = idx(x,y);
+      const t = grid[i];
+      if (t === EMPTY) continue;
+      count++;
+      const palette = COLORS[t];
+      ctx.fillStyle = palette[colorGrid[i] % palette.length];
+      ctx.fillRect(x*CELL, y*CELL, CELL, CELL);
+    }
+  }
+
+  // Cursor preview
+  if (isDrawing === false) {
+    const gx = Math.floor(mouseX / CELL);
+    const gy = Math.floor(mouseY / CELL);
+    ctx.beginPath();
+    ctx.arc(mouseX, mouseY, brushSize * CELL, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(180,230,180,0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+
+  document.getElementById('partCount').textContent = count;
+}
+
+function loop() {
+  step();
+  render();
+  requestAnimationFrame(loop);
+}
+
+// Input
+canvas.addEventListener('mousedown', e => {
+  isDrawing = true;
+  const r = canvas.getBoundingClientRect();
+  const x = Math.floor((e.clientX - r.left) / CELL);
+  const y = Math.floor((e.clientY - r.top) / CELL);
+  draw(x, y);
+});
+
+canvas.addEventListener('mousemove', e => {
+  const r = canvas.getBoundingClientRect();
+  mouseX = e.clientX - r.left;
+  mouseY = e.clientY - r.top;
+  if (isDrawing) {
+    const x = Math.floor(mouseX / CELL);
+    const y = Math.floor(mouseY / CELL);
+    draw(x, y);
+  }
+});
+
+canvas.addEventListener('mouseup', () => isDrawing = false);
+canvas.addEventListener('mouseleave', () => { isDrawing = false; });
+
+// Touch support
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  isDrawing = true;
+  const r = canvas.getBoundingClientRect();
+  const t = e.touches[0];
+  draw(Math.floor((t.clientX-r.left)/CELL), Math.floor((t.clientY-r.top)/CELL));
+}, {passive:false});
+
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const r = canvas.getBoundingClientRect();
+  const t = e.touches[0];
+  draw(Math.floor((t.clientX-r.left)/CELL), Math.floor((t.clientY-r.top)/CELL));
+}, {passive:false});
+
+canvas.addEventListener('touchend', () => isDrawing = false);
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (k==='s') setTool('sand');
+  if (k==='w') setTool('water');
+  if (k==='g') setTool('wind');
+  if (k==='r') setTool('wall');
+  if (k==='e') setTool('erase');
+  if (k===' ') { e.preventDefault(); togglePause(); }
+});
+
+loop();
+</script>
+</body>
+</html>
