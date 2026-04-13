@@ -3,627 +3,730 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌿 Sandbox</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
+<title>Sandbox</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg:        #f0f7f0;
-    --panel:     #e4f2e4;
-    --panel2:    #d5ebd5;
-    --accent:    #7dba7d;
-    --accent2:   #5aa05a;
-    --accent3:   #a8d8a8;
-    --text:      #2d4a2d;
-    --text-soft: #5a7a5a;
-    --border:    #b8d8b8;
-    --shadow:    0 4px 20px rgba(90,160,90,0.15);
-    --radius:    14px;
-  }
+:root {
+  --bg:     #0c0c11;
+  --panel:  #14141c;
+  --panel2: #1c1c28;
+  --border: #28283a;
+  --text:   #e0e0f0;
+  --soft:   #6060a0;
+  --r: 10px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  font-family: 'Space Grotesk', sans-serif;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 14px 16px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 980px;
+  margin-bottom: 12px;
+}
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(120deg, #c0c0ff 0%, #8080cc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.logo span {
+  font-size: 10px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 400;
+  letter-spacing: 2px;
+  -webkit-text-fill-color: var(--soft);
+  color: var(--soft);
+  margin-left: 6px;
+}
+.hbtns { display: flex; gap: 8px; }
+.hbtn {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font: 500 12px 'Space Grotesk', sans-serif;
+  color: var(--text);
+  cursor: pointer;
+  transition: all .15s;
+  display: flex; align-items: center; gap: 6px;
+}
+.hbtn:hover { border-color: #404060; background: var(--panel2); }
+.hbtn.paused { color: #f0a840; border-color: #503820; }
+.hbtn.danger { color: #e06060; border-color: #402020; }
+.hbtn.danger:hover { border-color: #803030; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+.main {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 980px;
+  align-items: flex-start;
+}
 
-  body {
-    background: var(--bg);
-    font-family: 'DM Sans', sans-serif;
-    color: var(--text);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
-    background-image: radial-gradient(circle at 20% 20%, #c8e8c8 0%, transparent 50%),
-                      radial-gradient(circle at 80% 80%, #b8ddb8 0%, transparent 50%);
-  }
+/* TOOL PANEL */
+.tools {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 86px;
+  flex-shrink: 0;
+}
+.sec {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--soft);
+  padding: 6px 6px 2px;
+}
+.tbtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  background: transparent;
+  font: 500 11px 'Space Grotesk', sans-serif;
+  color: var(--soft);
+  width: 100%;
+  transition: all .12s;
+  white-space: nowrap;
+}
+.tbtn:hover { background: var(--panel2); color: var(--text); }
+.tbtn.active {
+  background: var(--panel2);
+  color: var(--text);
+  border-color: var(--ac, #505090);
+}
+.dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.hr { height: 1px; background: var(--border); margin: 3px 0; }
 
-  header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-    width: 100%;
-    max-width: 900px;
-    justify-content: space-between;
-  }
+/* CANVAS */
+.cwrap {
+  position: relative;
+  border-radius: var(--r);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  cursor: crosshair;
+  flex: 1;
+  min-width: 0;
+}
+#sim { display: block; background: #08080e; }
+#ring {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.25);
+  transform: translate(-50%,-50%);
+  display: none;
+}
 
-  .title {
-    font-family: 'Playfair Display', serif;
-    font-size: 28px;
-    color: var(--accent2);
-    letter-spacing: -0.5px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+/* RIGHT PANEL */
+.rpanel {
+  min-width: 86px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 10px 10px;
+}
+.blbl {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--soft);
+  margin-bottom: 8px;
+}
+.prev {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 46px;
+  margin-bottom: 6px;
+}
+.pcirc {
+  border-radius: 50%;
+  background: var(--soft);
+  opacity: .6;
+  transition: all .15s;
+}
+input[type=range] {
+  -webkit-appearance: none;
+  width: 100%; height: 3px;
+  border-radius: 3px;
+  background: var(--border);
+  outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  background: var(--text);
+  cursor: pointer;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.08);
+}
+.sval {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--soft);
+  margin-top: 5px;
+}
+.keys {
+  font-size: 10px;
+  line-height: 2;
+  color: var(--soft);
+}
+.keys b { color: var(--text); }
 
-  .title span { font-size: 22px; }
-
-  .pause-btn {
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: var(--radius);
-    padding: 10px 22px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 2px 10px rgba(90,160,90,0.3);
-    transition: all 0.2s;
-    letter-spacing: 0.2px;
-  }
-
-  .pause-btn:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(90,160,90,0.35); }
-  .pause-btn.paused { background: #a8c890; }
-
-  .pause-icon { font-size: 16px; }
-
-  .main {
-    display: flex;
-    gap: 16px;
-    width: 100%;
-    max-width: 900px;
-    align-items: flex-start;
-  }
-
-  /* Toolbar */
-  .toolbar {
-    background: var(--panel);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    box-shadow: var(--shadow);
-    min-width: 90px;
-  }
-
-  .tool-section-label {
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--text-soft);
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    padding: 4px 6px 2px;
-  }
-
-  .tool-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 10px 8px;
-    border-radius: 10px;
-    border: 1.5px solid transparent;
-    cursor: pointer;
-    background: transparent;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--text-soft);
-    transition: all 0.15s;
-    width: 100%;
-  }
-
-  .tool-btn:hover { background: var(--panel2); color: var(--text); }
-  .tool-btn.active { background: white; border-color: var(--accent); color: var(--accent2); box-shadow: 0 2px 8px rgba(90,160,90,0.2); }
-
-  .tool-icon { font-size: 20px; line-height: 1; }
-
-  .divider { height: 1px; background: var(--border); margin: 4px 0; }
-
-  /* Canvas wrapper */
-  .canvas-wrap {
-    position: relative;
-    border-radius: var(--radius);
-    overflow: hidden;
-    box-shadow: var(--shadow);
-    border: 1.5px solid var(--border);
-    cursor: crosshair;
-    flex: 1;
-  }
-
-  canvas {
-    display: block;
-    background: #1a2e1a;
-  }
-
-  .canvas-overlay {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-
-  /* Size panel */
-  .size-panel {
-    background: var(--panel);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px 12px;
-    box-shadow: var(--shadow);
-    min-width: 90px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .size-label {
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--text-soft);
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-  }
-
-  .size-preview {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 50px;
-  }
-
-  .size-dot {
-    border-radius: 50%;
-    background: var(--accent);
-    transition: all 0.2s;
-  }
-
-  input[type=range] {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 4px;
-    border-radius: 4px;
-    background: var(--panel2);
-    outline: none;
-  }
-
-  input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: var(--accent);
-    cursor: pointer;
-    box-shadow: 0 1px 4px rgba(90,160,90,0.3);
-    transition: background 0.2s;
-  }
-
-  input[type=range]::-webkit-slider-thumb:hover { background: var(--accent2); }
-
-  .size-value {
-    font-size: 12px;
-    color: var(--text-soft);
-    text-align: center;
-    font-weight: 500;
-  }
-
-  .clear-btn {
-    background: white;
-    color: #c06060;
-    border: 1.5px solid #e0b0b0;
-    border-radius: 10px;
-    padding: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 11px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s;
-    text-align: center;
-    margin-top: 6px;
-  }
-
-  .clear-btn:hover { background: #fff0f0; border-color: #c06060; }
-
-  /* Status bar */
-  .status {
-    display: flex;
-    gap: 14px;
-    margin-top: 12px;
-    font-size: 11px;
-    color: var(--text-soft);
-    font-weight: 500;
-    align-items: center;
-  }
-
-  .status-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--accent);
-    display: inline-block;
-    animation: pulse 1.5s ease-in-out infinite;
-  }
-
-  .status-dot.paused { background: #c0a060; animation: none; }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
-  .particle-count { color: var(--accent2); font-weight: 600; }
+/* STATUS */
+.stat-bar {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--soft);
+  font-weight: 500;
+  align-items: center;
+  width: 100%;
+  max-width: 980px;
+  flex-wrap: wrap;
+}
+.pill {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.pill b { color: var(--text); }
+.led { width: 6px; height: 6px; border-radius: 50%; }
+.led.on { background: #40d860; box-shadow: 0 0 6px #40d860; animation: blink 2s ease infinite; }
+.led.off { background: #f0a840; }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:.3} }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="title"><span>🌿</span> Sandbox</div>
-  <button class="pause-btn" id="pauseBtn" onclick="togglePause()">
-    <span class="pause-icon">⏸</span> <span id="pauseLabel">Pause</span>
-  </button>
+  <div class="logo">SANDBOX <span>PARTICLE SIM</span></div>
+  <div class="hbtns">
+    <button class="hbtn danger" onclick="clearAll()">✕ Leeren</button>
+    <button class="hbtn" id="pbtn" onclick="togglePause()">⏸ Pause</button>
+  </div>
 </header>
 
 <div class="main">
-  <!-- Toolbar -->
-  <div class="toolbar">
-    <div class="tool-section-label">Werkzeug</div>
 
-    <button class="tool-btn active" id="tool-sand" onclick="setTool('sand')" title="Sand">
-      <span class="tool-icon">🟡</span>
-      Sand
+  <!-- TOOLS -->
+  <div class="tools">
+    <div class="sec">Basis</div>
+    <button class="tbtn active" id="tool-sand"  onclick="setTool('sand')"  style="--ac:#c8901a">
+      <div class="dot" style="background:#e8b84b"></div>Sand
     </button>
-    <button class="tool-btn" id="tool-water" onclick="setTool('water')" title="Wasser">
-      <span class="tool-icon">💧</span>
-      Wasser
+    <button class="tbtn"        id="tool-water" onclick="setTool('water')" style="--ac:#2888c8">
+      <div class="dot" style="background:#4aaae8"></div>Wasser
     </button>
-    <button class="tool-btn" id="tool-wind" onclick="setTool('wind')" title="Wind">
-      <span class="tool-icon">💨</span>
-      Wind
+    <button class="tbtn"        id="tool-wind"  onclick="setTool('wind')"  style="--ac:#409090">
+      <div class="dot" style="background:#60c8b0"></div>Wind
     </button>
-    <button class="tool-btn" id="tool-wall" onclick="setTool('wall')" title="Wand">
-      <span class="tool-icon">🪨</span>
-      Wand
+    <button class="tbtn"        id="tool-wall"  onclick="setTool('wall')"  style="--ac:#505090">
+      <div class="dot" style="background:#8080b0"></div>Wand
     </button>
 
-    <div class="divider"></div>
-    <div class="tool-section-label">Bearbeiten</div>
+    <div class="hr"></div>
+    <div class="sec">Spezial</div>
 
-    <button class="tool-btn" id="tool-erase" onclick="setTool('erase')" title="Radierer">
-      <span class="tool-icon">🧹</span>
-      Radier
+    <button class="tbtn" id="tool-slime" onclick="setTool('slime')" style="--ac:#30a010">
+      <div class="dot" style="background:#50d828"></div>Schleim
+    </button>
+    <button class="tbtn" id="tool-virus" onclick="setTool('virus')" style="--ac:#c01818">
+      <div class="dot" style="background:#e03030"></div>Virus
+    </button>
+    <button class="tbtn" id="tool-hole"  onclick="setTool('hole')"  style="--ac:#7010d8">
+      <div class="dot" style="background:#9030e8"></div>Loch
+    </button>
+
+    <div class="hr"></div>
+    <button class="tbtn" id="tool-erase" onclick="setTool('erase')" style="--ac:#404070">
+      <div class="dot" style="background:#505080"></div>Radier
     </button>
   </div>
 
-  <!-- Canvas -->
-  <div class="canvas-wrap">
-    <canvas id="sim" width="640" height="480"></canvas>
+  <!-- CANVAS -->
+  <div class="cwrap">
+    <canvas id="sim"></canvas>
+    <div id="ring"></div>
   </div>
 
-  <!-- Size panel -->
-  <div class="size-panel">
-    <div class="size-label">Größe</div>
-    <div class="size-preview">
-      <div class="size-dot" id="sizeDot" style="width:16px;height:16px;"></div>
+  <!-- RIGHT -->
+  <div class="rpanel">
+    <div class="box">
+      <div class="blbl">Pinsel</div>
+      <div class="prev"><div class="pcirc" id="pcirc"></div></div>
+      <input type="range" id="sslider" min="1" max="24" value="4" oninput="updSize(+this.value)">
+      <div class="sval" id="sval">4 px</div>
     </div>
-    <input type="range" id="brushSize" min="1" max="20" value="4" oninput="updateSize()">
-    <div class="size-value" id="sizeValue">4 px</div>
-    <button class="clear-btn" onclick="clearAll()">🗑 Löschen</button>
+    <div class="box">
+      <div class="blbl">Tasten</div>
+      <div class="keys">
+        <div><b>S</b> Sand</div>
+        <div><b>W</b> Wasser</div>
+        <div><b>G</b> Wind</div>
+        <div><b>R</b> Wand</div>
+        <div><b>L</b> Schleim</div>
+        <div><b>V</b> Virus</div>
+        <div><b>H</b> Loch</div>
+        <div><b>E</b> Radier</div>
+        <div><b>⎵</b> Pause</div>
+        <div><b>⇧scroll</b> Größe</div>
+      </div>
+    </div>
   </div>
+
 </div>
 
-<div class="status">
-  <span><span class="status-dot" id="statusDot"></span> <span id="statusText">Läuft</span></span>
-  <span>Partikel: <span class="particle-count" id="partCount">0</span></span>
-  <span id="currentTool">Werkzeug: Sand</span>
+<div class="stat-bar">
+  <div class="pill"><div class="led on" id="led"></div><span id="stxt">Läuft</span></div>
+  <div class="pill">Partikel: <b id="pcnt">0</b></div>
+  <div class="pill">FPS: <b id="fpsc">0</b></div>
+  <div class="pill" id="tlbl">Werkzeug: Sand</div>
 </div>
 
 <script>
-const canvas = document.getElementById('sim');
-const ctx = canvas.getContext('2d');
-const W = canvas.width;
-const H = canvas.height;
+// ── CONFIG ──────────────────────────────────────────────
 const CELL = 4;
-const COLS = Math.floor(W / CELL);
-const ROWS = Math.floor(H / CELL);
+let COLS, ROWS;
+let grid, colgrid, updated, vage;
 
-// Types
-const EMPTY = 0;
-const SAND  = 1;
-const WATER = 2;
-const WALL  = 3;
-const WIND  = 4;
+const EMPTY=0,SAND=1,WATER=2,WALL=3,WIND=4,SLIME=5,VIRUS=6,HOLE=7;
 
-// Colors
-const COLORS = {
-  [EMPTY]: null,
-  [SAND]:  ['#e8c97a','#d4b560','#f0d48a','#c8a848'],
-  [WATER]: ['#6ab4d8','#5aa0c8','#7ac4e8','#4e90b8'],
-  [WALL]:  ['#7a9a7a','#6a8a6a','#8aaa8a','#5a7a5a'],
-  [WIND]:  ['#c8e8c8','#b8d8b8','#d8f0d8','#a8c8a8'],
+// ABGR palettes (4 shades) — pre-computed for fast pixel writes
+function hexToABGR(h){
+  const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);
+  return (255<<24)|(b<<16)|(g<<8)|r;
+}
+const PAL = {
+  [SAND]:  ['#e8b84b','#d4a030','#f0c870','#bfa040'].map(hexToABGR),
+  [WATER]: ['#3898d8','#2880c0','#58b8f8','#1868a8'].map(hexToABGR),
+  [WALL]:  ['#6a6a98','#565680','#8080b0','#484870'].map(hexToABGR),
+  [WIND]:  ['#60c8b0','#40b098','#80d8c8','#309080'].map(hexToABGR),
+  [SLIME]: ['#50d828','#38b810','#70f840','#309018'].map(hexToABGR),
+  [VIRUS]: ['#e03030','#c01818','#f85050','#a01010'].map(hexToABGR),
+  [HOLE]:  ['#7820d0','#5808b0','#9840e8','#480898'].map(hexToABGR),
 };
+const BG = hexToABGR('#08080e');
 
-let grid = new Uint8Array(COLS * ROWS);
-let colorGrid = new Uint8Array(COLS * ROWS); // color variant per cell
-let updated = new Uint8Array(COLS * ROWS);
-
-let paused = false;
-let currentTool = 'sand';
+// ── STATE ────────────────────────────────────────────────
+let paused    = false;
+let tool      = 'sand';
 let brushSize = 4;
-let isDrawing = false;
-let mouseX = 0, mouseY = 0;
+let isDown    = false;
+let mx=0, my=0;
+let idata, pbuf;
+let fps=0, fpsF=0, fpsT=0, lt=performance.now();
+let shimmer=0;
 
-function idx(x, y) { return y * COLS + x; }
-function get(x, y) { return (x>=0&&x<COLS&&y>=0&&y<ROWS) ? grid[idx(x,y)] : WALL; }
-function set(x, y, t) { if(x>=0&&x<COLS&&y>=0&&y<ROWS){ grid[idx(x,y)]=t; colorGrid[idx(x,y)]=Math.floor(Math.random()*4); } }
+// ── CANVAS SETUP ────────────────────────────────────────
+const canvas = document.getElementById('sim');
+const ctx    = canvas.getContext('2d', {alpha:false});
+const ring   = document.getElementById('ring');
 
-function clearAll() {
-  grid.fill(0);
-  colorGrid.fill(0);
+function initCanvas(){
+  const maxW = Math.min(window.innerWidth-220, 740);
+  const maxH = Math.min(window.innerHeight-130, 540);
+  canvas.width  = Math.floor(maxW/CELL)*CELL;
+  canvas.height = Math.floor(maxH/CELL)*CELL;
+  COLS = canvas.width/CELL;
+  ROWS = canvas.height/CELL;
+  const N = COLS*ROWS;
+  grid    = new Uint8Array(N);
+  colgrid = new Uint8Array(N);
+  updated = new Uint8Array(N);
+  vage    = new Uint16Array(N);
+  idata   = ctx.createImageData(canvas.width, canvas.height);
+  pbuf    = new Uint32Array(idata.data.buffer);
 }
 
-function setTool(t) {
-  currentTool = t;
-  document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+// ── HELPERS ──────────────────────────────────────────────
+const idx   = (x,y)=>y*COLS+x;
+const inB   = (x,y)=>x>=0&&x<COLS&&y>=0&&y<ROWS;
+const get   = (x,y)=>inB(x,y)?grid[idx(x,y)]:WALL;
+const typeOf= (x,y)=>get(x,y);
+function put(x,y,t,c){
+  if(!inB(x,y))return;
+  const i=idx(x,y);
+  grid[i]=t;
+  colgrid[i]=c!==undefined?c:(Math.random()*4|0);
+}
+function swap(x1,y1,x2,y2){
+  if(!inB(x1,y1)||!inB(x2,y2))return;
+  const i=idx(x1,y1),j=idx(x2,y2);
+  let tmp=grid[i]; grid[i]=grid[j]; grid[j]=tmp;
+  tmp=colgrid[i]; colgrid[i]=colgrid[j]; colgrid[j]=tmp;
+  updated[i]=updated[j]=1;
+}
+
+function clearAll(){ grid.fill(0); vage.fill(0); colgrid.fill(0); }
+
+// ── UI ───────────────────────────────────────────────────
+function setTool(t){
+  tool=t;
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tool-'+t).classList.add('active');
-  const names = {sand:'Sand',water:'Wasser',wall:'Wand',wind:'Wind',erase:'Radierer'};
-  document.getElementById('currentTool').textContent = 'Werkzeug: ' + names[t];
+  const n={sand:'Sand',water:'Wasser',wall:'Wand',wind:'Wind',
+           slime:'Schleim',virus:'Virus',hole:'Schwarzes Loch',erase:'Radierer'};
+  document.getElementById('tlbl').textContent='Werkzeug: '+(n[t]||t);
 }
 
-function updateSize() {
-  brushSize = +document.getElementById('brushSize').value;
-  document.getElementById('sizeValue').textContent = brushSize + ' px';
-  const dot = document.getElementById('sizeDot');
-  const s = Math.max(8, brushSize * 3);
-  dot.style.width = s + 'px';
-  dot.style.height = s + 'px';
+function updSize(v){
+  brushSize=v;
+  document.getElementById('sval').textContent=v+' px';
+  const s=Math.max(8,v*3.2);
+  const c=document.getElementById('pcirc');
+  c.style.width=s+'px'; c.style.height=s+'px';
+  const r=brushSize*CELL;
+  ring.style.width=r*2+'px'; ring.style.height=r*2+'px';
 }
 
-function togglePause() {
-  paused = !paused;
-  const btn = document.getElementById('pauseBtn');
-  btn.classList.toggle('paused', paused);
-  document.getElementById('pauseLabel').textContent = paused ? 'Weiter' : 'Pause';
-  document.querySelector('.pause-icon').textContent = paused ? '▶' : '⏸';
-  document.getElementById('statusDot').className = 'status-dot' + (paused ? ' paused' : '');
-  document.getElementById('statusText').textContent = paused ? 'Pausiert' : 'Läuft';
+function togglePause(){
+  paused=!paused;
+  const b=document.getElementById('pbtn');
+  b.innerHTML=paused?'▶ Weiter':'⏸ Pause';
+  b.classList.toggle('paused',paused);
+  const l=document.getElementById('led');
+  l.className='led '+(paused?'off':'on');
+  document.getElementById('stxt').textContent=paused?'Pausiert':'Läuft';
 }
 
-function draw(cx, cy) {
-  const r = brushSize;
-  const type = currentTool === 'erase' ? EMPTY
-             : currentTool === 'sand'  ? SAND
-             : currentTool === 'water' ? WATER
-             : currentTool === 'wall'  ? WALL
-             : WIND;
-
-  for (let dy = -r; dy <= r; dy++) {
-    for (let dx = -r; dx <= r; dx++) {
-      if (dx*dx + dy*dy <= r*r) {
-        set(cx+dx, cy+dy, type);
-      }
-    }
+// ── DRAW ─────────────────────────────────────────────────
+function drawAt(cx,cy){
+  const T=tool==='erase'?EMPTY:tool==='sand'?SAND:tool==='water'?WATER
+         :tool==='wall'?WALL:tool==='wind'?WIND:tool==='slime'?SLIME
+         :tool==='virus'?VIRUS:HOLE;
+  const r=brushSize, r2=r*r;
+  for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){
+    if(dx*dx+dy*dy>r2) continue;
+    const nx=cx+dx, ny=cy+dy;
+    if(!inB(nx,ny)) continue;
+    if(T===EMPTY){ put(nx,ny,EMPTY); vage[idx(nx,ny)]=0; }
+    else put(nx,ny,T);
   }
 }
 
-// Simulation step
-function step() {
-  if (paused) return;
+// ── SIMULATION ───────────────────────────────────────────
+function step(){
+  if(paused) return;
   updated.fill(0);
 
-  for (let y = ROWS-1; y >= 0; y--) {
-    // Alternate left/right to avoid bias
-    const leftToRight = Math.random() < 0.5;
-    for (let xi = 0; xi < COLS; xi++) {
-      const x = leftToRight ? xi : COLS-1-xi;
-      const i = idx(x,y);
-      const t = grid[i];
-      if (updated[i]) continue;
+  // ── BLACK HOLES pull everything nearby ──
+  for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){
+    if(grid[idx(x,y)]!==HOLE) continue;
+    const rad=16;
+    for(let dy=-rad;dy<=rad;dy++)for(let dx=-rad;dx<=rad;dx++){
+      if(!dx&&!dy) continue;
+      const d2=dx*dx+dy*dy;
+      if(d2>rad*rad) continue;
+      const nx=x+dx,ny=y+dy;
+      if(!inB(nx,ny)) continue;
+      const ni=idx(nx,ny);
+      const nt=grid[ni];
+      if(nt===EMPTY||nt===HOLE) continue;
+      const prob=Math.min(0.55,1.8/d2);
+      if(Math.random()<prob){
+        const tx=x+Math.round(dx>0?-1:dx<0?1:0);
+        const ty=y+Math.round(dy>0?-1:dy<0?1:0);
+        if(inB(tx,ty)&&grid[idx(tx,ty)]===EMPTY){
+          put(tx,ty,nt,colgrid[ni]); put(nx,ny,EMPTY); vage[ni]=0;
+          updated[ni]=1;
+        } else {
+          put(nx,ny,EMPTY); vage[ni]=0;
+        }
+      }
+    }
+  }
 
-      if (t === SAND) {
-        // Fall down
-        if (y < ROWS-1 && get(x,y+1)===EMPTY) {
-          updated[i]=1;
-          set(x,y+1,SAND); colorGrid[idx(x,y+1)]=colorGrid[i];
-          set(x,y,EMPTY);
-          updated[idx(x,y+1)]=1;
-        } else if (y < ROWS-1 && get(x,y+1)===WATER) {
-          // Sand sinks through water
-          updated[i]=1;
-          let wc = colorGrid[idx(x,y+1)];
-          set(x,y+1,SAND); colorGrid[idx(x,y+1)]=colorGrid[i];
-          set(x,y,WATER); colorGrid[i]=wc;
-          updated[idx(x,y+1)]=1;
-        } else {
-          // Slide diagonally
-          const dir = Math.random()<0.5?1:-1;
-          if (y < ROWS-1 && get(x+dir,y+1)===EMPTY) {
-            updated[i]=1;
-            set(x+dir,y+1,SAND); colorGrid[idx(x+dir,y+1)]=colorGrid[i];
-            set(x,y,EMPTY);
-            updated[idx(x+dir,y+1)]=1;
-          } else if (y < ROWS-1 && get(x-dir,y+1)===EMPTY) {
-            updated[i]=1;
-            set(x-dir,y+1,SAND); colorGrid[idx(x-dir,y+1)]=colorGrid[i];
-            set(x,y,EMPTY);
-            updated[idx(x-dir,y+1)]=1;
-          }
+  // ── VIRUS spreading ──
+  for(let y=ROWS-1;y>=0;y--)for(let x=0;x<COLS;x++){
+    const i=idx(x,y);
+    if(grid[i]!==VIRUS||updated[i]) continue;
+    vage[i]++;
+    // Infect neighbor
+    if(Math.random()<0.05){
+      const d=[[1,0],[-1,0],[0,1],[0,-1]][Math.random()*4|0];
+      const nx=x+d[0],ny=y+d[1];
+      if(inB(nx,ny)){
+        const ni=idx(nx,ny), nt=grid[ni];
+        if(nt!==EMPTY&&nt!==VIRUS&&nt!==HOLE&&nt!==WALL){
+          put(nx,ny,VIRUS); vage[ni]=0; updated[ni]=1;
         }
-      } else if (t === WATER) {
-        // Fall down
-        if (y < ROWS-1 && get(x,y+1)===EMPTY) {
-          updated[i]=1;
-          set(x,y+1,WATER); colorGrid[idx(x,y+1)]=colorGrid[i];
-          set(x,y,EMPTY);
-          updated[idx(x,y+1)]=1;
-        } else {
-          // Spread sideways
-          const dir = Math.random()<0.5?1:-1;
-          if (get(x+dir,y)===EMPTY) {
-            updated[i]=1;
-            set(x+dir,y,WATER); colorGrid[idx(x+dir,y)]=colorGrid[i];
-            set(x,y,EMPTY);
-            updated[idx(x+dir,y)]=1;
-          } else if (get(x-dir,y)===EMPTY) {
-            updated[i]=1;
-            set(x-dir,y,WATER); colorGrid[idx(x-dir,y)]=colorGrid[i];
-            set(x,y,EMPTY);
-            updated[idx(x-dir,y)]=1;
-          } else if (y < ROWS-1 && get(x+dir,y+1)===EMPTY) {
-            updated[i]=1;
-            set(x+dir,y+1,WATER); colorGrid[idx(x+dir,y+1)]=colorGrid[i];
-            set(x,y,EMPTY);
-            updated[idx(x+dir,y+1)]=1;
-          } else if (y < ROWS-1 && get(x-dir,y+1)===EMPTY) {
-            updated[i]=1;
-            set(x-dir,y+1,WATER); colorGrid[idx(x-dir,y+1)]=colorGrid[i];
-            set(x,y,EMPTY);
-            updated[idx(x-dir,y+1)]=1;
-          }
-        }
-      } else if (t === WIND) {
-        // Wind: move sideways + push sand/water
-        const dir = 1;
-        // Drift wind itself
-        if (Math.random() < 0.3 && get(x+dir,y)===EMPTY) {
-          updated[i]=1;
-          set(x+dir,y,WIND); colorGrid[idx(x+dir,y)]=colorGrid[i];
-          set(x,y,EMPTY);
-          updated[idx(x+dir,y)]=1;
-        } else if (Math.random() < 0.05 && y > 0 && get(x,y-1)===EMPTY) {
-          updated[i]=1;
-          set(x,y-1,WIND); colorGrid[idx(x,y-1)]=colorGrid[i];
-          set(x,y,EMPTY);
-          updated[idx(x,y-1)]=1;
-        } else if (Math.random() < 0.05 && y < ROWS-1 && get(x,y+1)===EMPTY) {
-          updated[i]=1;
-          set(x,y+1,WIND); colorGrid[idx(x,y+1)]=colorGrid[i];
-          set(x,y,EMPTY);
-          updated[idx(x,y+1)]=1;
-        } else if (Math.random() < 0.02) {
-          // Wind dissipates
-          updated[i]=1;
-          set(x,y,EMPTY);
-        } else {
-          // Push neighbors
-          if (get(x+1,y)===SAND || get(x+1,y)===WATER) {
-            if(get(x+2,y)===EMPTY){
-              const nc=colorGrid[idx(x+1,y)], nt=get(x+1,y);
-              set(x+2,y,nt); colorGrid[idx(x+2,y)]=nc;
-              set(x+1,y,WIND); colorGrid[idx(x+1,y)]=colorGrid[i];
-              set(x,y,EMPTY);
-              updated[i]=1;
+      }
+    }
+    // Virus drips down slowly
+    if(y<ROWS-1&&grid[idx(x,y+1)]===EMPTY&&Math.random()<0.25){
+      put(x,y+1,VIRUS,colgrid[i]); put(x,y,EMPTY); vage[i]=0;
+      updated[i]=updated[idx(x,y+1)]=1;
+    }
+    // Very old virus can spontaneously spread
+    if(vage[i]>200&&Math.random()<0.002){
+      const dx2=Math.random()<0.5?1:-1;
+      if(inB(x+dx2,y)&&grid[idx(x+dx2,y)]===EMPTY){
+        put(x+dx2,y,VIRUS); vage[idx(x+dx2,y)]=0;
+      }
+    }
+  }
+
+  // ── MAIN PASS (bottom-up) ──
+  for(let y=ROWS-1;y>=0;y--){
+    const ltr=Math.random()<0.5;
+    for(let xi=0;xi<COLS;xi++){
+      const x=ltr?xi:COLS-1-xi;
+      const i=idx(x,y);
+      if(updated[i]) continue;
+      const t=grid[i];
+
+      // SAND
+      if(t===SAND){
+        if(y<ROWS-1){
+          const b=grid[idx(x,y+1)];
+          if(b===EMPTY||b===WIND){
+            put(x,y+1,SAND,colgrid[i]); put(x,y,EMPTY);
+            updated[i]=updated[idx(x,y+1)]=1;
+          } else if(b===WATER){
+            const wc=colgrid[idx(x,y+1)];
+            put(x,y+1,SAND,colgrid[i]); put(x,y,WATER,wc);
+            updated[i]=updated[idx(x,y+1)]=1;
+          } else {
+            const d=Math.random()<0.5?1:-1;
+            const A=grid[idx(x+d,y+1)],B=grid[idx(x-d,y+1)];
+            if(A===EMPTY||A===WIND){
+              put(x+d,y+1,SAND,colgrid[i]); put(x,y,EMPTY);
+              updated[i]=updated[idx(x+d,y+1)]=1;
+            } else if(B===EMPTY||B===WIND){
+              put(x-d,y+1,SAND,colgrid[i]); put(x,y,EMPTY);
+              updated[i]=updated[idx(x-d,y+1)]=1;
             }
           }
         }
       }
+
+      // WATER
+      else if(t===WATER){
+        if(y<ROWS-1&&(grid[idx(x,y+1)]===EMPTY||grid[idx(x,y+1)]===WIND)){
+          put(x,y+1,WATER,colgrid[i]); put(x,y,EMPTY);
+          updated[i]=updated[idx(x,y+1)]=1;
+        } else {
+          const d=Math.random()<0.5?1:-1;
+          let moved=false;
+          for(let s=1;s<=4&&!moved;s++){
+            if((get(x+d*s,y)===EMPTY||get(x+d*s,y)===WIND)&&inB(x+d*s,y)){
+              put(x+d*s,y,WATER,colgrid[i]); put(x,y,EMPTY);
+              updated[i]=updated[idx(x+d*s,y)]=1; moved=true;
+            } else if((get(x-d*s,y)===EMPTY||get(x-d*s,y)===WIND)&&inB(x-d*s,y)){
+              put(x-d*s,y,WATER,colgrid[i]); put(x,y,EMPTY);
+              updated[i]=updated[idx(x-d*s,y)]=1; moved=true;
+            } else break;
+          }
+          if(!moved&&y<ROWS-1){
+            const L=get(x+d,y+1),R=get(x-d,y+1);
+            if(L===EMPTY||L===WIND){ put(x+d,y+1,WATER,colgrid[i]); put(x,y,EMPTY); updated[i]=updated[idx(x+d,y+1)]=1; }
+            else if(R===EMPTY||R===WIND){ put(x-d,y+1,WATER,colgrid[i]); put(x,y,EMPTY); updated[i]=updated[idx(x-d,y+1)]=1; }
+          }
+        }
+      }
+
+      // WIND — drifts right, pushes things
+      else if(t===WIND){
+        const r2=Math.random();
+        if(r2<0.28&&inB(x+1,y)&&grid[idx(x+1,y)]===EMPTY){
+          put(x+1,y,WIND,colgrid[i]); put(x,y,EMPTY);
+          updated[i]=updated[idx(x+1,y)]=1;
+        } else if(r2<0.33&&y>0&&grid[idx(x,y-1)]===EMPTY){
+          put(x,y-1,WIND,colgrid[i]); put(x,y,EMPTY);
+          updated[i]=updated[idx(x,y-1)]=1;
+        } else if(r2<0.38&&y<ROWS-1&&grid[idx(x,y+1)]===EMPTY){
+          put(x,y+1,WIND,colgrid[i]); put(x,y,EMPTY);
+          updated[i]=updated[idx(x,y+1)]=1;
+        } else if(r2<0.04){ put(x,y,EMPTY); updated[i]=1; }
+        else {
+          const nb=grid[idx(x+1,y)];
+          if((nb===SAND||nb===WATER||nb===SLIME||nb===VIRUS)&&inB(x+2,y)&&grid[idx(x+2,y)]===EMPTY){
+            put(x+2,y,nb,colgrid[idx(x+1,y)]);
+            put(x+1,y,WIND,colgrid[i]); put(x,y,EMPTY);
+            updated[i]=updated[idx(x+1,y)]=updated[idx(x+2,y)]=1;
+          }
+        }
+      }
+
+      // SLIME — thick, slow, creeps
+      else if(t===SLIME){
+        if(y<ROWS-1){
+          const b=grid[idx(x,y+1)];
+          if(b===EMPTY&&Math.random()<0.35){
+            put(x,y+1,SLIME,colgrid[i]); put(x,y,EMPTY);
+            updated[i]=updated[idx(x,y+1)]=1;
+          } else if(b!==EMPTY&&b!==SLIME&&b!==WALL&&b!==HOLE&&Math.random()<0.006){
+            // Absorb — turn into slime
+            put(x,y+1,SLIME); updated[idx(x,y+1)]=1;
+          } else {
+            const d=Math.random()<0.5?1:-1;
+            if(inB(x+d,y+1)&&grid[idx(x+d,y+1)]===EMPTY&&Math.random()<0.25){
+              put(x+d,y+1,SLIME,colgrid[i]); put(x,y,EMPTY);
+              updated[i]=updated[idx(x+d,y+1)]=1;
+            } else if(inB(x+d,y)&&grid[idx(x+d,y)]===EMPTY&&Math.random()<0.08){
+              put(x+d,y,SLIME,colgrid[i]); put(x,y,EMPTY);
+              updated[i]=updated[idx(x+d,y)]=1;
+            }
+          }
+        }
+        // Creep expand
+        if(Math.random()<0.002){
+          const dirs=[[1,0],[-1,0],[0,-1]];
+          const [ddx,ddy]=dirs[Math.random()*3|0];
+          if(inB(x+ddx,y+ddy)&&grid[idx(x+ddx,y+ddy)]===EMPTY){
+            put(x+ddx,y+ddy,SLIME); updated[idx(x+ddx,y+ddy)]=1;
+          }
+        }
+      }
     }
   }
 }
 
-// Render
-function render() {
-  ctx.clearRect(0, 0, W, H);
-  // Background
-  ctx.fillStyle = '#1a2e1a';
-  ctx.fillRect(0,0,W,H);
+// ── RENDER ───────────────────────────────────────────────
+function render(){
+  pbuf.fill(BG);
+  shimmer=(shimmer+0.05)%1;
+  const sh=Math.floor(shimmer*20);
 
-  let count = 0;
-  for (let y = 0; y < ROWS; y++) {
-    for (let x = 0; x < COLS; x++) {
-      const i = idx(x,y);
-      const t = grid[i];
-      if (t === EMPTY) continue;
+  let count=0;
+  for(let y=0;y<ROWS;y++){
+    for(let x=0;x<COLS;x++){
+      const i=idx(x,y);
+      const t=grid[i];
+      if(!t) continue;
       count++;
-      const palette = COLORS[t];
-      ctx.fillStyle = palette[colorGrid[i] % palette.length];
-      ctx.fillRect(x*CELL, y*CELL, CELL, CELL);
+      const pal=PAL[t];
+      let c=pal[colgrid[i]%4];
+
+      // Visual effects
+      if(t===WATER&&((x*2+y+sh)%7===0)) c=pal[2];
+      if(t===SLIME&&((x*3+y*2+sh)%9===0)) c=pal[2];
+      if(t===VIRUS&&((x+y*3+sh)%5===0)) c=pal[0];
+      if(t===WIND &&Math.random()<0.15)   c=pal[2];
+      if(t===HOLE) {
+        const s=(x+y+sh)%4;
+        c=pal[s];
+      }
+
+      // Fill CELL block
+      for(let dy=0;dy<CELL;dy++){
+        const row=(y*CELL+dy)*canvas.width+x*CELL;
+        for(let dx=0;dx<CELL;dx++) pbuf[row+dx]=c;
+      }
     }
   }
 
-  // Cursor preview
-  if (isDrawing === false) {
-    const gx = Math.floor(mouseX / CELL);
-    const gy = Math.floor(mouseY / CELL);
-    ctx.beginPath();
-    ctx.arc(mouseX, mouseY, brushSize * CELL, 0, Math.PI*2);
-    ctx.strokeStyle = 'rgba(180,230,180,0.5)';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-  }
-
-  document.getElementById('partCount').textContent = count;
+  ctx.putImageData(idata,0,0);
+  document.getElementById('pcnt').textContent=count;
 }
 
-function loop() {
-  step();
-  render();
+// ── LOOP ─────────────────────────────────────────────────
+function loop(ts){
+  const dt=ts-lt; lt=ts;
+  fpsF++; fpsT+=dt;
+  if(fpsT>=500){ fps=Math.round(fpsF*1000/fpsT); fpsF=0; fpsT=0; document.getElementById('fpsc').textContent=fps; }
+  step(); render();
   requestAnimationFrame(loop);
 }
 
-// Input
-canvas.addEventListener('mousedown', e => {
-  isDrawing = true;
-  const r = canvas.getBoundingClientRect();
-  const x = Math.floor((e.clientX - r.left) / CELL);
-  const y = Math.floor((e.clientY - r.top) / CELL);
-  draw(x, y);
+// ── INPUT ────────────────────────────────────────────────
+function cellOf(e){
+  const r=canvas.getBoundingClientRect();
+  return [Math.floor((e.clientX-r.left)/CELL), Math.floor((e.clientY-r.top)/CELL)];
+}
+canvas.addEventListener('mousedown',e=>{ isDown=true; drawAt(...cellOf(e)); });
+canvas.addEventListener('mousemove',e=>{
+  const r=canvas.getBoundingClientRect();
+  mx=e.clientX-r.left; my=e.clientY-r.top;
+  ring.style.display='block';
+  ring.style.left=mx+'px'; ring.style.top=my+'px';
+  if(isDown) drawAt(...cellOf(e));
 });
-
-canvas.addEventListener('mousemove', e => {
-  const r = canvas.getBoundingClientRect();
-  mouseX = e.clientX - r.left;
-  mouseY = e.clientY - r.top;
-  if (isDrawing) {
-    const x = Math.floor(mouseX / CELL);
-    const y = Math.floor(mouseY / CELL);
-    draw(x, y);
-  }
-});
-
-canvas.addEventListener('mouseup', () => isDrawing = false);
-canvas.addEventListener('mouseleave', () => { isDrawing = false; });
-
-// Touch support
-canvas.addEventListener('touchstart', e => {
+canvas.addEventListener('mouseup',  ()=>isDown=false);
+canvas.addEventListener('mouseleave',()=>{ isDown=false; ring.style.display='none'; });
+canvas.addEventListener('wheel',e=>{
   e.preventDefault();
-  isDrawing = true;
-  const r = canvas.getBoundingClientRect();
-  const t = e.touches[0];
-  draw(Math.floor((t.clientX-r.left)/CELL), Math.floor((t.clientY-r.top)/CELL));
-}, {passive:false});
+  const v=Math.max(1,Math.min(24,brushSize-(e.deltaY>0?1:-1)));
+  document.getElementById('sslider').value=v;
+  updSize(v);
+},{passive:false});
 
-canvas.addEventListener('touchmove', e => {
+canvas.addEventListener('touchstart',e=>{
+  e.preventDefault(); isDown=true;
+  const r=canvas.getBoundingClientRect(), t=e.touches[0];
+  drawAt(Math.floor((t.clientX-r.left)/CELL),Math.floor((t.clientY-r.top)/CELL));
+},{passive:false});
+canvas.addEventListener('touchmove',e=>{
   e.preventDefault();
-  const r = canvas.getBoundingClientRect();
-  const t = e.touches[0];
-  draw(Math.floor((t.clientX-r.left)/CELL), Math.floor((t.clientY-r.top)/CELL));
-}, {passive:false});
+  const r=canvas.getBoundingClientRect(), t=e.touches[0];
+  drawAt(Math.floor((t.clientX-r.left)/CELL),Math.floor((t.clientY-r.top)/CELL));
+},{passive:false});
+canvas.addEventListener('touchend',()=>isDown=false);
 
-canvas.addEventListener('touchend', () => isDrawing = false);
-
-// Keyboard shortcuts
-document.addEventListener('keydown', e => {
-  const k = e.key.toLowerCase();
-  if (k==='s') setTool('sand');
-  if (k==='w') setTool('water');
-  if (k==='g') setTool('wind');
-  if (k==='r') setTool('wall');
-  if (k==='e') setTool('erase');
-  if (k===' ') { e.preventDefault(); togglePause(); }
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT') return;
+  const k=e.key.toLowerCase();
+  if(k==='s') setTool('sand');
+  else if(k==='w') setTool('water');
+  else if(k==='g') setTool('wind');
+  else if(k==='r') setTool('wall');
+  else if(k==='l') setTool('slime');
+  else if(k==='v') setTool('virus');
+  else if(k==='h') setTool('hole');
+  else if(k==='e') setTool('erase');
+  else if(k===' '){ e.preventDefault(); togglePause(); }
 });
 
-loop();
+// ── INIT ─────────────────────────────────────────────────
+initCanvas();
+setTool('sand');
+updSize(4);
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>
