@@ -3,543 +3,414 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sandbox Pro — Powder Simulator</title>
+<title>Sandbox</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
-  :root {
-    --bg: #080810;
-    --bg2: #0f0f1a;
-    --panel: #131320;
-    --panel2: #1a1a2a;
-    --border: #252538;
-    --accent: #00e5ff;
-    --accent2: #ff00aa;
-    --virus: #c030ff;
-    --text: #e0e0f0;
-    --muted: #7070a0;
-    --hover: #20202e;
-  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; }
-  body {
-    background: radial-gradient(ellipse at top, #12122a 0%, var(--bg) 60%);
-    color: var(--text);
-    font-family: 'Rajdhani', system-ui, sans-serif;
+  html, body { height: 100%; font-family: system-ui, sans-serif; background: #f5f5f5; color: #222; user-select: none; }
+
+  body { display: flex; height: 100vh; overflow: hidden; }
+
+  /* ── LEFT PANEL ── */
+  #panel {
+    width: 180px;
+    min-width: 180px;
+    background: #fff;
+    border-right: 1px solid #ddd;
     display: flex;
     flex-direction: column;
-    height: 100vh;
     overflow: hidden;
-    user-select: none;
   }
-  header {
-    padding: 10px 18px;
-    background: linear-gradient(90deg, var(--panel) 0%, var(--panel2) 100%);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border);
-    box-shadow: 0 2px 14px rgba(0,0,0,0.5);
-    flex-shrink: 0;
+
+  #panel-top {
+    padding: 10px 10px 6px;
+    border-bottom: 1px solid #eee;
   }
-  h1 {
-    font-size: 1.4rem;
-    font-family: 'Share Tech Mono', monospace;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: 3px;
+  #panel-top h1 {
+    font-size: 0.95rem;
     font-weight: 700;
+    letter-spacing: 1px;
+    color: #111;
+    margin-bottom: 8px;
   }
-  .controls { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-  button {
-    background: var(--panel2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 7px 13px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.82rem;
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    transition: all 0.15s;
+
+  /* brush size */
+  .brush-row {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.72rem; color: #666;
   }
-  button:hover { background: var(--hover); border-color: var(--accent); transform: translateY(-1px); }
-  button:active { transform: translateY(0); }
-  button.active {
-    background: linear-gradient(135deg, var(--accent), #0099cc);
-    color: #000; border-color: var(--accent);
-    box-shadow: 0 0 14px rgba(0,229,255,0.4);
+  .brush-row input { flex: 1; accent-color: #555; }
+  .brush-row span { font-weight: 700; color: #222; min-width: 14px; }
+
+  /* top buttons */
+  .top-btns { display: flex; gap: 4px; margin-top: 8px; }
+  .top-btns button {
+    flex: 1; padding: 5px 0;
+    background: #f0f0f0; border: 1px solid #ddd;
+    border-radius: 4px; font-size: 0.7rem;
+    cursor: pointer; color: #333; font-weight: 600;
+    transition: background .12s;
   }
-  main { flex: 1; display: flex; overflow: hidden; min-height: 0; }
-  #canvas-container {
-    flex: 1; display: flex;
-    justify-content: center; align-items: center;
-    background: #040408;
-    position: relative; padding: 14px; min-width: 0;
-  }
-  canvas {
-    background: #000;
-    box-shadow: 0 0 50px rgba(0,229,255,0.1), 0 0 100px rgba(0,0,0,0.7);
-    image-rendering: pixelated; image-rendering: crisp-edges;
-    border: 1px solid var(--border); border-radius: 3px;
-    cursor: crosshair; touch-action: none;
-  }
-  .hud {
-    position: absolute; top: 22px; left: 22px;
-    background: rgba(0,0,0,0.75); backdrop-filter: blur(10px);
-    padding: 8px 14px; border-radius: 6px;
-    font-size: 0.72rem; color: var(--muted);
-    border: 1px solid var(--border); pointer-events: none;
-    font-family: 'Share Tech Mono', monospace; line-height: 1.7;
-  }
-  .hud span { color: var(--accent); font-weight: 700; }
-  .hud .vspan { color: var(--virus); }
-  .current-mat {
-    position: absolute; bottom: 22px; left: 22px;
-    background: rgba(0,0,0,0.75); backdrop-filter: blur(10px);
-    padding: 9px 15px; border-radius: 6px;
-    font-size: 0.88rem; border: 1px solid var(--border);
-    pointer-events: none; display: flex; align-items: center; gap: 10px; font-weight: 600;
-  }
-  .current-mat .dot { width: 16px; height: 16px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.25); }
-  #virus-alert {
-    position: absolute; top: 22px; right: 22px;
-    background: rgba(192,48,255,0.12); backdrop-filter: blur(10px);
-    padding: 8px 14px; border-radius: 6px; font-size: 0.78rem;
-    border: 1px solid rgba(192,48,255,0.5); pointer-events: none; color: #e070ff;
-    font-family: 'Share Tech Mono', monospace; display: none;
-    animation: virusPulse 1s ease-in-out infinite;
-  }
-  @keyframes virusPulse {
-    0%,100% { border-color: rgba(192,48,255,0.4); box-shadow: 0 0 8px rgba(192,48,255,0.2); }
-    50% { border-color: rgba(192,48,255,0.9); box-shadow: 0 0 22px rgba(192,48,255,0.55); }
-  }
-  .sidebar {
-    width: 300px; background: var(--panel);
-    border-left: 1px solid var(--border);
-    display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0;
-  }
-  .tabs {
-    display: flex; background: var(--bg2);
-    border-bottom: 1px solid var(--border); overflow-x: auto; flex-wrap: wrap;
-    scrollbar-width: thin;
+  .top-btns button:hover { background: #e0e0e0; }
+
+  /* tabs */
+  #tabs {
+    display: flex; flex-wrap: wrap;
+    padding: 6px 6px 0;
+    gap: 3px;
   }
   .tab {
-    padding: 10px 12px; background: transparent;
-    border: none; border-bottom: 2px solid transparent;
-    color: var(--muted); font-size: 0.78rem;
-    font-family: 'Rajdhani', sans-serif; font-weight: 700;
-    cursor: pointer; white-space: nowrap; transition: all 0.15s; border-radius: 0;
+    padding: 4px 7px;
+    background: #f0f0f0; border: 1px solid #ddd;
+    border-radius: 4px; font-size: 0.68rem;
+    cursor: pointer; color: #555; font-weight: 600;
+    transition: all .12s; line-height: 1.3;
   }
-  .tab:hover { color: var(--text); background: rgba(255,255,255,0.03); transform: none; }
-  .tab.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(0,229,255,0.04); }
-  .tab-content {
-    flex: 1; overflow-y: auto; padding: 12px;
-    display: flex; flex-direction: column; gap: 12px;
+  .tab:hover { background: #e8e8e8; }
+  .tab.active { background: #222; color: #fff; border-color: #222; }
+
+  /* material list */
+  #mat-list {
+    flex: 1; overflow-y: auto;
+    padding: 6px;
+    display: flex; flex-direction: column; gap: 2px;
   }
-  .tab-content::-webkit-scrollbar { width: 6px; }
-  .tab-content::-webkit-scrollbar-track { background: var(--bg2); }
-  .tab-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-  .mat-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 7px; }
+  #mat-list::-webkit-scrollbar { width: 4px; }
+  #mat-list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
+
   .mat-btn {
-    background: var(--panel2); border: 1px solid var(--border);
-    color: var(--text); padding: 9px 8px; font-size: 0.8rem;
-    font-family: 'Rajdhani', sans-serif; font-weight: 600;
-    border-radius: 5px; cursor: pointer; text-align: left;
-    transition: all 0.15s; display: flex; align-items: center; gap: 7px; min-height: 40px;
+    display: flex; align-items: center; gap: 7px;
+    padding: 5px 7px;
+    background: transparent; border: 1px solid transparent;
+    border-radius: 4px; cursor: pointer; text-align: left;
+    font-size: 0.78rem; color: #333; font-weight: 500;
+    transition: all .1s; width: 100%;
   }
-  .mat-btn:hover { background: var(--hover); border-color: var(--accent); transform: translateX(2px); }
-  .mat-btn.active { background: linear-gradient(135deg,rgba(0,229,255,0.15),rgba(0,153,204,0.08)); border-color: var(--accent); box-shadow: 0 0 10px rgba(0,229,255,0.15); }
-  .mat-btn.vbtn:hover { border-color: var(--virus); }
-  .mat-btn.vbtn.active { background: linear-gradient(135deg,rgba(192,48,255,0.2),rgba(140,20,200,0.1)); border-color: var(--virus); box-shadow: 0 0 12px rgba(192,48,255,0.3); }
-  .mat-btn .swatch { width: 18px; height: 18px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.15); flex-shrink: 0; }
-  .section { background: var(--bg2); padding: 11px; border-radius: 7px; border: 1px solid var(--border); }
-  .section h3 { font-size: 0.72rem; margin-bottom: 9px; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; font-family: 'Share Tech Mono', monospace; }
-  .section h3.vhead { color: var(--virus); }
-  .slider-group { display: flex; flex-direction: column; gap: 5px; }
-  .slider-group label { font-size: 0.8rem; color: var(--muted); display: flex; justify-content: space-between; font-weight: 600; }
-  .slider-group label span { color: var(--accent); font-weight: 700; }
-  input[type="range"] { width: 100%; accent-color: var(--accent); height: 5px; }
-  .info-text { font-size: 0.76rem; color: var(--muted); line-height: 1.65; }
-  .info-text kbd { background: var(--panel2); padding: 1px 5px; border-radius: 3px; border: 1px solid var(--border); font-family: 'Share Tech Mono',monospace; font-size: 0.7rem; color: var(--accent); }
-  .virus-info {
-    background: linear-gradient(135deg,rgba(192,48,255,0.08),rgba(100,10,140,0.05));
-    border: 1px solid rgba(192,48,255,0.3); border-radius: 7px; padding: 11px;
-    font-size: 0.76rem; line-height: 1.75; color: #cc80ff;
+  .mat-btn:hover { background: #f0f0f0; border-color: #ddd; }
+  .mat-btn.active { background: #222; color: #fff; border-color: #222; }
+  .mat-btn .sw {
+    width: 14px; height: 14px; border-radius: 3px;
+    border: 1px solid rgba(0,0,0,0.15); flex-shrink: 0;
   }
-  .virus-info strong { color: #e060ff; font-weight: 700; }
-  .shortcuts-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 4px; font-size: 0.75rem; }
-  .sc { display: flex; align-items: center; gap: 6px; color: var(--muted); }
-  .sc kbd { background: var(--panel2); padding: 2px 6px; border-radius: 3px; border: 1px solid var(--border); font-family: 'Share Tech Mono',monospace; font-size: 0.68rem; color: var(--accent); min-width: 22px; text-align: center; }
-  @media (max-width: 900px) {
-    main { flex-direction: column; }
-    .sidebar { width: 100%; height: 42%; border-left: none; border-top: 1px solid var(--border); }
-    #canvas-container { padding: 8px; }
-    header { padding: 7px 10px; }
-    h1 { font-size: 1rem; letter-spacing: 2px; }
-    .controls button { padding: 5px 8px; font-size: 0.73rem; }
+
+  /* current material indicator at bottom */
+  #cur {
+    padding: 8px 10px;
+    border-top: 1px solid #eee;
+    font-size: 0.72rem; color: #666;
+    display: flex; align-items: center; gap: 6px;
+  }
+  #cur .sw { width: 12px; height: 12px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.15); }
+  #cur-name { font-weight: 600; color: #222; }
+
+  /* ── RIGHT: CANVAS ── */
+  #right {
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+    background: #e8e8e8;
+    position: relative;
+  }
+  canvas {
+    display: block;
+    width: 100%; height: 100%;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    cursor: crosshair;
+    touch-action: none;
+  }
+
+  /* small hud overlay on canvas */
+  #hud {
+    position: absolute; top: 10px; right: 12px;
+    background: rgba(255,255,255,0.85);
+    border: 1px solid #ddd; border-radius: 4px;
+    padding: 4px 10px; font-size: 0.68rem; color: #555;
+    pointer-events: none; line-height: 1.8;
+  }
+  #hud b { color: #111; }
+  #hud .vc { color: #9900cc; font-weight: 700; }
+
+  #virus-alert {
+    position: absolute; top: 10px; left: 10px;
+    background: rgba(180,0,255,0.1);
+    border: 1px solid rgba(180,0,255,0.5);
+    border-radius: 4px; padding: 4px 10px;
+    font-size: 0.68rem; color: #9900cc; font-weight: 700;
+    pointer-events: none; display: none;
+    animation: vp .9s ease-in-out infinite;
+  }
+  @keyframes vp {
+    0%,100% { opacity: .7; } 50% { opacity: 1; }
+  }
+
+  @media (max-width: 640px) {
+    body { flex-direction: column; }
+    #panel { width: 100%; min-width: unset; height: 160px; border-right: none; border-bottom: 1px solid #ddd; flex-direction: row; flex-wrap: wrap; overflow: hidden; }
+    #panel-top { border-bottom: none; border-right: 1px solid #eee; flex-shrink: 0; }
+    #tabs { padding: 4px; border-bottom: 1px solid #eee; width: 100%; }
+    #mat-list { flex-direction: row; flex-wrap: wrap; }
+    .mat-btn { width: auto; }
   }
 </style>
 </head>
 <body>
-<header>
-  <h1>⚡ SANDBOX PRO</h1>
-  <div class="controls">
-    <button id="btn-pause">⏸ Pause</button>
-    <button id="btn-clear">✕ Leeren</button>
-    <button id="btn-save">💾 Save</button>
-    <button id="btn-load">📂 Load</button>
+
+<div id="panel">
+  <div id="panel-top">
+    <h1>⚡ Sandbox</h1>
+    <div class="brush-row">
+      <span>✏</span>
+      <input type="range" id="brush-size" min="1" max="30" value="6">
+      <span id="brush-val">6</span>
+    </div>
+    <div class="top-btns">
+      <button id="btn-pause">⏸</button>
+      <button id="btn-clear">✕</button>
+      <button id="btn-save">💾</button>
+      <button id="btn-load">📂</button>
+    </div>
   </div>
-</header>
-<main>
-  <div id="canvas-container">
-    <canvas id="sim"></canvas>
-    <div class="hud">
-      Partikel: <span id="hud-p">0</span> ·
-      FPS: <span id="hud-fps">0</span> ·
-      💥 <span id="hud-ex">0</span> ·
-      🦠 <span class="vspan" id="hud-v">0</span>
-    </div>
-    <div class="current-mat">
-      <div class="dot" id="cur-dot"></div>
-      <span id="cur-name">Sand</span>
-    </div>
-    <div id="virus-alert">⚠ VIRUS AUSBRUCH ⚠</div>
+
+  <div id="tabs"></div>
+  <div id="mat-list"></div>
+
+  <div id="cur">
+    <div class="sw" id="cur-dot"></div>
+    <span id="cur-name">Sand</span>
   </div>
-  <aside class="sidebar">
-    <div class="tabs" id="tabs"></div>
-    <div class="tab-content">
-      <div class="section">
-        <h3>Materialien</h3>
-        <div class="mat-grid" id="mat-grid"></div>
-      </div>
-      <div class="section" id="virus-panel" style="display:none">
-        <h3 class="vhead">🦠 VIRUS — WARNUNG</h3>
-        <div class="virus-info">
-          <strong>Verwandelt ALLES</strong> außer Luft &amp; Wände.<br><br>
-          Infizierte Zellen lassen <strong>Tentakel wachsen</strong> — die sich verzweigen, winden und weiter infizieren.<br><br>
-          Nach einiger Zeit <strong>EXPLODIERT</strong> der Virus und schleudert Sporen durch die Luft!<br><br>
-          ☣ Einmal gestartet kaum zu stoppen.
-        </div>
-      </div>
-      <div class="section">
-        <h3>Werkzeug</h3>
-        <div class="slider-group">
-          <label>Pinselgröße <span id="brush-val">6</span></label>
-          <input type="range" id="brush-size" min="1" max="30" value="6">
-        </div>
-      </div>
-      <div class="section">
-        <h3>Tastaturbefehle</h3>
-        <div class="shortcuts-grid" id="shortcuts"></div>
-      </div>
-      <div class="section">
-        <h3>Reaktionen</h3>
-        <div class="info-text">
-          💧+🌋→Stein · 🔥+Öl→Explosion · Pflanze wächst auf Wasser ·
-          Säure frisst alles · Schießpulver+Funken→💥 ·
-          🦠 Virus infiziert alles, Tentakel wachsen &amp; explodieren
-        </div>
-      </div>
-    </div>
-  </aside>
-</main>
+</div>
+
+<div id="right">
+  <canvas id="sim"></canvas>
+  <div id="hud">
+    FPS <b id="hud-fps">0</b> &nbsp; Partikel <b id="hud-p">0</b> &nbsp; 💥<b id="hud-ex">0</b> &nbsp; 🦠<span class="vc" id="hud-v">0</span>
+  </div>
+  <div id="virus-alert" id="va">⚠ VIRUS</div>
+</div>
 
 <script>
 // ================================================================
-//  SANDBOX PRO v2 — Falling Sand + Virus Overhaul
+//  SANDBOX — simple UI
 // ================================================================
 const canvas = document.getElementById('sim');
 const ctx    = canvas.getContext('2d', { alpha: false });
 
-let WIDTH = 400, HEIGHT = 280;
-let imageData, buf32, grid, moved;
-let tentacleDir;  // Uint8Array — direction 0-7 for TENTACLE cells
-let virusTimer;   // Uint16Array — age for VIRUS / TENTACLE cells
+let WIDTH = 1, HEIGHT = 1;
+let imageData, buf32, grid, moved, tentacleDir, virusTimer;
 
-// 8 directions: N NE E SE S SW W NW
-const DX = [0, 1, 1, 1, 0,-1,-1,-1];
-const DY = [-1,-1, 0, 1, 1, 1, 0,-1];
+const DX = [0,1,1,1,0,-1,-1,-1];
+const DY = [-1,-1,0,1,1,1,0,-1];
 
-function allocArrays(w, h) {
-  const n = w * h;
-  imageData    = ctx.createImageData(w, h);
-  buf32        = new Uint32Array(imageData.data.buffer);
-  grid         = new Uint8Array(n);
-  moved        = new Uint8Array(n);
-  tentacleDir  = new Uint8Array(n);
-  virusTimer   = new Uint16Array(n);
+function alloc(w,h){
+  const n=w*h;
+  imageData=ctx.createImageData(w,h);
+  buf32=new Uint32Array(imageData.data.buffer);
+  grid=new Uint8Array(n); moved=new Uint8Array(n);
+  tentacleDir=new Uint8Array(n); virusTimer=new Uint16Array(n);
 }
 
-function resizeCanvas() {
-  const cont = document.getElementById('canvas-container');
-  const r    = cont.getBoundingClientRect();
-  const aW   = r.width  - 28, aH = r.height - 28;
-  const ratio = 16 / 11;
-  let cW = aW, cH = aW / ratio;
-  if (cH > aH) { cH = aH; cW = aH * ratio; }
-  canvas.style.width  = cW + 'px';
-  canvas.style.height = cH + 'px';
-
-  const nW = Math.max(200, Math.min(520, Math.floor(cW / 3)));
-  const nH = Math.floor(nW / ratio);
-  if (nW !== WIDTH || nH !== HEIGHT) {
-    const og = grid, otd = tentacleDir, ovt = virusTimer;
-    const oW = WIDTH, oH = HEIGHT;
-    WIDTH = nW; HEIGHT = nH;
-    canvas.width = nW; canvas.height = nH;
-    allocArrays(nW, nH);
-    if (og) {
-      const ox = Math.floor((nW - oW) / 2);
-      const oy = Math.floor((nH - oH) / 2);
-      for (let y = 0; y < oH; y++) {
-        for (let x = 0; x < oW; x++) {
-          const nx = x+ox, ny = y+oy;
-          if (nx>=0&&nx<nW&&ny>=0&&ny<nH) {
-            const ni=ny*nW+nx, oi=y*oW+x;
-            grid[ni]=og[oi]; tentacleDir[ni]=otd[oi]; virusTimer[ni]=ovt[oi];
-          }
-        }
+function resize(){
+  const right=document.getElementById('right');
+  const r=right.getBoundingClientRect();
+  const w=r.width, h=r.height;
+  const nW=Math.max(100,Math.floor(w/3));
+  const nH=Math.max(60, Math.floor(h/3));
+  if(nW===WIDTH&&nH===HEIGHT) return;
+  const og=grid,otd=tentacleDir,ovt=virusTimer,oW=WIDTH,oH=HEIGHT;
+  WIDTH=nW; HEIGHT=nH;
+  canvas.width=nW; canvas.height=nH;
+  alloc(nW,nH);
+  if(og){
+    const ox=Math.floor((nW-oW)/2), oy=Math.floor((nH-oH)/2);
+    for(let y=0;y<oH;y++) for(let x=0;x<oW;x++){
+      const nx=x+ox,ny=y+oy;
+      if(nx>=0&&nx<nW&&ny>=0&&ny<nH){
+        const ni=ny*nW+nx,oi=y*oW+x;
+        grid[ni]=og[oi];tentacleDir[ni]=otd[oi];virusTimer[ni]=ovt[oi];
       }
     }
   }
 }
 
-// ── color packing (little-endian ABGR) ──────────────────────
 function col(r,g,b){ return 0xff000000|((b&0xff)<<16)|((g&0xff)<<8)|(r&0xff); }
 
-// ================================================================
-//  MATERIAL IDs
-// ================================================================
-const M = {
-  EMPTY:0, SAND:1, STONE:2, WOOD:3, WALL:4, ICE:5, SALT:6,
-  DIRT:7, SNOW:8, GUNPOW:9, GLASS:10, METAL:11, ASH:12,
-  WATER:20, LAVA:21, OIL:22, ACID:23, SLIME:24,
-  MERCURY:25, HONEY:26, BLOOD:27,
-  STEAM:40, SMOKE:41, GAS:42, TOXIC:43,
-  FIRE:60, PLASMA:61, SPARK:62, EMBER:63,
-  PLANT:80, SEED:81, VIRUS:82, FUNGUS:83, TENTACLE:84,
-  BHOLE:100, SOURCE_W:101, SOURCE_L:102,
-  TNT:120, NUKE:121, FUSE:122, C4:123,
+// ── MATERIALS ──
+const M={
+  EMPTY:0,SAND:1,STONE:2,WOOD:3,WALL:4,ICE:5,SALT:6,DIRT:7,
+  SNOW:8,GUNPOW:9,GLASS:10,METAL:11,ASH:12,
+  WATER:20,LAVA:21,OIL:22,ACID:23,SLIME:24,MERCURY:25,HONEY:26,BLOOD:27,
+  STEAM:40,SMOKE:41,GAS:42,TOXIC:43,
+  FIRE:60,PLASMA:61,SPARK:62,EMBER:63,
+  PLANT:80,SEED:81,VIRUS:82,FUNGUS:83,TENTACLE:84,
+  BHOLE:100,SOURCE_W:101,SOURCE_L:102,
+  TNT:120,NUKE:121,FUSE:122,C4:123,
 };
 
-const TYPES = new Array(256).fill(null);
-function def(id,name,c,cat,e={}) { TYPES[id]={id,name,color:c,cat,...e}; }
+const T=new Array(256).fill(null);
+function def(id,nm,c,cat){ T[id]={id,nm,color:c,cat}; }
+def(M.EMPTY,   'Leer',          col(0,0,0),       'special');
+def(M.SAND,    'Sand',          col(228,198,108),  'powder');
+def(M.STONE,   'Stein',         col(115,115,125),  'wall');
+def(M.WOOD,    'Holz',          col(108,68,32),    'wall');
+def(M.WALL,    'Wand',          col(175,175,185),  'wall');
+def(M.ICE,     'Eis',           col(165,215,255),  'wall');
+def(M.SALT,    'Salz',          col(238,238,248),  'powder');
+def(M.DIRT,    'Erde',          col(88,58,28),     'powder');
+def(M.SNOW,    'Schnee',        col(235,248,255),  'powder');
+def(M.GUNPOW,  'Pulver',        col(55,55,65),     'powder');
+def(M.GLASS,   'Glas',          col(195,228,238),  'wall');
+def(M.METAL,   'Metall',        col(155,155,175),  'wall');
+def(M.ASH,     'Asche',         col(78,78,82),     'powder');
+def(M.WATER,   'Wasser',        col(38,115,235),   'liquid');
+def(M.LAVA,    'Lava',          col(255,98,18),    'liquid');
+def(M.OIL,     'Öl',            col(58,38,12),     'liquid');
+def(M.ACID,    'Säure',         col(155,255,38),   'liquid');
+def(M.SLIME,   'Schleim',       col(38,195,118),   'liquid');
+def(M.MERCURY, 'Quecksilber',   col(195,195,215),  'liquid');
+def(M.HONEY,   'Honig',         col(228,168,28),   'liquid');
+def(M.BLOOD,   'Blut',          col(148,18,28),    'liquid');
+def(M.STEAM,   'Dampf',         col(215,215,228),  'gas');
+def(M.SMOKE,   'Rauch',         col(58,58,62),     'gas');
+def(M.GAS,     'Gas',           col(195,228,138),  'gas');
+def(M.TOXIC,   'Giftgas',       col(138,195,58),   'gas');
+def(M.FIRE,    'Feuer',         col(255,138,28),   'energy');
+def(M.PLASMA,  'Plasma',        col(218,98,255),   'energy');
+def(M.SPARK,   'Funke',         col(255,255,158),  'energy');
+def(M.EMBER,   'Glut',          col(255,78,18),    'energy');
+def(M.PLANT,   'Pflanze',       col(48,175,58),    'life');
+def(M.SEED,    'Samen',         col(138,108,48),   'life');
+def(M.VIRUS,   'Virus',         col(192,30,255),   'life');
+def(M.FUNGUS,  'Pilz',          col(195,148,178),  'life');
+def(M.TENTACLE,'Tentakel',      col(100,12,160),   'life');
+def(M.BHOLE,   'Schwarzes Loch',col(8,0,18),       'special');
+def(M.SOURCE_W,'Wasserquelle',  col(78,158,255),   'special');
+def(M.SOURCE_L,'Lavaquelle',    col(255,138,38),   'special');
+def(M.TNT,     'TNT',           col(198,28,28),    'bomb');
+def(M.NUKE,    'Nuke',          col(78,8,8),       'bomb');
+def(M.FUSE,    'Zündschnur',    col(218,178,78),   'bomb');
+def(M.C4,      'C4',            col(218,218,148),  'bomb');
 
-def(M.EMPTY,   'Leer',          col(0,0,0),        'special');
-def(M.SAND,    'Sand',          col(228,198,108),   'powder');
-def(M.STONE,   'Stein',         col(115,115,125),   'wall');
-def(M.WOOD,    'Holz',          col(108,68,32),     'wall',  {fl:1});
-def(M.WALL,    'Wand',          col(175,175,185),   'wall');
-def(M.ICE,     'Eis',           col(165,215,255),   'wall');
-def(M.SALT,    'Salz',          col(238,238,248),   'powder');
-def(M.DIRT,    'Erde',          col(88,58,28),      'powder');
-def(M.SNOW,    'Schnee',        col(235,248,255),   'powder');
-def(M.GUNPOW,  'Schießpulver',  col(55,55,65),      'powder',{fl:1});
-def(M.GLASS,   'Glas',          col(195,228,238),   'wall');
-def(M.METAL,   'Metall',        col(155,155,175),   'wall');
-def(M.ASH,     'Asche',         col(78,78,82),      'powder');
-def(M.WATER,   'Wasser',        col(38,115,235),    'liquid');
-def(M.LAVA,    'Lava',          col(255,98,18),     'liquid');
-def(M.OIL,     'Öl',            col(58,38,12),      'liquid',{fl:1});
-def(M.ACID,    'Säure',         col(155,255,38),    'liquid');
-def(M.SLIME,   'Schleim',       col(38,195,118),    'liquid');
-def(M.MERCURY, 'Quecksilber',   col(195,195,215),   'liquid');
-def(M.HONEY,   'Honig',         col(228,168,28),    'liquid');
-def(M.BLOOD,   'Blut',          col(148,18,28),     'liquid');
-def(M.STEAM,   'Dampf',         col(215,215,228),   'gas');
-def(M.SMOKE,   'Rauch',         col(58,58,62),      'gas');
-def(M.GAS,     'Gas',           col(195,228,138),   'gas',   {fl:1});
-def(M.TOXIC,   'Giftgas',       col(138,195,58),    'gas');
-def(M.FIRE,    'Feuer',         col(255,138,28),    'energy');
-def(M.PLASMA,  'Plasma',        col(218,98,255),    'energy');
-def(M.SPARK,   'Funke',         col(255,255,158),   'energy');
-def(M.EMBER,   'Glut',          col(255,78,18),     'energy');
-def(M.PLANT,   'Pflanze',       col(48,175,58),     'life');
-def(M.SEED,    'Samen',         col(138,108,48),    'life');
-def(M.VIRUS,   'Virus',         col(192,30,255),    'life');
-def(M.FUNGUS,  'Pilz',          col(195,148,178),   'life');
-def(M.TENTACLE,'Tentakel',      col(100,12,160),    'life');
-def(M.BHOLE,   'Schwarzes Loch',col(8,0,18),        'special');
-def(M.SOURCE_W,'Wasserquelle',  col(78,158,255),    'special');
-def(M.SOURCE_L,'Lavaquelle',    col(255,138,38),    'special');
-def(M.TNT,     'TNT',           col(198,28,28),     'bomb');
-def(M.NUKE,    'Nuke',          col(78,8,8),        'bomb');
-def(M.FUSE,    'Zündschnur',    col(218,178,78),    'bomb');
-def(M.C4,      'C4',            col(218,218,148),   'bomb');
-
-// ================================================================
-//  CATEGORIES / TABS
-// ================================================================
-const CATS = [
-  {key:'powder', label:'🏖 Feststoffe', ids:[M.SAND,M.DIRT,M.SALT,M.SNOW,M.GUNPOW,M.ASH,M.STONE,M.WOOD,M.WALL,M.GLASS,M.METAL,M.ICE]},
-  {key:'liquid', label:'💧 Flüssig',    ids:[M.WATER,M.LAVA,M.OIL,M.ACID,M.SLIME,M.MERCURY,M.HONEY,M.BLOOD]},
-  {key:'gas',    label:'☁ Gase',        ids:[M.STEAM,M.SMOKE,M.GAS,M.TOXIC]},
-  {key:'energy', label:'🔥 Energie',    ids:[M.FIRE,M.PLASMA,M.SPARK,M.EMBER]},
-  {key:'life',   label:'🌱 Leben',      ids:[M.PLANT,M.SEED,M.FUNGUS,M.VIRUS,M.TENTACLE]},
-  {key:'special',label:'✨ Spezial',    ids:[M.SOURCE_W,M.SOURCE_L,M.BHOLE,M.EMPTY]},
-  {key:'bomb',   label:'💥 Bomben',     ids:[M.TNT,M.C4,M.NUKE,M.FUSE]},
+const CATS=[
+  {k:'🏖',  label:'Fest',      ids:[M.SAND,M.DIRT,M.SALT,M.SNOW,M.GUNPOW,M.ASH,M.STONE,M.WOOD,M.WALL,M.GLASS,M.METAL,M.ICE]},
+  {k:'💧',  label:'Flüssig',   ids:[M.WATER,M.LAVA,M.OIL,M.ACID,M.SLIME,M.MERCURY,M.HONEY,M.BLOOD]},
+  {k:'☁',   label:'Gas',       ids:[M.STEAM,M.SMOKE,M.GAS,M.TOXIC]},
+  {k:'🔥',  label:'Energie',   ids:[M.FIRE,M.PLASMA,M.SPARK,M.EMBER]},
+  {k:'🌱',  label:'Leben',     ids:[M.PLANT,M.SEED,M.FUNGUS,M.VIRUS,M.TENTACLE]},
+  {k:'✨',  label:'Spezial',   ids:[M.SOURCE_W,M.SOURCE_L,M.BHOLE,M.EMPTY]},
+  {k:'💥',  label:'Bomben',    ids:[M.TNT,M.C4,M.NUKE,M.FUSE]},
 ];
 
-// ================================================================
-//  STATE
-// ================================================================
-let selType   = M.SAND;
-let brushSz   = 6;
-let paused    = false;
-let mdown     = false;
-let mx=0, my=0;
-let pCount=0, exCount=0, vCount=0;
-let lastT=performance.now(), fCount=0, fps=0;
-let activeTab='powder';
-let tick=0;
+// ── STATE ──
+let sel=M.SAND, brush=6, paused=false, mdown=false, mx=0,my=0;
+let pCnt=0,exCnt=0,vCnt=0;
+let lastT=performance.now(),fCnt=0,fps=0,tick=0;
+let activeTab=0;
 
-const KEYS = [
-  {k:'S',m:M.SAND},{k:'W',m:M.WATER},{k:'F',m:M.FIRE},{k:'I',m:M.ICE},
-  {k:'A',m:M.LAVA},{k:'O',m:M.OIL},{k:'C',m:M.ACID},{k:'P',m:M.PLANT},
-  {k:'V',m:M.VIRUS},{k:'T',m:M.TNT},{k:'N',m:M.NUKE},{k:'G',m:M.GAS},
-  {k:'H',m:M.BHOLE},{k:'X',m:M.EMPTY},
-];
-
-// ================================================================
-//  UI
-// ================================================================
+// ── UI BUILD ──
 const tabsEl=document.getElementById('tabs');
-const gridEl=document.getElementById('mat-grid');
+const matEl =document.getElementById('mat-list');
 
-CATS.forEach(c => {
+CATS.forEach((c,i)=>{
   const b=document.createElement('button');
-  b.className='tab'+(c.key===activeTab?' active':'');
-  b.textContent=c.label;
-  b.onclick=()=>{activeTab=c.key;refreshTabs();refreshMats();};
+  b.className='tab'+(i===0?' active':'');
+  b.textContent=c.k+' '+c.label;
+  b.onclick=()=>{activeTab=i;refreshTabs();refreshMats();};
   tabsEl.appendChild(b);
 });
 
 function refreshTabs(){
-  [...tabsEl.children].forEach((el,i)=>el.classList.toggle('active',CATS[i].key===activeTab));
+  [...tabsEl.children].forEach((el,i)=>el.classList.toggle('active',i===activeTab));
 }
-function c32toCss(u){return `rgb(${u&0xff},${(u>>8)&0xff},${(u>>16)&0xff})`;}
+
+function c2css(u){ return `rgb(${u&0xff},${(u>>8)&0xff},${(u>>16)&0xff})`; }
 
 function refreshMats(){
-  gridEl.innerHTML='';
-  document.getElementById('virus-panel').style.display=activeTab==='life'?'':'none';
-  const cat=CATS.find(c=>c.key===activeTab);
-  cat.ids.forEach(id=>{
-    const T=TYPES[id]; if(!T) return;
-    const isV=(id===M.VIRUS||id===M.TENTACLE);
+  matEl.innerHTML='';
+  CATS[activeTab].ids.forEach(id=>{
+    const ti=T[id]; if(!ti) return;
     const btn=document.createElement('button');
-    btn.className='mat-btn'+(isV?' vbtn':'')+(id===selType?' active':'');
-    const sw=document.createElement('div'); sw.className='swatch';
-    sw.style.background=id===M.EMPTY?'repeating-linear-gradient(45deg,#2a2a2a,#2a2a2a 4px,#444 4px,#444 8px)':c32toCss(T.color);
+    btn.className='mat-btn'+(id===sel?' active':'');
+    const sw=document.createElement('div'); sw.className='sw';
+    sw.style.background=id===M.EMPTY?'repeating-linear-gradient(45deg,#bbb,#bbb 3px,#ddd 3px,#ddd 6px)':c2css(ti.color);
     btn.appendChild(sw);
-    const sp=document.createElement('span'); sp.textContent=id===M.EMPTY?'Radierer':T.name;
+    const sp=document.createElement('span'); sp.textContent=id===M.EMPTY?'Radierer':ti.nm;
     btn.appendChild(sp);
-    btn.onclick=()=>selMat(id);
-    gridEl.appendChild(btn);
+    btn.onclick=()=>pick(id);
+    matEl.appendChild(btn);
   });
 }
 
-function selMat(id){
-  selType=id; refreshMats();
-  const T=TYPES[id];
-  document.getElementById('cur-name').textContent=id===M.EMPTY?'Radierer':T.name;
-  document.getElementById('cur-dot').style.background=id===M.EMPTY?'#333':c32toCss(T.color);
+function pick(id){
+  sel=id; refreshMats();
+  const ti=T[id];
+  document.getElementById('cur-name').textContent=id===M.EMPTY?'Radierer':ti.nm;
+  const dot=document.getElementById('cur-dot');
+  dot.style.background=id===M.EMPTY?'repeating-linear-gradient(45deg,#bbb,#bbb 3px,#ddd 3px,#ddd 6px)':c2css(ti.color);
 }
 
-// shortcuts UI
-const scEl=document.getElementById('shortcuts');
-KEYS.forEach(s=>{
-  const d=document.createElement('div'); d.className='sc';
-  const lbl=TYPES[s.m]?(s.m===M.EMPTY?'Radierer':TYPES[s.m].name):'?';
-  d.innerHTML=`<kbd>${s.k}</kbd><span>${lbl}</span>`;
-  scEl.appendChild(d);
-});
-
-document.getElementById('brush-size').addEventListener('input',e=>{
-  brushSz=parseInt(e.target.value);
-  document.getElementById('brush-val').textContent=brushSz;
-});
-document.getElementById('btn-pause').onclick=togglePause;
+document.getElementById('brush-size').oninput=e=>{
+  brush=+e.target.value;
+  document.getElementById('brush-val').textContent=brush;
+};
+document.getElementById('btn-pause').onclick=()=>{
+  paused=!paused;
+  document.getElementById('btn-pause').textContent=paused?'▶':'⏸';
+};
 document.getElementById('btn-clear').onclick=()=>{
-  grid.fill(0); tentacleDir.fill(0); virusTimer.fill(0); exCount=0; vCount=0;
+  grid.fill(0);tentacleDir.fill(0);virusTimer.fill(0);exCnt=0;vCnt=0;
 };
 document.getElementById('btn-save').onclick=()=>{
-  try{
-    localStorage.setItem('sbv2',JSON.stringify({w:WIDTH,h:HEIGHT,g:btoa(String.fromCharCode(...grid))}));
-    flash('✓ Gespeichert');
-  }catch(e){flash('Fehler');}
+  try{ localStorage.setItem('sb3',JSON.stringify({w:WIDTH,h:HEIGHT,g:btoa(String.fromCharCode(...grid))})); }catch(e){}
 };
 document.getElementById('btn-load').onclick=()=>{
   try{
-    const raw=localStorage.getItem('sbv2');
-    if(!raw) return flash('Kein Spielstand');
-    const d=JSON.parse(raw);
-    if(d.w!==WIDTH||d.h!==HEIGHT) return flash('Größe passt nicht');
-    const bin=atob(d.g);
-    for(let i=0;i<bin.length;i++) grid[i]=bin.charCodeAt(i);
-    flash('✓ Geladen');
-  }catch(e){flash('Fehler');}
+    const d=JSON.parse(localStorage.getItem('sb3')||'null');
+    if(d&&d.w===WIDTH&&d.h===HEIGHT){ const b=atob(d.g); for(let i=0;i<b.length;i++) grid[i]=b.charCodeAt(i); }
+  }catch(e){}
 };
 
-function flash(msg){
-  const n=document.getElementById('cur-name'),o=n.textContent;
-  n.textContent=msg; setTimeout(()=>n.textContent=o,1400);
-}
-function togglePause(){
-  paused=!paused;
-  document.getElementById('btn-pause').textContent=paused?'▶ Weiter':'⏸ Pause';
-}
 window.addEventListener('keydown',e=>{
   if(e.repeat) return;
-  if(e.key===' '){e.preventDefault();togglePause();return;}
-  const k=e.key.toUpperCase();
-  const s=KEYS.find(x=>x.k===k);
-  if(s){
-    selMat(s.m);
-    const cat=CATS.find(c=>c.ids.includes(s.m));
-    if(cat){activeTab=cat.key;refreshTabs();refreshMats();}
-  }
+  if(e.key===' '){e.preventDefault();document.getElementById('btn-pause').click();return;}
+  const map={s:M.SAND,w:M.WATER,f:M.FIRE,i:M.ICE,a:M.LAVA,o:M.OIL,c:M.ACID,
+             p:M.PLANT,v:M.VIRUS,t:M.TNT,n:M.NUKE,g:M.GAS,h:M.BHOLE,x:M.EMPTY};
+  const m=map[e.key.toLowerCase()];
+  if(m!==undefined){ pick(m); const ci=CATS.findIndex(c=>c.ids.includes(m)); if(ci>=0){activeTab=ci;refreshTabs();refreshMats();pick(m);} }
 });
 
-// ================================================================
-//  INPUT
-// ================================================================
-function canvasPos(e){
+// ── INPUT ──
+function cpos(e){
   const r=canvas.getBoundingClientRect();
   const cx=e.touches?e.touches[0].clientX:e.clientX;
   const cy=e.touches?e.touches[0].clientY:e.clientY;
   return{x:Math.floor((cx-r.left)*WIDTH/r.width),y:Math.floor((cy-r.top)*HEIGHT/r.height)};
 }
-canvas.addEventListener('mousedown',e=>{mdown=true;const p=canvasPos(e);mx=p.x;my=p.y;paint();});
-canvas.addEventListener('mousemove',e=>{const p=canvasPos(e);mx=p.x;my=p.y;if(mdown)paint();});
+canvas.addEventListener('mousedown',e=>{mdown=true;const p=cpos(e);mx=p.x;my=p.y;paint();});
+canvas.addEventListener('mousemove',e=>{const p=cpos(e);mx=p.x;my=p.y;if(mdown)paint();});
 window.addEventListener('mouseup',()=>mdown=false);
-canvas.addEventListener('touchstart',e=>{e.preventDefault();mdown=true;const p=canvasPos(e);mx=p.x;my=p.y;paint();},{passive:false});
-canvas.addEventListener('touchmove', e=>{e.preventDefault();const p=canvasPos(e);mx=p.x;my=p.y;if(mdown)paint();},{passive:false});
+canvas.addEventListener('touchstart',e=>{e.preventDefault();mdown=true;const p=cpos(e);mx=p.x;my=p.y;paint();},{passive:false});
+canvas.addEventListener('touchmove', e=>{e.preventDefault();const p=cpos(e);mx=p.x;my=p.y;if(mdown)paint();},{passive:false});
 canvas.addEventListener('touchend',()=>mdown=false);
 
 function paint(){
-  const r=brushSz, type=selType;
-  for(let dy=-r;dy<=r;dy++){
-    for(let dx=-r;dx<=r;dx++){
-      if(dx*dx+dy*dy>r*r) continue;
-      const nx=mx+dx, ny=my+dy;
-      if(nx<0||nx>=WIDTH||ny<0||ny>=HEIGHT) continue;
-      const i=ny*WIDTH+nx;
-      if(type===M.EMPTY){grid[i]=0;tentacleDir[i]=0;virusTimer[i]=0;}
-      else if(grid[i]===0||type>=M.BHOLE){
-        if(TYPES[type].cat==='powder'&&Math.random()<0.25) continue;
-        grid[i]=type;
-        if(type===M.TENTACLE) tentacleDir[i]=Math.floor(Math.random()*8);
-        if(type===M.VIRUS)    virusTimer[i]=0;
-      }
+  const r=brush;
+  for(let dy=-r;dy<=r;dy++) for(let dx=-r;dx<=r;dx++){
+    if(dx*dx+dy*dy>r*r) continue;
+    const nx=mx+dx,ny=my+dy;
+    if(nx<0||nx>=WIDTH||ny<0||ny>=HEIGHT) continue;
+    const i=ny*WIDTH+nx;
+    if(sel===M.EMPTY){grid[i]=0;tentacleDir[i]=0;virusTimer[i]=0;}
+    else if(!grid[i]||sel>=M.BHOLE){
+      if(T[sel]&&T[sel].cat==='powder'&&Math.random()<.25) continue;
+      grid[i]=sel;
+      if(sel===M.TENTACLE) tentacleDir[i]=Math.floor(Math.random()*8);
+      if(sel===M.VIRUS)    virusTimer[i]=0;
     }
   }
 }
 
-// ================================================================
-//  PHYSICS HELPERS
-// ================================================================
+// ── PHYSICS ──
 function ii(x,y){return y*WIDTH+x;}
 function inB(x,y){return x>=0&&x<WIDTH&&y>=0&&y<HEIGHT;}
 function gv(x,y){return inB(x,y)?grid[ii(x,y)]:M.WALL;}
@@ -547,500 +418,309 @@ function gv(x,y){return inB(x,y)?grid[ii(x,y)]:M.WALL;}
 function swap(x1,y1,x2,y2){
   const i1=ii(x1,y1),i2=ii(x2,y2);
   if(moved[i1]||moved[i2]) return false;
-  let t; t=grid[i1];grid[i1]=grid[i2];grid[i2]=t;
+  let t;
+  t=grid[i1];grid[i1]=grid[i2];grid[i2]=t;
   t=tentacleDir[i1];tentacleDir[i1]=tentacleDir[i2];tentacleDir[i2]=t;
   t=virusTimer[i1];virusTimer[i1]=virusTimer[i2];virusTimer[i2]=t;
-  moved[i1]=1;moved[i2]=1;
-  return true;
+  moved[i1]=1;moved[i2]=1; return true;
 }
 
 function dens(t){
-  if(t===M.EMPTY)return 0;
-  if(t===M.STEAM||t===M.SMOKE||t===M.GAS||t===M.TOXIC)return -1;
-  if(t===M.FIRE||t===M.SPARK)return -0.5;
-  if(t===M.OIL)return 2;
-  if(t===M.WATER||t===M.ACID||t===M.BLOOD||t===M.SLIME)return 3;
-  if(t===M.HONEY)return 4;
-  if(t===M.LAVA)return 5;
-  if(t===M.MERCURY)return 8;
-  if(t===M.SAND||t===M.DIRT||t===M.SALT||t===M.ASH||t===M.SNOW||t===M.GUNPOW)return 6;
+  if(t===M.EMPTY) return 0;
+  if(t===M.STEAM||t===M.SMOKE||t===M.GAS||t===M.TOXIC) return -1;
+  if(t===M.FIRE||t===M.SPARK) return -.5;
+  if(t===M.OIL) return 2;
+  if(t===M.WATER||t===M.ACID||t===M.BLOOD||t===M.SLIME) return 3;
+  if(t===M.HONEY) return 4; if(t===M.LAVA) return 5; if(t===M.MERCURY) return 8;
+  if(t===M.SAND||t===M.DIRT||t===M.SALT||t===M.ASH||t===M.SNOW||t===M.GUNPOW) return 6;
   return 100;
 }
 
-function burn(x,y,ch=0.1){
+function burn(x,y,ch=.1){
   const i=ii(x,y),t=grid[i];
-  if(t===M.WOOD   &&Math.random()<ch*0.5){grid[i]=M.FIRE;return;}
-  if(t===M.OIL    &&Math.random()<ch*2)  {grid[i]=M.FIRE;return;}
-  if(t===M.GUNPOW &&Math.random()<ch*3)  {boom(x,y,5);return;}
-  if(t===M.GAS    &&Math.random()<ch*2)  {boom(x,y,3);return;}
+  if(t===M.WOOD   &&Math.random()<ch*.5){grid[i]=M.FIRE;return;}
+  if(t===M.OIL    &&Math.random()<ch*2) {grid[i]=M.FIRE;return;}
+  if(t===M.GUNPOW &&Math.random()<ch*3) {boom(x,y,5);return;}
+  if(t===M.GAS    &&Math.random()<ch*2) {boom(x,y,3);return;}
   if(t===M.FUSE   &&Math.random()<ch*1.5){grid[i]=M.FIRE;return;}
-  if(t===M.PLANT  &&Math.random()<ch)    {grid[i]=M.FIRE;return;}
-  if(t===M.SEED   &&Math.random()<ch)    {grid[i]=M.FIRE;return;}
-  if(t===M.TNT    &&Math.random()<ch*2)  {boom(x,y,8);return;}
-  if(t===M.C4     &&Math.random()<ch*2)  {boom(x,y,12);return;}
-  if(t===M.NUKE   &&Math.random()<ch*2)  {boom(x,y,25);return;}
-  if(t===M.ICE    &&Math.random()<ch)    {grid[i]=M.WATER;return;}
+  if(t===M.PLANT  &&Math.random()<ch)   {grid[i]=M.FIRE;return;}
+  if(t===M.TNT    &&Math.random()<ch*2) {boom(x,y,8);return;}
+  if(t===M.C4     &&Math.random()<ch*2) {boom(x,y,12);return;}
+  if(t===M.NUKE   &&Math.random()<ch*2) {boom(x,y,25);return;}
+  if(t===M.ICE    &&Math.random()<ch)   {grid[i]=M.WATER;return;}
   if(t===M.SNOW   &&Math.random()<ch*1.5){grid[i]=M.WATER;return;}
-  if(t===M.WATER  &&Math.random()<ch*2)  {grid[i]=M.STEAM;return;}
+  if(t===M.WATER  &&Math.random()<ch*2) {grid[i]=M.STEAM;return;}
 }
 
 function boom(cx,cy,rad){
-  exCount++;
+  exCnt++;
   const r2=rad*rad;
-  for(let dy=-rad;dy<=rad;dy++){
-    for(let dx=-rad;dx<=rad;dx++){
-      const d2=dx*dx+dy*dy; if(d2>r2) continue;
-      const nx=cx+dx,ny=cy+dy; if(!inB(nx,ny)) continue;
-      const i=ii(nx,ny),t=grid[i];
-      if(t===M.WALL||t===M.METAL||t===M.BHOLE) continue;
-      const r=Math.random();
-      if(d2<r2*.3)      grid[i]=r<.6?M.FIRE:r<.85?M.SMOKE:M.EMPTY;
-      else if(d2<r2*.7) grid[i]=r<.4?M.FIRE:r<.7?M.EMBER:r<.9?M.SMOKE:M.EMPTY;
-      else              grid[i]=r<.2?M.FIRE:r<.5?M.SMOKE:M.EMPTY;
+  for(let dy=-rad;dy<=rad;dy++) for(let dx=-rad;dx<=rad;dx++){
+    const d2=dx*dx+dy*dy; if(d2>r2) continue;
+    const nx=cx+dx,ny=cy+dy; if(!inB(nx,ny)) continue;
+    const i=ii(nx,ny),t=grid[i];
+    if(t===M.WALL||t===M.METAL||t===M.BHOLE) continue;
+    const r=Math.random();
+    if(d2<r2*.3)      grid[i]=r<.6?M.FIRE:r<.85?M.SMOKE:0;
+    else if(d2<r2*.7) grid[i]=r<.4?M.FIRE:r<.7?M.EMBER:r<.9?M.SMOKE:0;
+    else              grid[i]=r<.2?M.FIRE:r<.5?M.SMOKE:0;
+  }
+}
+
+function canInfect(t){return t&&t!==M.VIRUS&&t!==M.TENTACLE&&t!==M.WALL&&t!==M.BHOLE;}
+
+function spawnTent(x,y,d){
+  const nx=x+DX[d],ny=y+DY[d];
+  if(!inB(nx,ny)||grid[ii(nx,ny)]!==0) return;
+  grid[ii(nx,ny)]=M.TENTACLE; tentacleDir[ii(nx,ny)]=d; virusTimer[ii(nx,ny)]=0;
+}
+
+function virusSpores(cx,cy,rad,dn){
+  for(let dy=-rad;dy<=rad;dy++) for(let dx=-rad;dx<=rad;dx++){
+    const d2=dx*dx+dy*dy; if(d2>rad*rad) continue;
+    const nx=cx+dx,ny=cy+dy; if(!inB(nx,ny)) continue;
+    if(!grid[ii(nx,ny)]&&Math.random()<dn/(d2/2+1)){
+      grid[ii(nx,ny)]=M.VIRUS; virusTimer[ii(nx,ny)]=0;
+      if(Math.random()<.45) spawnTent(nx,ny,Math.floor(Math.random()*8));
     }
   }
 }
 
-// Can virus infect this?
-function canInfect(t){
-  return t!==M.EMPTY && t!==M.VIRUS && t!==M.TENTACLE &&
-         t!==M.WALL  && t!==M.BHOLE;
-}
-
-// Try to spawn a tentacle from (x,y) in direction dir
-function spawnTent(x,y,dir){
-  const nx=x+DX[dir],ny=y+DY[dir];
-  if(!inB(nx,ny)) return;
-  if(grid[ii(nx,ny)]===M.EMPTY){
-    grid[ii(nx,ny)]=M.TENTACLE;
-    tentacleDir[ii(nx,ny)]=dir;
-    virusTimer[ii(nx,ny)]=0;
-  }
-}
-
-// Scatter virus spores in a radius (after explosion)
-function virusSpores(cx,cy,rad,density){
-  for(let dy=-rad;dy<=rad;dy++){
-    for(let dx=-rad;dx<=rad;dx++){
-      const d2=dx*dx+dy*dy; if(d2>rad*rad) continue;
-      const nx=cx+dx,ny=cy+dy; if(!inB(nx,ny)) continue;
-      if(grid[ii(nx,ny)]===M.EMPTY&&Math.random()<density/(d2/2+1)){
-        grid[ii(nx,ny)]=M.VIRUS;
-        virusTimer[ii(nx,ny)]=0;
-        if(Math.random()<0.45) spawnTent(nx,ny,Math.floor(Math.random()*8));
-      }
-    }
-  }
-}
-
-// ================================================================
-//  MAIN UPDATE
-// ================================================================
 function update(){
-  moved.fill(0);
-  pCount=0; vCount=0;
-  tick++;
-
+  moved.fill(0); pCnt=0; vCnt=0; tick++;
   for(let y=HEIGHT-1;y>=0;y--){
-    const lr=Math.random()<0.5;
-    const x0=lr?0:WIDTH-1, xe=lr?WIDTH:-1, xs=lr?1:-1;
+    const lr=Math.random()<.5;
+    const x0=lr?0:WIDTH-1,xe=lr?WIDTH:-1,xs=lr?1:-1;
     for(let x=x0;x!==xe;x+=xs){
-      const i=ii(x,y);
-      const t=grid[i];
-      if(t===0||moved[i]) continue;
-      pCount++;
+      const i=ii(x,y),t=grid[i];
+      if(!t||moved[i]) continue;
+      pCnt++;
+      const cat=T[t]?T[t].cat:null;
 
-      const cat=TYPES[t]?TYPES[t].cat:null;
-
-      // ────────────────── POWDERS ──────────────────
       if(cat==='powder'){
         if(y+1<HEIGHT){
           const b=grid[ii(x,y+1)];
-          if(b===0){swap(x,y,x,y+1);continue;}
+          if(!b){swap(x,y,x,y+1);continue;}
           if(dens(b)<dens(t)&&dens(b)>0){swap(x,y,x,y+1);continue;}
           const d=Math.random()<.5?1:-1;
-          if(x+d>=0&&x+d<WIDTH&&grid[ii(x+d,y+1)]===0){swap(x,y,x+d,y+1);continue;}
-          if(x-d>=0&&x-d<WIDTH&&grid[ii(x-d,y+1)]===0){swap(x,y,x-d,y+1);continue;}
+          if(x+d>=0&&x+d<WIDTH&&!grid[ii(x+d,y+1)]){swap(x,y,x+d,y+1);continue;}
+          if(x-d>=0&&x-d<WIDTH&&!grid[ii(x-d,y+1)]){swap(x,y,x-d,y+1);continue;}
         }
-        if(t===M.SALT){
-          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]])
-            if(gv(x+dx,y+dy)===M.WATER&&Math.random()<.02){grid[ii(x+dx,y+dy)]=M.WATER;grid[i]=0;break;}
-        }
+        if(t===M.SALT) for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]])
+          if(gv(x+dx,y+dy)===M.WATER&&Math.random()<.02){grid[ii(x+dx,y+dy)]=M.WATER;grid[i]=0;break;}
         if(t===M.SNOW&&Math.random()<.002) grid[i]=M.WATER;
         continue;
       }
 
-      // ────────────────── LIQUIDS ──────────────────
       if(cat==='liquid'){
         const vs=t===M.HONEY?.3:t===M.OIL?.7:t===M.LAVA?.5:1;
         if(Math.random()<vs){
           if(y+1<HEIGHT){
             const b=grid[ii(x,y+1)];
-            if(b===0){swap(x,y,x,y+1);continue;}
+            if(!b){swap(x,y,x,y+1);continue;}
             if(dens(b)<dens(t)&&dens(b)>0){swap(x,y,x,y+1);continue;}
             const d=Math.random()<.5?1:-1;
-            if(x+d>=0&&x+d<WIDTH&&grid[ii(x+d,y+1)]===0){swap(x,y,x+d,y+1);continue;}
-            if(x-d>=0&&x-d<WIDTH&&grid[ii(x-d,y+1)]===0){swap(x,y,x-d,y+1);continue;}
+            if(x+d>=0&&x+d<WIDTH&&!grid[ii(x+d,y+1)]){swap(x,y,x+d,y+1);continue;}
+            if(x-d>=0&&x-d<WIDTH&&!grid[ii(x-d,y+1)]){swap(x,y,x-d,y+1);continue;}
           }
           const sp=t===M.HONEY?1:t===M.OIL?2:t===M.LAVA?1:3;
           const ds=Math.random()<.5?1:-1;
           for(let s=1;s<=sp;s++){
             const nx=x+ds*s; if(nx<0||nx>=WIDTH) break;
-            if(grid[ii(nx,y)]!==0) break;
-            if(s===sp||grid[ii(nx+ds,y)]!==0){swap(x,y,nx,y);break;}
+            if(grid[ii(nx,y)]) break;
+            if(s===sp||grid[ii(nx+ds,y)]){swap(x,y,nx,y);break;}
           }
         }
-        if(t===M.WATER){
-          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
-            const nt=gv(x+dx,y+dy);
-            if(nt===M.LAVA){grid[ii(x+dx,y+dy)]=M.STONE;grid[i]=M.STEAM;break;}
-            if(nt===M.FIRE) grid[ii(x+dx,y+dy)]=M.STEAM;
-          }
+        if(t===M.WATER) for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
+          const nt=gv(x+dx,y+dy);
+          if(nt===M.LAVA){grid[ii(x+dx,y+dy)]=M.STONE;grid[i]=M.STEAM;break;}
+          if(nt===M.FIRE) grid[ii(x+dx,y+dy)]=M.STEAM;
         }
         if(t===M.LAVA){
           if(Math.random()<.02) for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]) burn(x+dx,y+dy,.5);
           if(Math.random()<.003) grid[i]=M.STONE;
         }
-        if(t===M.ACID){
-          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
-            const nx=x+dx,ny=y+dy; if(!inB(nx,ny)) continue;
-            const nt=grid[ii(nx,ny)];
-            if(nt&&nt!==M.ACID&&nt!==M.WALL&&nt!==M.GLASS&&nt!==M.BHOLE&&Math.random()<.08){
-              grid[ii(nx,ny)]=0; if(Math.random()<.3) grid[i]=0; break;
-            }
+        if(t===M.ACID) for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
+          const nx=x+dx,ny=y+dy; if(!inB(nx,ny)) continue;
+          const nt=grid[ii(nx,ny)];
+          if(nt&&nt!==M.ACID&&nt!==M.WALL&&nt!==M.GLASS&&nt!==M.BHOLE&&Math.random()<.08){
+            grid[ii(nx,ny)]=0; if(Math.random()<.3) grid[i]=0; break;
           }
         }
-        if(t===M.OIL){
-          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]])
-            if((gv(x+dx,y+dy)===M.FIRE||gv(x+dx,y+dy)===M.LAVA)&&Math.random()<.2) grid[i]=M.FIRE;
-        }
+        if(t===M.OIL) for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]])
+          if((gv(x+dx,y+dy)===M.FIRE||gv(x+dx,y+dy)===M.LAVA)&&Math.random()<.2) grid[i]=M.FIRE;
         continue;
       }
 
-      // ────────────────── GASES ──────────────────
       if(cat==='gas'){
         if(Math.random()<.8){
-          if(y-1>=0&&grid[ii(x,y-1)]===0){swap(x,y,x,y-1);continue;}
+          if(y-1>=0&&!grid[ii(x,y-1)]){swap(x,y,x,y-1);continue;}
           const dg=Math.random()<.5?1:-1;
-          if(y-1>=0&&x+dg>=0&&x+dg<WIDTH&&grid[ii(x+dg,y-1)]===0){swap(x,y,x+dg,y-1);continue;}
-          if(x+dg>=0&&x+dg<WIDTH&&grid[ii(x+dg,y)]===0){swap(x,y,x+dg,y);continue;}
+          if(y-1>=0&&x+dg>=0&&x+dg<WIDTH&&!grid[ii(x+dg,y-1)]){swap(x,y,x+dg,y-1);continue;}
+          if(x+dg>=0&&x+dg<WIDTH&&!grid[ii(x+dg,y)]){swap(x,y,x+dg,y);continue;}
         }
         if(t===M.STEAM&&Math.random()<.002) grid[i]=M.WATER;
         if(t===M.SMOKE&&Math.random()<.008) grid[i]=0;
-        if(t===M.GAS  &&Math.random()<.001) grid[i]=0;
-        if(t===M.TOXIC&&Math.random()<.001) grid[i]=0;
-        if(t===M.GAS){
-          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
-            const nt=gv(x+dx,y+dy);
-            if(nt===M.FIRE||nt===M.LAVA||nt===M.SPARK){boom(x,y,2);break;}
-          }
+        if((t===M.GAS||t===M.TOXIC)&&Math.random()<.001) grid[i]=0;
+        if(t===M.GAS) for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
+          const nt=gv(x+dx,y+dy);
+          if(nt===M.FIRE||nt===M.LAVA||nt===M.SPARK){boom(x,y,2);break;}
         }
         continue;
       }
 
-      // ────────────────── ENERGY ──────────────────
       if(cat==='energy'){
         if(t===M.FIRE){
           for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0],[-1,-1],[1,-1],[-1,1],[1,1]]) burn(x+dx,y+dy,.15);
-          if(Math.random()<.3&&y-1>=0&&grid[ii(x,y-1)]===0) swap(x,y,x,y-1);
+          if(Math.random()<.3&&y-1>=0&&!grid[ii(x,y-1)]) swap(x,y,x,y-1);
           if(Math.random()<.08) grid[i]=Math.random()<.4?M.SMOKE:0;
         }
         if(t===M.PLASMA){
-          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
-            burn(x+dx,y+dy,.3);
-            if(gv(x+dx,y+dy)===M.PLASMA&&Math.random()<.01) grid[i]=M.FIRE;
-          }
+          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){ burn(x+dx,y+dy,.3); if(gv(x+dx,y+dy)===M.PLASMA&&Math.random()<.01) grid[i]=M.FIRE; }
           if(Math.random()<.02) grid[i]=M.FIRE;
         }
-        if(t===M.SPARK){
-          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]) burn(x+dx,y+dy,.4);
-          if(Math.random()<.2) grid[i]=0;
-        }
-        if(t===M.EMBER){
-          if(Math.random()<.05) grid[i]=Math.random()<.5?M.FIRE:M.ASH;
-          if(y+1<HEIGHT&&grid[ii(x,y+1)]===0) swap(x,y,x,y+1);
-        }
+        if(t===M.SPARK){ for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]) burn(x+dx,y+dy,.4); if(Math.random()<.2) grid[i]=0; }
+        if(t===M.EMBER){ if(Math.random()<.05) grid[i]=Math.random()<.5?M.FIRE:M.ASH; if(y+1<HEIGHT&&!grid[ii(x,y+1)]) swap(x,y,x,y+1); }
         continue;
       }
 
-      // ────────────────── LIFE ──────────────────
       if(cat==='life'){
-
-        // ══════ VIRUS ══════
         if(t===M.VIRUS){
-          vCount++;
+          vCnt++;
           if(virusTimer[i]<60000) virusTimer[i]++;
           const age=virusTimer[i];
-
-          // Infect all 8 neighbors — everything that isn't immune
-          const infRate=Math.min(0.06+age*0.00004, 0.18);
+          const ir=Math.min(.06+age*.00004,.18);
           for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0],[1,1],[-1,1],[1,-1],[-1,-1]]){
-            const nx=x+dx,ny=y+dy;
-            if(!inB(nx,ny)) continue;
-            const ni=ii(nx,ny), nt=grid[ni];
+            const nx=x+dx,ny=y+dy; if(!inB(nx,ny)) continue;
+            const ni=ii(nx,ny),nt=grid[ni];
             if(!canInfect(nt)) continue;
-            if(Math.random()<infRate){
-              grid[ni]=M.VIRUS;
-              virusTimer[ni]=0;
-              // Spawn tentacle outward from newly infected cell
-              if(Math.random()<0.22){
-                const tdir=Math.floor(Math.random()*8);
-                spawnTent(nx,ny,tdir);
-              }
-            }
+            if(Math.random()<ir){ grid[ni]=M.VIRUS; virusTimer[ni]=0; if(Math.random()<.22) spawnTent(nx,ny,Math.floor(Math.random()*8)); }
           }
-
-          // Emit random tentacles occasionally
-          if(Math.random()<0.006){
-            spawnTent(x,y,Math.floor(Math.random()*8));
-          }
-
-          // VIRUS EXPLOSION: old cells randomly explode and scatter spores
-          if(age>350&&Math.random()<0.0012*(age/350)){
-            boom(x,y,5);
-            virusSpores(x,y,20, 0.18);
-          }
+          if(Math.random()<.006) spawnTent(x,y,Math.floor(Math.random()*8));
+          if(age>350&&Math.random()<.0012*(age/350)){ boom(x,y,5); virusSpores(x,y,20,.18); }
           continue;
         }
-
-        // ══════ TENTACLE ══════
         if(t===M.TENTACLE){
-          vCount++;
+          vCnt++;
           if(virusTimer[i]<60000) virusTimer[i]++;
-          const age=virusTimer[i];
-          const dir=tentacleDir[i];
-
-          // Grow: try to extend the tip
-          if(Math.random()<0.14){
-            // Directions to try: primary, then slight bends
+          const age=virusTimer[i], dir=tentacleDir[i];
+          if(Math.random()<.14){
             const tryD=[dir,(dir+1)%8,(dir+7)%8,(dir+2)%8,(dir+6)%8];
             let grew=false;
             for(const d of tryD){
-              const nx=x+DX[d],ny=y+DY[d];
-              if(!inB(nx,ny)) continue;
+              const nx=x+DX[d],ny=y+DY[d]; if(!inB(nx,ny)) continue;
               const ni=ii(nx,ny),nt=grid[ni];
-              if(nt===M.EMPTY){
-                // Tip advances: old cell becomes VIRUS, new cell is TENTACLE
-                grid[i]=M.VIRUS; virusTimer[i]=Math.min(age,50);
-                grid[ni]=M.TENTACLE; tentacleDir[ni]=d; virusTimer[ni]=Math.max(0,age-8);
-                moved[ni]=1;
-                grew=true; break;
-              } else if(canInfect(nt)&&Math.random()<0.3){
-                // Infect what the tip touches, tip stays put as virus
-                grid[ni]=M.VIRUS; virusTimer[ni]=0;
-                grid[i]=M.VIRUS;  virusTimer[i]=age;
-                grew=true; break;
-              }
+              if(!nt){ grid[i]=M.VIRUS; virusTimer[i]=Math.min(age,50); grid[ni]=M.TENTACLE; tentacleDir[ni]=d; virusTimer[ni]=Math.max(0,age-8); moved[ni]=1; grew=true; break; }
+              else if(canInfect(nt)&&Math.random()<.3){ grid[ni]=M.VIRUS; virusTimer[ni]=0; grid[i]=M.VIRUS; virusTimer[i]=age; grew=true; break; }
             }
-            // If completely stuck, dissolve to virus
-            if(!grew&&Math.random()<0.04){
-              grid[i]=M.VIRUS; virusTimer[i]=age;
-            }
+            if(!grew&&Math.random()<.04){ grid[i]=M.VIRUS; virusTimer[i]=age; }
           }
-
-          // BRANCH: occasionally fork a new tentacle ~90° off
-          if(Math.random()<0.008){
-            const bdir=(dir+(Math.random()<0.5?2:6))%8;
-            const nx=x+DX[bdir],ny=y+DY[bdir];
-            if(inB(nx,ny)&&grid[ii(nx,ny)]===M.EMPTY){
-              grid[ii(nx,ny)]=M.TENTACLE;
-              tentacleDir[ii(nx,ny)]=bdir;
-              virusTimer[ii(nx,ny)]=0;
-            }
-          }
-
-          // TENTACLE TIP EXPLOSION
-          if(age>600&&Math.random()<0.004){
-            boom(x,y,3);
-            virusSpores(x,y,10,0.28);
-          }
+          if(Math.random()<.008){ const bd=(dir+(Math.random()<.5?2:6))%8; const nx=x+DX[bd],ny=y+DY[bd]; if(inB(nx,ny)&&!grid[ii(nx,ny)]){ grid[ii(nx,ny)]=M.TENTACLE; tentacleDir[ii(nx,ny)]=bd; virusTimer[ii(nx,ny)]=0; } }
+          if(age>600&&Math.random()<.004){ boom(x,y,3); virusSpores(x,y,10,.28); }
           continue;
         }
-
-        // ══════ PLANT ══════
         if(t===M.PLANT){
-          if(Math.random()<0.05){
-            for(const[dx,dy]of[[0,-1],[-1,0],[1,0],[0,1]]){
-              const nx=x+dx,ny=y+dy; if(!inB(nx,ny)) continue;
-              const nt=grid[ii(nx,ny)];
-              if(nt===0){
-                let hw=false;
-                for(const[dx2,dy2]of[[-1,0],[1,0],[0,-1],[0,1],[-2,0],[2,0]])
-                  if(gv(nx+dx2,ny+dy2)===M.WATER){hw=true;break;}
-                if(hw&&Math.random()<0.3){
-                  grid[ii(nx,ny)]=M.PLANT;
-                  for(const[dx2,dy2]of[[-1,0],[1,0],[0,-1],[0,1]])
-                    if(gv(nx+dx2,ny+dy2)===M.WATER&&Math.random()<0.3){grid[ii(nx+dx2,ny+dy2)]=0;break;}
-                  break;
-                }
-              }
-              if(nt===M.WATER&&Math.random()<0.05){grid[ii(nx,ny)]=M.PLANT;break;}
-            }
+          if(Math.random()<.05) for(const[dx,dy]of[[0,-1],[-1,0],[1,0],[0,1]]){
+            const nx=x+dx,ny=y+dy; if(!inB(nx,ny)) continue;
+            const nt=grid[ii(nx,ny)];
+            if(!nt){ let hw=false; for(const[dx2,dy2]of[[-1,0],[1,0],[0,-1],[0,1],[-2,0],[2,0]]) if(gv(nx+dx2,ny+dy2)===M.WATER){hw=true;break;} if(hw&&Math.random()<.3){ grid[ii(nx,ny)]=M.PLANT; for(const[dx2,dy2]of[[-1,0],[1,0],[0,-1],[0,1]]) if(gv(nx+dx2,ny+dy2)===M.WATER&&Math.random()<.3){grid[ii(nx+dx2,ny+dy2)]=0;break;} break; } }
+            if(nt===M.WATER&&Math.random()<.05){grid[ii(nx,ny)]=M.PLANT;break;}
           }
           continue;
         }
-
-        // ══════ SEED ══════
         if(t===M.SEED){
-          if(y+1<HEIGHT){
-            if(grid[ii(x,y+1)]===0){swap(x,y,x,y+1);continue;}
-            const d=Math.random()<.5?1:-1;
-            if(x+d>=0&&x+d<WIDTH&&grid[ii(x+d,y+1)]===0){swap(x,y,x+d,y+1);continue;}
-          }
+          if(y+1<HEIGHT){ if(!grid[ii(x,y+1)]){swap(x,y,x,y+1);continue;} const d=Math.random()<.5?1:-1; if(x+d>=0&&x+d<WIDTH&&!grid[ii(x+d,y+1)]){swap(x,y,x+d,y+1);continue;} }
           let td=false,tw=false;
-          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
-            if(gv(x+dx,y+dy)===M.DIRT) td=true;
-            if(gv(x+dx,y+dy)===M.WATER) tw=true;
-          }
-          if(td&&tw&&Math.random()<0.1) grid[i]=M.PLANT;
+          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){ if(gv(x+dx,y+dy)===M.DIRT)td=true; if(gv(x+dx,y+dy)===M.WATER)tw=true; }
+          if(td&&tw&&Math.random()<.1) grid[i]=M.PLANT;
           continue;
         }
-
-        // ══════ FUNGUS ══════
         if(t===M.FUNGUS){
-          if(Math.random()<0.02){
-            for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
-              const nx=x+dx,ny=y+dy;
-              if(gv(nx,ny)===M.DIRT||gv(nx,ny)===M.WOOD){grid[ii(nx,ny)]=M.FUNGUS;break;}
-            }
+          if(Math.random()<.02) for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
+            const nx=x+dx,ny=y+dy;
+            if(gv(nx,ny)===M.DIRT||gv(nx,ny)===M.WOOD){grid[ii(nx,ny)]=M.FUNGUS;break;}
           }
           continue;
         }
         continue;
       }
 
-      // ────────────────── SPECIAL ──────────────────
       if(t===M.BHOLE){
         const R=8;
-        for(let dy2=-R;dy2<=R;dy2++){
-          for(let dx2=-R;dx2<=R;dx2++){
-            if(!dx2&&!dy2) continue;
-            const d2=dx2*dx2+dy2*dy2; if(d2>R*R) continue;
-            const nx=x+dx2,ny=y+dy2; if(!inB(nx,ny)) continue;
-            const nt=grid[ii(nx,ny)];
-            if(!nt||nt===M.BHOLE||nt===M.WALL) continue;
-            if(Math.random()<0.08/(d2+1)*4) grid[ii(nx,ny)]=0;
-          }
+        for(let dy2=-R;dy2<=R;dy2++) for(let dx2=-R;dx2<=R;dx2++){
+          if(!dx2&&!dy2) continue; const d2=dx2*dx2+dy2*dy2; if(d2>R*R) continue;
+          const nx=x+dx2,ny=y+dy2; if(!inB(nx,ny)) continue;
+          const nt=grid[ii(nx,ny)]; if(!nt||nt===M.BHOLE||nt===M.WALL) continue;
+          if(Math.random()<.08/(d2+1)*4) grid[ii(nx,ny)]=0;
         }
         continue;
       }
-      if(t===M.SOURCE_W){
-        for(const[dx,dy]of[[0,1],[-1,0],[1,0],[0,-1]])
-          if(gv(x+dx,y+dy)===0){grid[ii(x+dx,y+dy)]=M.WATER;break;}
-        continue;
-      }
-      if(t===M.SOURCE_L){
-        for(const[dx,dy]of[[0,1],[-1,0],[1,0],[0,-1]])
-          if(gv(x+dx,y+dy)===0){grid[ii(x+dx,y+dy)]=M.LAVA;break;}
-        continue;
-      }
+      if(t===M.SOURCE_W){ for(const[dx,dy]of[[0,1],[-1,0],[1,0],[0,-1]]) if(!gv(x+dx,y+dy)){grid[ii(x+dx,y+dy)]=M.WATER;break;} continue; }
+      if(t===M.SOURCE_L){ for(const[dx,dy]of[[0,1],[-1,0],[1,0],[0,-1]]) if(!gv(x+dx,y+dy)){grid[ii(x+dx,y+dy)]=M.LAVA;break;}  continue; }
 
-      // ────────────────── BOMBS ──────────────────
       if(cat==='bomb'){
-        if((t===M.TNT||t===M.C4||t===M.NUKE)&&y+1<HEIGHT&&grid[ii(x,y+1)]===0){
-          swap(x,y,x,y+1); continue;
-        }
-        if(t===M.FUSE){
-          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
-            const nt=gv(x+dx,y+dy);
-            if(nt===M.FIRE||nt===M.LAVA||nt===M.SPARK||nt===M.EMBER)
-              if(Math.random()<.3){grid[i]=M.FIRE;break;}
-          }
+        if((t===M.TNT||t===M.C4||t===M.NUKE)&&y+1<HEIGHT&&!grid[ii(x,y+1)]){ swap(x,y,x,y+1); continue; }
+        if(t===M.FUSE) for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
+          const nt=gv(x+dx,y+dy);
+          if(nt===M.FIRE||nt===M.LAVA||nt===M.SPARK||nt===M.EMBER) if(Math.random()<.3){grid[i]=M.FIRE;break;}
         }
         continue;
       }
-
       if(t===M.ICE&&Math.random()<.0005) grid[i]=M.WATER;
     }
   }
 }
 
-// ================================================================
-//  RENDER
-// ================================================================
+// ── RENDER ──
 function render(){
   const now=performance.now();
-  fCount++;
-  if(now-lastT>=500){ fps=Math.round(fCount*1000/(now-lastT)); fCount=0; lastT=now; }
-
-  // Sine waves for pulsing effects
-  const pSlow = (Math.sin(now*.004)*.5+.5);   // 0–1, ~0.6Hz
-  const pFast = (Math.sin(now*.014)*.5+.5);   // 0–1, ~2Hz
-
+  fCnt++;
+  if(now-lastT>=500){ fps=Math.round(fCnt*1000/(now-lastT)); fCnt=0; lastT=now; }
+  const pS=(Math.sin(now*.004)*.5+.5), pF=(Math.sin(now*.014)*.5+.5);
   const len=WIDTH*HEIGHT;
   for(let i=0;i<len;i++){
     const t=grid[i];
-    if(t===0){buf32[i]=0xff000000;continue;}
-    const T=TYPES[t];
-    if(!T){buf32[i]=0xff000000;continue;}
-    let c=T.color;
-
+    if(!t){buf32[i]=0xff111111;continue;}
+    const TI=T[t]; if(!TI){buf32[i]=0xff111111;continue;}
+    let c=TI.color;
     if(t===M.FIRE||t===M.LAVA||t===M.PLASMA||t===M.SPARK||t===M.EMBER){
-      const f=.80+Math.random()*.40;
-      const r=Math.min(255,((c&0xff)*f)|0);
-      const g=Math.min(255,(((c>>8)&0xff)*f)|0);
-      const b=Math.min(255,(((c>>16)&0xff)*f)|0);
+      const f=.78+Math.random()*.44;
+      const r=Math.min(255,((c&0xff)*f)|0), g=Math.min(255,(((c>>8)&0xff)*f)|0), b=Math.min(255,(((c>>16)&0xff)*f)|0);
+      c=0xff000000|(b<<16)|(g<<8)|r;
+    } else if(t===M.VIRUS){
+      const ag=Math.min(1,virusTimer[i]/300), p=.62+pS*.52, n=(Math.random()-.5)*28;
+      const r=Math.min(255,Math.max(0,((190+ag*55+n)*p)|0)), g=Math.min(255,Math.max(0,((28+ag*15+n*.3)*p)|0)), b=Math.min(255,(255*p)|0);
+      c=0xff000000|(b<<16)|(g<<8)|r;
+    } else if(t===M.TENTACLE){
+      const ag=Math.min(1,virusTimer[i]/400), p=.68+pF*.40, n=(Math.random()-.5)*20;
+      const r=Math.min(255,Math.max(0,((105-ag*35+n)*p)|0)), g=Math.min(255,Math.max(0,((10+ag*70+n*.5)*p)|0)), b=Math.min(255,((160-ag*30)*p)|0);
       c=0xff000000|(b<<16)|(g<<8)|r;
     }
-    else if(t===M.VIRUS){
-      const age=virusTimer[i];
-      const ag=Math.min(1,age/300);
-      const pulse=.65+pSlow*.50;
-      const noise=(Math.random()-.5)*28;
-      const r=Math.min(255,Math.max(0,((190+ag*55+noise)*pulse)|0));
-      const g=Math.min(255,Math.max(0,((28+ag*15+noise*.3)*pulse)|0));
-      const b=Math.min(255,(255*pulse)|0);
-      c=0xff000000|(b<<16)|(g<<8)|r;
-    }
-    else if(t===M.TENTACLE){
-      const age=virusTimer[i];
-      const ag=Math.min(1,age/400);
-      const pulse=.70+pFast*.38;
-      const n=(Math.random()-.5)*20;
-      // Purple → slimy green as it ages
-      const r=Math.min(255,Math.max(0,((105-ag*35+n)*pulse)|0));
-      const g=Math.min(255,Math.max(0,((10+ag*70+n*.5)*pulse)|0));
-      const b=Math.min(255,((160-ag*30)*pulse)|0);
-      c=0xff000000|(b<<16)|(g<<8)|r;
-    }
-
     buf32[i]=c;
   }
   ctx.putImageData(imageData,0,0);
-
-  document.getElementById('hud-p').textContent   = pCount;
-  document.getElementById('hud-fps').textContent = fps;
-  document.getElementById('hud-ex').textContent  = exCount;
-  document.getElementById('hud-v').textContent   = vCount;
-
-  const alertEl=document.getElementById('virus-alert');
-  if(vCount>80){
-    alertEl.style.display='block';
-    alertEl.textContent=vCount>600?'☣ KRITISCHE INFEKTION ☣':'⚠ VIRUS AUSBRUCH ⚠';
-  } else {
-    alertEl.style.display='none';
-  }
+  document.getElementById('hud-fps').textContent=fps;
+  document.getElementById('hud-p').textContent=pCnt;
+  document.getElementById('hud-ex').textContent=exCnt;
+  document.getElementById('hud-v').textContent=vCnt;
+  const va=document.getElementById('virus-alert');
+  if(vCnt>80){ va.style.display='block'; va.textContent=vCnt>600?'☣ KRITISCHE INFEKTION':'⚠ VIRUS'; }
+  else va.style.display='none';
 }
 
-// ================================================================
-//  LOOP
-// ================================================================
-let acc=0, prevT=performance.now();
+// ── LOOP ──
+let acc=0,prev=performance.now();
 function loop(){
-  const now=performance.now();
-  acc+=now-prevT; prevT=now;
+  const now=performance.now(); acc+=now-prev; prev=now;
   if(!paused&&acc>16){ update(); acc=0; }
   render();
   requestAnimationFrame(loop);
 }
 
-// ================================================================
-//  INIT
-// ================================================================
-window.addEventListener('resize',resizeCanvas);
-resizeCanvas();
+window.addEventListener('resize',resize);
+resize();
 refreshMats();
-selMat(M.SAND);
+pick(M.SAND);
 loop();
 </script>
 </body>
