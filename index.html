@@ -3,150 +3,172 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sandbox</title>
+<title>Sandbox Pro</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; font-family: system-ui, sans-serif; background: #f5f5f5; color: #222; user-select: none; }
-
   body { display: flex; height: 100vh; overflow: hidden; }
-
+  
   /* ── LEFT PANEL ── */
   #panel {
-    width: 180px;
-    min-width: 180px;
-    background: #fff;
-    border-right: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    width: 200px; min-width: 200px; background: linear-gradient(180deg, #fff 0%, #f9f9f9 100%);
+    border-right: 1px solid #ddd; display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.08);
   }
-
+  
   #panel-top {
-    padding: 10px 10px 6px;
-    border-bottom: 1px solid #eee;
+    padding: 12px; border-bottom: 1px solid #eee; background: linear-gradient(180deg, #fff 0%, #f5f5f5 100%);
   }
   #panel-top h1 {
-    font-size: 0.95rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: #111;
-    margin-bottom: 8px;
+    font-size: 1rem; font-weight: 700; letter-spacing: 1px; color: #111; margin-bottom: 10px;
   }
-
-  /* brush size */
+  
   .brush-row {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 0.72rem; color: #666;
+    display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: #666; margin-bottom: 8px;
   }
-  .brush-row input { flex: 1; accent-color: #555; }
-  .brush-row span { font-weight: 700; color: #222; min-width: 14px; }
-
+  .brush-row input { flex: 1; accent-color: #4CAF50; cursor: pointer; }
+  .brush-row span { font-weight: 700; color: #222; min-width: 20px; }
+  
   /* top buttons */
-  .top-btns { display: flex; gap: 4px; margin-top: 8px; }
+  .top-btns { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
   .top-btns button {
-    flex: 1; padding: 5px 0;
-    background: #f0f0f0; border: 1px solid #ddd;
-    border-radius: 4px; font-size: 0.7rem;
+    flex: 1; min-width: 45px; padding: 6px;
+    background: linear-gradient(180deg, #f5f5f5 0%, #eee 100%);
+    border: 1px solid #ddd; border-radius: 6px; font-size: 0.7rem;
     cursor: pointer; color: #333; font-weight: 600;
-    transition: background .12s;
+    transition: all .15s; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   }
-  .top-btns button:hover { background: #e0e0e0; }
-
+  .top-btns button:hover { 
+    background: linear-gradient(180deg, #e0e0e0 0%, #d0d0d0 100%);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+  }
+  .top-btns button:active { transform: translateY(0); }
+  
   /* tabs */
   #tabs {
-    display: flex; flex-wrap: wrap;
-    padding: 6px 6px 0;
-    gap: 3px;
+    display: flex; flex-wrap: wrap; padding: 6px; gap: 4px; overflow-y: auto; max-height: 80px;
   }
   .tab {
-    padding: 4px 7px;
-    background: #f0f0f0; border: 1px solid #ddd;
-    border-radius: 4px; font-size: 0.68rem;
+    padding: 5px 8px; background: linear-gradient(180deg, #f5f5f5 0%, #eee 100%);
+    border: 1px solid #ddd; border-radius: 5px; font-size: 0.7rem;
     cursor: pointer; color: #555; font-weight: 600;
     transition: all .12s; line-height: 1.3;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
   }
-  .tab:hover { background: #e8e8e8; }
-  .tab.active { background: #222; color: #fff; border-color: #222; }
-
+  .tab:hover { background: linear-gradient(180deg, #e8e8e8 0%, #ddd 100%); }
+  .tab.active { 
+    background: linear-gradient(180deg, #333 0%, #1a1a1a 100%);
+    color: #fff; border-color: #333;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  
   /* material list */
   #mat-list {
-    flex: 1; overflow-y: auto;
-    padding: 6px;
-    display: flex; flex-direction: column; gap: 2px;
+    flex: 1; overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 3px;
   }
-  #mat-list::-webkit-scrollbar { width: 4px; }
-  #mat-list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
-
+  #mat-list::-webkit-scrollbar { width: 5px; }
+  #mat-list::-webkit-scrollbar-thumb { background: #bbb; border-radius: 2px; }
+  #mat-list::-webkit-scrollbar-thumb:hover { background: #999; }
+  
   .mat-btn {
-    display: flex; align-items: center; gap: 7px;
-    padding: 5px 7px;
-    background: transparent; border: 1px solid transparent;
-    border-radius: 4px; cursor: pointer; text-align: left;
-    font-size: 0.78rem; color: #333; font-weight: 500;
+    display: flex; align-items: center; gap: 8px; padding: 6px 8px;
+    background: transparent; border: 1px solid transparent; border-radius: 5px;
+    cursor: pointer; text-align: left; font-size: 0.8rem; color: #333; font-weight: 500;
     transition: all .1s; width: 100%;
   }
-  .mat-btn:hover { background: #f0f0f0; border-color: #ddd; }
-  .mat-btn.active { background: #222; color: #fff; border-color: #222; }
+  .mat-btn:hover { 
+    background: #f0f0f0; border-color: #ddd;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .mat-btn.active { 
+    background: linear-gradient(90deg, #4CAF50 0%, #45a049 100%);
+    color: #fff; border-color: #4CAF50;
+    box-shadow: 0 2px 6px rgba(76,175,80,0.3);
+  }
   .mat-btn .sw {
-    width: 14px; height: 14px; border-radius: 3px;
-    border: 1px solid rgba(0,0,0,0.15); flex-shrink: 0;
+    width: 16px; height: 16px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.15);
+    flex-shrink: 0; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
   }
-
-  /* current material indicator at bottom */
+  
+  /* current material */
   #cur {
-    padding: 8px 10px;
-    border-top: 1px solid #eee;
-    font-size: 0.72rem; color: #666;
-    display: flex; align-items: center; gap: 6px;
+    padding: 10px; border-top: 1px solid #eee; font-size: 0.75rem; color: #666;
+    display: flex; align-items: center; gap: 8px; background: linear-gradient(180deg, #f9f9f9 0%, #f5f5f5 100%);
   }
-  #cur .sw { width: 12px; height: 12px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.15); }
+  #cur .sw { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.15); box-shadow: inset 0 1px 2px rgba(0,0,0,0.1); }
   #cur-name { font-weight: 600; color: #222; }
-
+  
   /* ── RIGHT: CANVAS ── */
   #right {
-    flex: 1;
-    display: flex;
-    align-items: stretch;
-    overflow: hidden;
-    background: #e8e8e8;
+    flex: 1; display: flex; align-items: stretch; overflow: hidden;
+    background: linear-gradient(135deg, #e8e8e8 0%, #f0f0f0 100%);
     position: relative;
   }
   canvas {
-    display: block;
-    width: 100%; height: 100%;
-    image-rendering: pixelated;
-    image-rendering: crisp-edges;
-    cursor: crosshair;
-    touch-action: none;
+    display: block; width: 100%; height: 100%;
+    image-rendering: pixelated; image-rendering: crisp-edges;
+    cursor: crosshair; touch-action: none;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
   }
-
-  /* small hud overlay on canvas */
+  
+  /* HUD */
   #hud {
-    position: absolute; top: 10px; right: 12px;
-    background: rgba(255,255,255,0.85);
-    border: 1px solid #ddd; border-radius: 4px;
-    padding: 4px 10px; font-size: 0.68rem; color: #555;
+    position: absolute; top: 12px; right: 12px;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(0,0,0,0.1); border-radius: 8px;
+    padding: 8px 12px; font-size: 0.75rem; color: #555;
     pointer-events: none; line-height: 1.8;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    backdrop-filter: blur(8px);
   }
-  #hud b { color: #111; }
-  #hud .vc { color: #9900cc; font-weight: 700; }
-
+  #hud b { color: #111; font-weight: 700; }
+  #hud .vc { color: #d32f2f; font-weight: 700; }
+  
   #virus-alert {
-    position: absolute; top: 10px; left: 10px;
-    background: rgba(180,0,255,0.1);
-    border: 1px solid rgba(180,0,255,0.5);
-    border-radius: 4px; padding: 4px 10px;
-    font-size: 0.68rem; color: #9900cc; font-weight: 700;
+    position: absolute; top: 12px; left: 12px;
+    background: rgba(211,47,47,0.1);
+    border: 1px solid rgba(211,47,47,0.4);
+    border-radius: 6px; padding: 6px 10px;
+    font-size: 0.75rem; color: #d32f2f; font-weight: 700;
     pointer-events: none; display: none;
-    animation: vp .9s ease-in-out infinite;
+    animation: vp .8s ease-in-out infinite;
+    box-shadow: 0 2px 8px rgba(211,47,47,0.2);
   }
-  @keyframes vp {
-    0%,100% { opacity: .7; } 50% { opacity: 1; }
+  @keyframes vp { 0%,100% { opacity: .6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); } }
+  
+  #help-btn {
+    position: absolute; bottom: 12px; right: 12px;
+    background: rgba(255,255,255,0.9); border: 1px solid #ddd;
+    border-radius: 50%; width: 32px; height: 32px;
+    cursor: pointer; font-size: 1rem; line-height: 32px; text-align: center;
+    transition: all .15s; box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   }
-
+  #help-btn:hover { 
+    background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: scale(1.1);
+  }
+  
+  #help-modal {
+    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5); z-index: 1000;
+    animation: fadeIn .2s ease-out;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  
+  #help-content {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: #fff; border-radius: 10px; padding: 20px; max-width: 400px;
+    max-height: 80vh; overflow-y: auto; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  }
+  #help-content h2 { margin-bottom: 12px; color: #222; }
+  #help-content .shortcut { display: flex; justify-content: space-between; margin: 6px 0; font-size: 0.85rem; }
+  #help-content .key { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-weight: 600; font-family: monospace; }
+  #help-close { position: absolute; top: 10px; right: 10px; cursor: pointer; font-size: 1.5rem; }
+  
   @media (max-width: 640px) {
     body { flex-direction: column; }
-    #panel { width: 100%; min-width: unset; height: 160px; border-right: none; border-bottom: 1px solid #ddd; flex-direction: row; flex-wrap: wrap; overflow: hidden; }
+    #panel { width: 100%; min-width: unset; height: auto; border-right: none; border-bottom: 1px solid #ddd; flex-direction: row; flex-wrap: wrap; }
     #panel-top { border-bottom: none; border-right: 1px solid #eee; flex-shrink: 0; }
     #tabs { padding: 4px; border-bottom: 1px solid #eee; width: 100%; }
     #mat-list { flex-direction: row; flex-wrap: wrap; }
@@ -158,17 +180,17 @@
 
 <div id="panel">
   <div id="panel-top">
-    <h1>⚡ Sandbox</h1>
+    <h1>⚡ Sandbox Pro</h1>
     <div class="brush-row">
       <span>✏</span>
-      <input type="range" id="brush-size" min="1" max="30" value="6">
-      <span id="brush-val">6</span>
+      <input type="range" id="brush-size" min="1" max="40" value="8">
+      <span id="brush-val">8</span>
     </div>
     <div class="top-btns">
-      <button id="btn-pause">⏸</button>
-      <button id="btn-clear">✕</button>
-      <button id="btn-save">💾</button>
-      <button id="btn-load">📂</button>
+      <button id="btn-pause" title="Pause/Resume (Space)">⏸</button>
+      <button id="btn-clear" title="Clear Canvas (C)">✕</button>
+      <button id="btn-save" title="Save (S)">💾</button>
+      <button id="btn-load" title="Load (L)">📂</button>
     </div>
   </div>
 
@@ -184,17 +206,32 @@
 <div id="right">
   <canvas id="sim"></canvas>
   <div id="hud">
-    FPS <b id="hud-fps">0</b> &nbsp; Partikel <b id="hud-p">0</b> &nbsp; 💥<b id="hud-ex">0</b> &nbsp; 🦠<span class="vc" id="hud-v">0</span>
+    FPS <b id="hud-fps">0</b> | Partikel <b id="hud-p">0</b> | 💥<b id="hud-ex">0</b> | 🦠<span class="vc" id="hud-v">0</span>
   </div>
-  <div id="virus-alert" id="va">⚠ VIRUS</div>
+  <div id="virus-alert">⚠ VIRUS</div>
+  <button id="help-btn" title="Help (H)">❓</button>
+</div>
+
+<div id="help-modal">
+  <div id="help-content">
+    <span id="help-close">✕</span>
+    <h2>⌨ Tastaturkürzel</h2>
+    <div class="shortcut"><span><span class="key">S</span> Sand</span> <span><span class="key">W</span> Wasser</span></div>
+    <div class="shortcut"><span><span class="key">F</span> Feuer</span> <span><span class="key">I</span> Eis</span></div>
+    <div class="shortcut"><span><span class="key">A</span> Lava</span> <span><span class="key">O</span> Öl</span></div>
+    <div class="shortcut"><span><span class="key">C</span> Säure</span> <span><span class="key">P</span> Pflanze</span></div>
+    <div class="shortcut"><span><span class="key">V</span> Virus</span> <span><span class="key">T</span> TNT</span></div>
+    <div class="shortcut"><span><span class="key">N</span> Nuke</span> <span><span class="key">G</span> Gas</span></div>
+    <div class="shortcut"><span><span class="key">H</span> Loch</span> <span><span class="key">X</span> Radierer</span></div>
+    <hr style="margin: 12px 0; border: none; border-top: 1px solid #eee;">
+    <div class="shortcut"><span><span class="key">Space</span> Pause</span> <span><span class="key">Del</span> Löschen</span></div>
+    <div class="shortcut"><span><span class="key">S</span> Speichern</span> <span><span class="key">L</span> Laden</span></div>
+  </div>
 </div>
 
 <script>
-// ================================================================
-//  SANDBOX — simple UI
-// ================================================================
 const canvas = document.getElementById('sim');
-const ctx    = canvas.getContext('2d', { alpha: false });
+const ctx = canvas.getContext('2d', { alpha: false });
 
 let WIDTH = 1, HEIGHT = 1;
 let imageData, buf32, grid, moved, tentacleDir, virusTimer;
@@ -214,8 +251,8 @@ function resize(){
   const right=document.getElementById('right');
   const r=right.getBoundingClientRect();
   const w=r.width, h=r.height;
-  const nW=Math.max(100,Math.floor(w/3));
-  const nH=Math.max(60, Math.floor(h/3));
+  const nW=Math.max(120,Math.floor(w/2.5));
+  const nH=Math.max(80, Math.floor(h/2.5));
   if(nW===WIDTH&&nH===HEIGHT) return;
   const og=grid,otd=tentacleDir,ovt=virusTimer,oW=WIDTH,oH=HEIGHT;
   WIDTH=nW; HEIGHT=nH;
@@ -235,79 +272,84 @@ function resize(){
 
 function col(r,g,b){ return 0xff000000|((b&0xff)<<16)|((g&0xff)<<8)|(r&0xff); }
 
-// ── MATERIALS ──
 const M={
   EMPTY:0,SAND:1,STONE:2,WOOD:3,WALL:4,ICE:5,SALT:6,DIRT:7,
-  SNOW:8,GUNPOW:9,GLASS:10,METAL:11,ASH:12,
+  SNOW:8,GUNPOW:9,GLASS:10,METAL:11,ASH:12,CONCRETE:13,SAND_DARK:14,
   WATER:20,LAVA:21,OIL:22,ACID:23,SLIME:24,MERCURY:25,HONEY:26,BLOOD:27,
-  STEAM:40,SMOKE:41,GAS:42,TOXIC:43,
-  FIRE:60,PLASMA:61,SPARK:62,EMBER:63,
-  PLANT:80,SEED:81,VIRUS:82,FUNGUS:83,TENTACLE:84,
-  BHOLE:100,SOURCE_W:101,SOURCE_L:102,
-  TNT:120,NUKE:121,FUSE:122,C4:123,
+  STEAM:40,SMOKE:41,GAS:42,TOXIC:43,CLOUD:44,
+  FIRE:60,PLASMA:61,SPARK:62,EMBER:63,LIGHT:64,
+  PLANT:80,SEED:81,VIRUS:82,FUNGUS:83,TENTACLE:84,ALGAE:85,
+  BHOLE:100,SOURCE_W:101,SOURCE_L:102,BUBBLE:103,
+  TNT:120,NUKE:121,FUSE:122,C4:123,MINE:124,
 };
 
 const T=new Array(256).fill(null);
 function def(id,nm,c,cat){ T[id]={id,nm,color:c,cat}; }
-def(M.EMPTY,   'Leer',          col(0,0,0),       'special');
-def(M.SAND,    'Sand',          col(228,198,108),  'powder');
-def(M.STONE,   'Stein',         col(115,115,125),  'wall');
-def(M.WOOD,    'Holz',          col(108,68,32),    'wall');
-def(M.WALL,    'Wand',          col(175,175,185),  'wall');
-def(M.ICE,     'Eis',           col(165,215,255),  'wall');
-def(M.SALT,    'Salz',          col(238,238,248),  'powder');
-def(M.DIRT,    'Erde',          col(88,58,28),     'powder');
-def(M.SNOW,    'Schnee',        col(235,248,255),  'powder');
-def(M.GUNPOW,  'Pulver',        col(55,55,65),     'powder');
-def(M.GLASS,   'Glas',          col(195,228,238),  'wall');
-def(M.METAL,   'Metall',        col(155,155,175),  'wall');
-def(M.ASH,     'Asche',         col(78,78,82),     'powder');
-def(M.WATER,   'Wasser',        col(38,115,235),   'liquid');
-def(M.LAVA,    'Lava',          col(255,98,18),    'liquid');
-def(M.OIL,     'Öl',            col(58,38,12),     'liquid');
-def(M.ACID,    'Säure',         col(155,255,38),   'liquid');
-def(M.SLIME,   'Schleim',       col(38,195,118),   'liquid');
-def(M.MERCURY, 'Quecksilber',   col(195,195,215),  'liquid');
-def(M.HONEY,   'Honig',         col(228,168,28),   'liquid');
-def(M.BLOOD,   'Blut',          col(148,18,28),    'liquid');
-def(M.STEAM,   'Dampf',         col(215,215,228),  'gas');
-def(M.SMOKE,   'Rauch',         col(58,58,62),     'gas');
-def(M.GAS,     'Gas',           col(195,228,138),  'gas');
-def(M.TOXIC,   'Giftgas',       col(138,195,58),   'gas');
-def(M.FIRE,    'Feuer',         col(255,138,28),   'energy');
-def(M.PLASMA,  'Plasma',        col(218,98,255),   'energy');
-def(M.SPARK,   'Funke',         col(255,255,158),  'energy');
-def(M.EMBER,   'Glut',          col(255,78,18),    'energy');
-def(M.PLANT,   'Pflanze',       col(48,175,58),    'life');
-def(M.SEED,    'Samen',         col(138,108,48),   'life');
-def(M.VIRUS,   'Virus',         col(192,30,255),   'life');
-def(M.FUNGUS,  'Pilz',          col(195,148,178),  'life');
-def(M.TENTACLE,'Tentakel',      col(100,12,160),   'life');
-def(M.BHOLE,   'Schwarzes Loch',col(8,0,18),       'special');
-def(M.SOURCE_W,'Wasserquelle',  col(78,158,255),   'special');
-def(M.SOURCE_L,'Lavaquelle',    col(255,138,38),   'special');
-def(M.TNT,     'TNT',           col(198,28,28),    'bomb');
-def(M.NUKE,    'Nuke',          col(78,8,8),       'bomb');
-def(M.FUSE,    'Zündschnur',    col(218,178,78),   'bomb');
-def(M.C4,      'C4',            col(218,218,148),  'bomb');
+
+def(M.EMPTY,'Leer',col(0,0,0),'special');
+def(M.SAND,'Sand',col(228,198,108),'powder');
+def(M.STONE,'Stein',col(115,115,125),'wall');
+def(M.WOOD,'Holz',col(108,68,32),'wall');
+def(M.WALL,'Wand',col(175,175,185),'wall');
+def(M.ICE,'Eis',col(165,215,255),'wall');
+def(M.SALT,'Salz',col(238,238,248),'powder');
+def(M.DIRT,'Erde',col(88,58,28),'powder');
+def(M.SNOW,'Schnee',col(235,248,255),'powder');
+def(M.GUNPOW,'Pulver',col(55,55,65),'powder');
+def(M.GLASS,'Glas',col(195,228,238),'wall');
+def(M.METAL,'Metall',col(155,155,175),'wall');
+def(M.ASH,'Asche',col(78,78,82),'powder');
+def(M.CONCRETE,'Beton',col(140,140,145),'wall');
+def(M.SAND_DARK,'Dunkelsand',col(180,150,80),'powder');
+def(M.WATER,'Wasser',col(38,115,235),'liquid');
+def(M.LAVA,'Lava',col(255,98,18),'liquid');
+def(M.OIL,'Öl',col(58,38,12),'liquid');
+def(M.ACID,'Säure',col(155,255,38),'liquid');
+def(M.SLIME,'Schleim',col(38,195,118),'liquid');
+def(M.MERCURY,'Quecksilber',col(195,195,215),'liquid');
+def(M.HONEY,'Honig',col(228,168,28),'liquid');
+def(M.BLOOD,'Blut',col(148,18,28),'liquid');
+def(M.STEAM,'Dampf',col(215,215,228),'gas');
+def(M.SMOKE,'Rauch',col(58,58,62),'gas');
+def(M.GAS,'Gas',col(195,228,138),'gas');
+def(M.TOXIC,'Giftgas',col(138,195,58),'gas');
+def(M.CLOUD,'Wolke',col(245,245,250),'gas');
+def(M.FIRE,'Feuer',col(255,138,28),'energy');
+def(M.PLASMA,'Plasma',col(218,98,255),'energy');
+def(M.SPARK,'Funke',col(255,255,158),'energy');
+def(M.EMBER,'Glut',col(255,78,18),'energy');
+def(M.LIGHT,'Licht',col(255,255,180),'energy');
+def(M.PLANT,'Pflanze',col(48,175,58),'life');
+def(M.SEED,'Samen',col(138,108,48),'life');
+def(M.VIRUS,'Virus',col(192,30,255),'life');
+def(M.FUNGUS,'Pilz',col(195,148,178),'life');
+def(M.TENTACLE,'Tentakel',col(100,12,160),'life');
+def(M.ALGAE,'Alge',col(78,165,78),'life');
+def(M.BHOLE,'Schwarzes Loch',col(8,0,18),'special');
+def(M.SOURCE_W,'Wasserquelle',col(78,158,255),'special');
+def(M.SOURCE_L,'Lavaquelle',col(255,138,38),'special');
+def(M.BUBBLE,'Blase',col(200,235,255),'special');
+def(M.TNT,'TNT',col(198,28,28),'bomb');
+def(M.NUKE,'Nuke',col(78,8,8),'bomb');
+def(M.FUSE,'Zündschnur',col(218,178,78),'bomb');
+def(M.C4,'C4',col(218,218,148),'bomb');
+def(M.MINE,'Mine',col(138,28,28),'bomb');
 
 const CATS=[
-  {k:'🏖',  label:'Fest',      ids:[M.SAND,M.DIRT,M.SALT,M.SNOW,M.GUNPOW,M.ASH,M.STONE,M.WOOD,M.WALL,M.GLASS,M.METAL,M.ICE]},
-  {k:'💧',  label:'Flüssig',   ids:[M.WATER,M.LAVA,M.OIL,M.ACID,M.SLIME,M.MERCURY,M.HONEY,M.BLOOD]},
-  {k:'☁',   label:'Gas',       ids:[M.STEAM,M.SMOKE,M.GAS,M.TOXIC]},
-  {k:'🔥',  label:'Energie',   ids:[M.FIRE,M.PLASMA,M.SPARK,M.EMBER]},
-  {k:'🌱',  label:'Leben',     ids:[M.PLANT,M.SEED,M.FUNGUS,M.VIRUS,M.TENTACLE]},
+  {k:'🏖',  label:'Fest',      ids:[M.SAND,M.DIRT,M.SALT,M.SNOW,M.GUNPOW,M.ASH,M.STONE,M.WOOD,M.WALL,M.GLASS,M.METAL,M.ICE,M.CONCRETE,M.SAND_DARK]},
+  {k:'💧',  label:'Flüssig',   ids:[M.WATER,M.LAVA,M.OIL,M.ACID,M.SLIME,M.MERCURY,M.HONEY,M.BLOOD,M.BUBBLE]},
+  {k:'☁',   label:'Gas',       ids:[M.STEAM,M.SMOKE,M.GAS,M.TOXIC,M.CLOUD]},
+  {k:'🔥',  label:'Energie',   ids:[M.FIRE,M.PLASMA,M.SPARK,M.EMBER,M.LIGHT]},
+  {k:'🌱',  label:'Leben',     ids:[M.PLANT,M.SEED,M.FUNGUS,M.VIRUS,M.TENTACLE,M.ALGAE]},
   {k:'✨',  label:'Spezial',   ids:[M.SOURCE_W,M.SOURCE_L,M.BHOLE,M.EMPTY]},
-  {k:'💥',  label:'Bomben',    ids:[M.TNT,M.C4,M.NUKE,M.FUSE]},
+  {k:'💥',  label:'Bomben',    ids:[M.TNT,M.C4,M.NUKE,M.FUSE,M.MINE]},
 ];
 
-// ── STATE ──
-let sel=M.SAND, brush=6, paused=false, mdown=false, mx=0,my=0;
+let sel=M.SAND, brush=8, paused=false, mdown=false, mx=0,my=0;
 let pCnt=0,exCnt=0,vCnt=0;
 let lastT=performance.now(),fCnt=0,fps=0,tick=0;
 let activeTab=0;
 
-// ── UI BUILD ──
 const tabsEl=document.getElementById('tabs');
 const matEl =document.getElementById('mat-list');
 
@@ -361,25 +403,37 @@ document.getElementById('btn-clear').onclick=()=>{
   grid.fill(0);tentacleDir.fill(0);virusTimer.fill(0);exCnt=0;vCnt=0;
 };
 document.getElementById('btn-save').onclick=()=>{
-  try{ localStorage.setItem('sb3',JSON.stringify({w:WIDTH,h:HEIGHT,g:btoa(String.fromCharCode(...grid))})); }catch(e){}
+  try{ localStorage.setItem('sb3',JSON.stringify({w:WIDTH,h:HEIGHT,g:btoa(String.fromCharCode(...grid))})); alert('✓ Gespeichert!'); }catch(e){}
 };
 document.getElementById('btn-load').onclick=()=>{
   try{
     const d=JSON.parse(localStorage.getItem('sb3')||'null');
-    if(d&&d.w===WIDTH&&d.h===HEIGHT){ const b=atob(d.g); for(let i=0;i<b.length;i++) grid[i]=b.charCodeAt(i); }
+    if(d&&d.w===WIDTH&&d.h===HEIGHT){ const b=atob(d.g); for(let i=0;i<b.length;i++) grid[i]=b.charCodeAt(i); alert('✓ Geladen!'); }
   }catch(e){}
+};
+
+document.getElementById('help-btn').onclick=()=>{
+  document.getElementById('help-modal').style.display='block';
+};
+document.getElementById('help-close').onclick=()=>{
+  document.getElementById('help-modal').style.display='none';
+};
+document.getElementById('help-modal').onclick=(e)=>{
+  if(e.target.id==='help-modal') document.getElementById('help-modal').style.display='none';
 };
 
 window.addEventListener('keydown',e=>{
   if(e.repeat) return;
   if(e.key===' '){e.preventDefault();document.getElementById('btn-pause').click();return;}
+  if(e.key==='h'||e.key==='H'){e.preventDefault();document.getElementById('help-btn').click();return;}
+  if(e.key==='Delete'){e.preventDefault();document.getElementById('btn-clear').click();return;}
   const map={s:M.SAND,w:M.WATER,f:M.FIRE,i:M.ICE,a:M.LAVA,o:M.OIL,c:M.ACID,
-             p:M.PLANT,v:M.VIRUS,t:M.TNT,n:M.NUKE,g:M.GAS,h:M.BHOLE,x:M.EMPTY};
+             p:M.PLANT,v:M.VIRUS,t:M.TNT,n:M.NUKE,g:M.GAS,h:M.BHOLE,x:M.EMPTY,
+             l:M.WATER,u:M.SAND_DARK,d:M.DIRT,b:M.BLOOD,e:M.STONE};
   const m=map[e.key.toLowerCase()];
   if(m!==undefined){ pick(m); const ci=CATS.findIndex(c=>c.ids.includes(m)); if(ci>=0){activeTab=ci;refreshTabs();refreshMats();pick(m);} }
 });
 
-// ── INPUT ──
 function cpos(e){
   const r=canvas.getBoundingClientRect();
   const cx=e.touches?e.touches[0].clientX:e.clientX;
@@ -402,7 +456,7 @@ function paint(){
     const i=ny*WIDTH+nx;
     if(sel===M.EMPTY){grid[i]=0;tentacleDir[i]=0;virusTimer[i]=0;}
     else if(!grid[i]||sel>=M.BHOLE){
-      if(T[sel]&&T[sel].cat==='powder'&&Math.random()<.25) continue;
+      if(T[sel]&&T[sel].cat==='powder'&&Math.random()<.15) continue;
       grid[i]=sel;
       if(sel===M.TENTACLE) tentacleDir[i]=Math.floor(Math.random()*8);
       if(sel===M.VIRUS)    virusTimer[i]=0;
@@ -410,7 +464,6 @@ function paint(){
   }
 }
 
-// ── PHYSICS ──
 function ii(x,y){return y*WIDTH+x;}
 function inB(x,y){return x>=0&&x<WIDTH&&y>=0&&y<HEIGHT;}
 function gv(x,y){return inB(x,y)?grid[ii(x,y)]:M.WALL;}
@@ -427,12 +480,12 @@ function swap(x1,y1,x2,y2){
 
 function dens(t){
   if(t===M.EMPTY) return 0;
-  if(t===M.STEAM||t===M.SMOKE||t===M.GAS||t===M.TOXIC) return -1;
-  if(t===M.FIRE||t===M.SPARK) return -.5;
+  if(t===M.STEAM||t===M.SMOKE||t===M.GAS||t===M.TOXIC||t===M.CLOUD) return -1;
+  if(t===M.FIRE||t===M.SPARK||t===M.LIGHT) return -.5;
   if(t===M.OIL) return 2;
-  if(t===M.WATER||t===M.ACID||t===M.BLOOD||t===M.SLIME) return 3;
+  if(t===M.WATER||t===M.ACID||t===M.BLOOD||t===M.SLIME||t===M.BUBBLE) return 3;
   if(t===M.HONEY) return 4; if(t===M.LAVA) return 5; if(t===M.MERCURY) return 8;
-  if(t===M.SAND||t===M.DIRT||t===M.SALT||t===M.ASH||t===M.SNOW||t===M.GUNPOW) return 6;
+  if(t===M.SAND||t===M.DIRT||t===M.SALT||t===M.ASH||t===M.SNOW||t===M.GUNPOW||t===M.SAND_DARK) return 6;
   return 100;
 }
 
@@ -440,16 +493,19 @@ function burn(x,y,ch=.1){
   const i=ii(x,y),t=grid[i];
   if(t===M.WOOD   &&Math.random()<ch*.5){grid[i]=M.FIRE;return;}
   if(t===M.OIL    &&Math.random()<ch*2) {grid[i]=M.FIRE;return;}
-  if(t===M.GUNPOW &&Math.random()<ch*3) {boom(x,y,5);return;}
-  if(t===M.GAS    &&Math.random()<ch*2) {boom(x,y,3);return;}
+  if(t===M.GUNPOW &&Math.random()<ch*3) {boom(x,y,6);return;}
+  if(t===M.GAS    &&Math.random()<ch*2) {boom(x,y,4);return;}
   if(t===M.FUSE   &&Math.random()<ch*1.5){grid[i]=M.FIRE;return;}
   if(t===M.PLANT  &&Math.random()<ch)   {grid[i]=M.FIRE;return;}
-  if(t===M.TNT    &&Math.random()<ch*2) {boom(x,y,8);return;}
-  if(t===M.C4     &&Math.random()<ch*2) {boom(x,y,12);return;}
-  if(t===M.NUKE   &&Math.random()<ch*2) {boom(x,y,25);return;}
+  if(t===M.TNT    &&Math.random()<ch*2) {boom(x,y,10);return;}
+  if(t===M.C4     &&Math.random()<ch*2) {boom(x,y,14);return;}
+  if(t===M.NUKE   &&Math.random()<ch*1.5) {boom(x,y,30);return;}
+  if(t===M.MINE   &&Math.random()<ch*1.8) {boom(x,y,8);return;}
   if(t===M.ICE    &&Math.random()<ch)   {grid[i]=M.WATER;return;}
   if(t===M.SNOW   &&Math.random()<ch*1.5){grid[i]=M.WATER;return;}
   if(t===M.WATER  &&Math.random()<ch*2) {grid[i]=M.STEAM;return;}
+  if(t===M.BLOOD  &&Math.random()<ch*1.5) {grid[i]=M.FIRE;return;}
+  if(t===M.ALGAE  &&Math.random()<ch) {grid[i]=M.ASH;return;}
 }
 
 function boom(cx,cy,rad){
@@ -459,15 +515,15 @@ function boom(cx,cy,rad){
     const d2=dx*dx+dy*dy; if(d2>r2) continue;
     const nx=cx+dx,ny=cy+dy; if(!inB(nx,ny)) continue;
     const i=ii(nx,ny),t=grid[i];
-    if(t===M.WALL||t===M.METAL||t===M.BHOLE) continue;
+    if(t===M.WALL||t===M.METAL||t===M.BHOLE||t===M.CONCRETE) continue;
     const r=Math.random();
-    if(d2<r2*.3)      grid[i]=r<.6?M.FIRE:r<.85?M.SMOKE:0;
-    else if(d2<r2*.7) grid[i]=r<.4?M.FIRE:r<.7?M.EMBER:r<.9?M.SMOKE:0;
-    else              grid[i]=r<.2?M.FIRE:r<.5?M.SMOKE:0;
+    if(d2<r2*.3)      grid[i]=r<.5?M.FIRE:r<.8?M.SMOKE:r<.95?M.EMBER:0;
+    else if(d2<r2*.7) grid[i]=r<.3?M.FIRE:r<.6?M.EMBER:r<.85?M.SMOKE:0;
+    else              grid[i]=r<.15?M.FIRE:r<.45?M.SMOKE:0;
   }
 }
 
-function canInfect(t){return t&&t!==M.VIRUS&&t!==M.TENTACLE&&t!==M.WALL&&t!==M.BHOLE;}
+function canInfect(t){return t&&t!==M.VIRUS&&t!==M.TENTACLE&&t!==M.WALL&&t!==M.BHOLE&&t!==M.METAL&&t!==M.CONCRETE;}
 
 function spawnTent(x,y,d){
   const nx=x+DX[d],ny=y+DY[d];
@@ -508,12 +564,12 @@ function update(){
         }
         if(t===M.SALT) for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]])
           if(gv(x+dx,y+dy)===M.WATER&&Math.random()<.02){grid[ii(x+dx,y+dy)]=M.WATER;grid[i]=0;break;}
-        if(t===M.SNOW&&Math.random()<.002) grid[i]=M.WATER;
+        if(t===M.SNOW&&Math.random()<.003) grid[i]=M.WATER;
         continue;
       }
 
       if(cat==='liquid'){
-        const vs=t===M.HONEY?.3:t===M.OIL?.7:t===M.LAVA?.5:1;
+        const vs=t===M.HONEY?.4:t===M.OIL?.8:t===M.LAVA?.6:t===M.BLOOD?.7:1;
         if(Math.random()<vs){
           if(y+1<HEIGHT){
             const b=grid[ii(x,y+1)];
@@ -523,7 +579,7 @@ function update(){
             if(x+d>=0&&x+d<WIDTH&&!grid[ii(x+d,y+1)]){swap(x,y,x+d,y+1);continue;}
             if(x-d>=0&&x-d<WIDTH&&!grid[ii(x-d,y+1)]){swap(x,y,x-d,y+1);continue;}
           }
-          const sp=t===M.HONEY?1:t===M.OIL?2:t===M.LAVA?1:3;
+          const sp=t===M.HONEY?1:t===M.OIL?2:t===M.LAVA?1:t===M.BLOOD?2:3;
           const ds=Math.random()<.5?1:-1;
           for(let s=1;s<=sp;s++){
             const nx=x+ds*s; if(nx<0||nx>=WIDTH) break;
@@ -538,17 +594,19 @@ function update(){
         }
         if(t===M.LAVA){
           if(Math.random()<.02) for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]) burn(x+dx,y+dy,.5);
-          if(Math.random()<.003) grid[i]=M.STONE;
+          if(Math.random()<.004) grid[i]=M.STONE;
         }
         if(t===M.ACID) for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
           const nx=x+dx,ny=y+dy; if(!inB(nx,ny)) continue;
           const nt=grid[ii(nx,ny)];
-          if(nt&&nt!==M.ACID&&nt!==M.WALL&&nt!==M.GLASS&&nt!==M.BHOLE&&Math.random()<.08){
+          if(nt&&nt!==M.ACID&&nt!==M.WALL&&nt!==M.GLASS&&nt!==M.BHOLE&&nt!==M.CONCRETE&&Math.random()<.08){
             grid[ii(nx,ny)]=0; if(Math.random()<.3) grid[i]=0; break;
           }
         }
         if(t===M.OIL) for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]])
           if((gv(x+dx,y+dy)===M.FIRE||gv(x+dx,y+dy)===M.LAVA)&&Math.random()<.2) grid[i]=M.FIRE;
+        if(t===M.BLOOD) for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]])
+          if(gv(x+dx,y+dy)===M.ACID&&Math.random()<.05) grid[i]=M.ACID;
         continue;
       }
 
@@ -560,11 +618,11 @@ function update(){
           if(x+dg>=0&&x+dg<WIDTH&&!grid[ii(x+dg,y)]){swap(x,y,x+dg,y);continue;}
         }
         if(t===M.STEAM&&Math.random()<.002) grid[i]=M.WATER;
-        if(t===M.SMOKE&&Math.random()<.008) grid[i]=0;
-        if((t===M.GAS||t===M.TOXIC)&&Math.random()<.001) grid[i]=0;
+        if(t===M.SMOKE&&Math.random()<.01) grid[i]=0;
+        if((t===M.GAS||t===M.TOXIC||t===M.CLOUD)&&Math.random()<.0015) grid[i]=0;
         if(t===M.GAS) for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
           const nt=gv(x+dx,y+dy);
-          if(nt===M.FIRE||nt===M.LAVA||nt===M.SPARK){boom(x,y,2);break;}
+          if(nt===M.FIRE||nt===M.LAVA||nt===M.SPARK){boom(x,y,3);break;}
         }
         continue;
       }
@@ -573,14 +631,15 @@ function update(){
         if(t===M.FIRE){
           for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0],[-1,-1],[1,-1],[-1,1],[1,1]]) burn(x+dx,y+dy,.15);
           if(Math.random()<.3&&y-1>=0&&!grid[ii(x,y-1)]) swap(x,y,x,y-1);
-          if(Math.random()<.08) grid[i]=Math.random()<.4?M.SMOKE:0;
+          if(Math.random()<.09) grid[i]=Math.random()<.5?M.SMOKE:0;
         }
         if(t===M.PLASMA){
-          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){ burn(x+dx,y+dy,.3); if(gv(x+dx,y+dy)===M.PLASMA&&Math.random()<.01) grid[i]=M.FIRE; }
-          if(Math.random()<.02) grid[i]=M.FIRE;
+          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){ burn(x+dx,y+dy,.35); if(gv(x+dx,y+dy)===M.PLASMA&&Math.random()<.02) grid[i]=M.FIRE; }
+          if(Math.random()<.03) grid[i]=M.FIRE;
         }
-        if(t===M.SPARK){ for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]) burn(x+dx,y+dy,.4); if(Math.random()<.2) grid[i]=0; }
-        if(t===M.EMBER){ if(Math.random()<.05) grid[i]=Math.random()<.5?M.FIRE:M.ASH; if(y+1<HEIGHT&&!grid[ii(x,y+1)]) swap(x,y,x,y+1); }
+        if(t===M.SPARK){ for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]) burn(x+dx,y+dy,.5); if(Math.random()<.25) grid[i]=0; }
+        if(t===M.EMBER){ if(Math.random()<.06) grid[i]=Math.random()<.6?M.FIRE:M.ASH; if(y+1<HEIGHT&&!grid[ii(x,y+1)]) swap(x,y,x,y+1); }
+        if(t===M.LIGHT){ if(Math.random()<.4) grid[i]=0; for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]) burn(x+dx,y+dy,.6); }
         continue;
       }
 
@@ -589,42 +648,42 @@ function update(){
           vCnt++;
           if(virusTimer[i]<60000) virusTimer[i]++;
           const age=virusTimer[i];
-          const ir=Math.min(.06+age*.00004,.18);
+          const ir=Math.min(.08+age*.00005,.25);
           for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0],[1,1],[-1,1],[1,-1],[-1,-1]]){
             const nx=x+dx,ny=y+dy; if(!inB(nx,ny)) continue;
             const ni=ii(nx,ny),nt=grid[ni];
             if(!canInfect(nt)) continue;
-            if(Math.random()<ir){ grid[ni]=M.VIRUS; virusTimer[ni]=0; if(Math.random()<.22) spawnTent(nx,ny,Math.floor(Math.random()*8)); }
+            if(Math.random()<ir){ grid[ni]=M.VIRUS; virusTimer[ni]=0; if(Math.random()<.25) spawnTent(nx,ny,Math.floor(Math.random()*8)); }
           }
-          if(Math.random()<.006) spawnTent(x,y,Math.floor(Math.random()*8));
-          if(age>350&&Math.random()<.0012*(age/350)){ boom(x,y,5); virusSpores(x,y,20,.18); }
+          if(Math.random()<.008) spawnTent(x,y,Math.floor(Math.random()*8));
+          if(age>300&&Math.random()<.0015*(age/350)){ boom(x,y,6); virusSpores(x,y,25,.2); }
           continue;
         }
         if(t===M.TENTACLE){
           vCnt++;
           if(virusTimer[i]<60000) virusTimer[i]++;
           const age=virusTimer[i], dir=tentacleDir[i];
-          if(Math.random()<.14){
+          if(Math.random()<.16){
             const tryD=[dir,(dir+1)%8,(dir+7)%8,(dir+2)%8,(dir+6)%8];
             let grew=false;
             for(const d of tryD){
               const nx=x+DX[d],ny=y+DY[d]; if(!inB(nx,ny)) continue;
               const ni=ii(nx,ny),nt=grid[ni];
               if(!nt){ grid[i]=M.VIRUS; virusTimer[i]=Math.min(age,50); grid[ni]=M.TENTACLE; tentacleDir[ni]=d; virusTimer[ni]=Math.max(0,age-8); moved[ni]=1; grew=true; break; }
-              else if(canInfect(nt)&&Math.random()<.3){ grid[ni]=M.VIRUS; virusTimer[ni]=0; grid[i]=M.VIRUS; virusTimer[i]=age; grew=true; break; }
+              else if(canInfect(nt)&&Math.random()<.35){ grid[ni]=M.VIRUS; virusTimer[ni]=0; grid[i]=M.VIRUS; virusTimer[i]=age; grew=true; break; }
             }
-            if(!grew&&Math.random()<.04){ grid[i]=M.VIRUS; virusTimer[i]=age; }
+            if(!grew&&Math.random()<.05){ grid[i]=M.VIRUS; virusTimer[i]=age; }
           }
-          if(Math.random()<.008){ const bd=(dir+(Math.random()<.5?2:6))%8; const nx=x+DX[bd],ny=y+DY[bd]; if(inB(nx,ny)&&!grid[ii(nx,ny)]){ grid[ii(nx,ny)]=M.TENTACLE; tentacleDir[ii(nx,ny)]=bd; virusTimer[ii(nx,ny)]=0; } }
-          if(age>600&&Math.random()<.004){ boom(x,y,3); virusSpores(x,y,10,.28); }
+          if(Math.random()<.01){ const bd=(dir+(Math.random()<.5?2:6))%8; const nx=x+DX[bd],ny=y+DY[bd]; if(inB(nx,ny)&&!grid[ii(nx,ny)]){ grid[ii(nx,ny)]=M.TENTACLE; tentacleDir[ii(nx,ny)]=bd; virusTimer[ii(nx,ny)]=Math.max(0,virusTimer[i]-4); moved[ii(nx,ny)]=1; } }
+          if(age>550&&Math.random()<.005){ boom(x,y,4); virusSpores(x,y,12,.3); }
           continue;
         }
         if(t===M.PLANT){
-          if(Math.random()<.05) for(const[dx,dy]of[[0,-1],[-1,0],[1,0],[0,1]]){
+          if(Math.random()<.06) for(const[dx,dy]of[[0,-1],[-1,0],[1,0],[0,1]]){
             const nx=x+dx,ny=y+dy; if(!inB(nx,ny)) continue;
             const nt=grid[ii(nx,ny)];
-            if(!nt){ let hw=false; for(const[dx2,dy2]of[[-1,0],[1,0],[0,-1],[0,1],[-2,0],[2,0]]) if(gv(nx+dx2,ny+dy2)===M.WATER){hw=true;break;} if(hw&&Math.random()<.3){ grid[ii(nx,ny)]=M.PLANT; for(const[dx2,dy2]of[[-1,0],[1,0],[0,-1],[0,1]]) if(gv(nx+dx2,ny+dy2)===M.WATER&&Math.random()<.3){grid[ii(nx+dx2,ny+dy2)]=0;break;} break; } }
-            if(nt===M.WATER&&Math.random()<.05){grid[ii(nx,ny)]=M.PLANT;break;}
+            if(!nt){ let hw=false; for(const[dx2,dy2]of[[-1,0],[1,0],[0,-1],[0,1],[-2,0],[2,0]]) if(gv(nx+dx2,ny+dy2)===M.WATER){hw=true;break;} if(hw&&Math.random()<.35){ grid[ii(nx,ny)]=M.PLANT; } }
+            if(nt===M.WATER&&Math.random()<.06){grid[ii(nx,ny)]=M.PLANT;break;}
           }
           continue;
         }
@@ -632,13 +691,20 @@ function update(){
           if(y+1<HEIGHT){ if(!grid[ii(x,y+1)]){swap(x,y,x,y+1);continue;} const d=Math.random()<.5?1:-1; if(x+d>=0&&x+d<WIDTH&&!grid[ii(x+d,y+1)]){swap(x,y,x+d,y+1);continue;} }
           let td=false,tw=false;
           for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){ if(gv(x+dx,y+dy)===M.DIRT)td=true; if(gv(x+dx,y+dy)===M.WATER)tw=true; }
-          if(td&&tw&&Math.random()<.1) grid[i]=M.PLANT;
+          if(td&&tw&&Math.random()<.12) grid[i]=M.PLANT;
           continue;
         }
         if(t===M.FUNGUS){
-          if(Math.random()<.02) for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
+          if(Math.random()<.025) for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
             const nx=x+dx,ny=y+dy;
             if(gv(nx,ny)===M.DIRT||gv(nx,ny)===M.WOOD){grid[ii(nx,ny)]=M.FUNGUS;break;}
+          }
+          continue;
+        }
+        if(t===M.ALGAE){
+          if(Math.random()<.04) for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
+            const nx=x+dx,ny=y+dy;
+            if(gv(nx,ny)===M.WATER){grid[ii(nx,ny)]=M.ALGAE;break;}
           }
           continue;
         }
@@ -646,32 +712,32 @@ function update(){
       }
 
       if(t===M.BHOLE){
-        const R=8;
+        const R=10;
         for(let dy2=-R;dy2<=R;dy2++) for(let dx2=-R;dx2<=R;dx2++){
           if(!dx2&&!dy2) continue; const d2=dx2*dx2+dy2*dy2; if(d2>R*R) continue;
           const nx=x+dx2,ny=y+dy2; if(!inB(nx,ny)) continue;
-          const nt=grid[ii(nx,ny)]; if(!nt||nt===M.BHOLE||nt===M.WALL) continue;
-          if(Math.random()<.08/(d2+1)*4) grid[ii(nx,ny)]=0;
+          const nt=grid[ii(nx,ny)]; if(!nt||nt===M.BHOLE||nt===M.WALL||nt===M.CONCRETE) continue;
+          if(Math.random()<.1/(d2+1)*5) grid[ii(nx,ny)]=0;
         }
         continue;
       }
       if(t===M.SOURCE_W){ for(const[dx,dy]of[[0,1],[-1,0],[1,0],[0,-1]]) if(!gv(x+dx,y+dy)){grid[ii(x+dx,y+dy)]=M.WATER;break;} continue; }
       if(t===M.SOURCE_L){ for(const[dx,dy]of[[0,1],[-1,0],[1,0],[0,-1]]) if(!gv(x+dx,y+dy)){grid[ii(x+dx,y+dy)]=M.LAVA;break;}  continue; }
+      if(t===M.BUBBLE){ if(y-1>=0&&!grid[ii(x,y-1)]){swap(x,y,x,y-1);continue;} if(Math.random()<.015) grid[i]=0; continue; }
 
       if(cat==='bomb'){
-        if((t===M.TNT||t===M.C4||t===M.NUKE)&&y+1<HEIGHT&&!grid[ii(x,y+1)]){ swap(x,y,x,y+1); continue; }
+        if((t===M.TNT||t===M.C4||t===M.NUKE||t===M.MINE)&&y+1<HEIGHT&&!grid[ii(x,y+1)]){ swap(x,y,x,y+1); continue; }
         if(t===M.FUSE) for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
           const nt=gv(x+dx,y+dy);
-          if(nt===M.FIRE||nt===M.LAVA||nt===M.SPARK||nt===M.EMBER) if(Math.random()<.3){grid[i]=M.FIRE;break;}
+          if(nt===M.FIRE||nt===M.LAVA||nt===M.SPARK||nt===M.EMBER) if(Math.random()<.35){grid[i]=M.FIRE;break;}
         }
         continue;
       }
-      if(t===M.ICE&&Math.random()<.0005) grid[i]=M.WATER;
+      if(t===M.ICE&&Math.random()<.0008) grid[i]=M.WATER;
     }
   }
 }
 
-// ── RENDER ──
 function render(){
   const now=performance.now();
   fCnt++;
@@ -680,20 +746,24 @@ function render(){
   const len=WIDTH*HEIGHT;
   for(let i=0;i<len;i++){
     const t=grid[i];
-    if(!t){buf32[i]=0xff111111;continue;}
-    const TI=T[t]; if(!TI){buf32[i]=0xff111111;continue;}
+    if(!t){buf32[i]=0xff1a1a1a;continue;}
+    const TI=T[t]; if(!TI){buf32[i]=0xff1a1a1a;continue;}
     let c=TI.color;
     if(t===M.FIRE||t===M.LAVA||t===M.PLASMA||t===M.SPARK||t===M.EMBER){
-      const f=.78+Math.random()*.44;
+      const f=.7+Math.random()*.5;
       const r=Math.min(255,((c&0xff)*f)|0), g=Math.min(255,(((c>>8)&0xff)*f)|0), b=Math.min(255,(((c>>16)&0xff)*f)|0);
       c=0xff000000|(b<<16)|(g<<8)|r;
     } else if(t===M.VIRUS){
-      const ag=Math.min(1,virusTimer[i]/300), p=.62+pS*.52, n=(Math.random()-.5)*28;
-      const r=Math.min(255,Math.max(0,((190+ag*55+n)*p)|0)), g=Math.min(255,Math.max(0,((28+ag*15+n*.3)*p)|0)), b=Math.min(255,(255*p)|0);
+      const ag=Math.min(1,virusTimer[i]/300), p=.6+pS*.55, n=(Math.random()-.5)*32;
+      const r=Math.min(255,Math.max(0,((190+ag*60+n)*p)|0)), g=Math.min(255,Math.max(0,((25+ag*20+n*.4)*p)|0)), b=Math.min(255,(255*p)|0);
       c=0xff000000|(b<<16)|(g<<8)|r;
     } else if(t===M.TENTACLE){
-      const ag=Math.min(1,virusTimer[i]/400), p=.68+pF*.40, n=(Math.random()-.5)*20;
-      const r=Math.min(255,Math.max(0,((105-ag*35+n)*p)|0)), g=Math.min(255,Math.max(0,((10+ag*70+n*.5)*p)|0)), b=Math.min(255,((160-ag*30)*p)|0);
+      const ag=Math.min(1,virusTimer[i]/400), p=.65+pF*.45, n=(Math.random()-.5)*25;
+      const r=Math.min(255,Math.max(0,((110-ag*40+n)*p)|0)), g=Math.min(255,Math.max(0,((8+ag*75+n*.6)*p)|0)), b=Math.min(255,((165-ag*35)*p)|0);
+      c=0xff000000|(b<<16)|(g<<8)|r;
+    } else if(t===M.LIGHT){
+      const f=.5+Math.random()*.8;
+      const r=Math.min(255,((c&0xff)*f)|0), g=Math.min(255,(((c>>8)&0xff)*f)|0), b=Math.min(255,(((c>>16)&0xff)*f)|0);
       c=0xff000000|(b<<16)|(g<<8)|r;
     }
     buf32[i]=c;
@@ -704,11 +774,10 @@ function render(){
   document.getElementById('hud-ex').textContent=exCnt;
   document.getElementById('hud-v').textContent=vCnt;
   const va=document.getElementById('virus-alert');
-  if(vCnt>80){ va.style.display='block'; va.textContent=vCnt>600?'☣ KRITISCHE INFEKTION':'⚠ VIRUS'; }
+  if(vCnt>100){ va.style.display='block'; va.textContent=vCnt>700?'☣ KRITISCHE INFEKTION':vCnt>400?'⚠⚠ STARKE INFEKTION':'⚠ VIRUS'; }
   else va.style.display='none';
 }
 
-// ── LOOP ──
 let acc=0,prev=performance.now();
 function loop(){
   const now=performance.now(); acc+=now-prev; prev=now;
@@ -723,5 +792,6 @@ refreshMats();
 pick(M.SAND);
 loop();
 </script>
+
 </body>
 </html>
