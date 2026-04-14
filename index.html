@@ -5,24 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sandbox Pro — Powder Simulator</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap');
   :root {
-    --bg: #0b0b10;
-    --bg2: #13131b;
-    --panel: #1a1a24;
-    --panel2: #23232f;
-    --border: #2e2e3c;
+    --bg: #080810;
+    --bg2: #0f0f1a;
+    --panel: #131320;
+    --panel2: #1a1a2a;
+    --border: #252538;
     --accent: #00e5ff;
     --accent2: #ff00aa;
-    --text: #e8e8f0;
-    --muted: #8a8aa0;
-    --hover: #2d2d3d;
+    --virus: #c030ff;
+    --text: #e0e0f0;
+    --muted: #7070a0;
+    --hover: #20202e;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
   body {
-    background: radial-gradient(ellipse at top, #1a1a28 0%, var(--bg) 60%);
+    background: radial-gradient(ellipse at top, #12122a 0%, var(--bg) 60%);
     color: var(--text);
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: 'Rajdhani', system-ui, sans-serif;
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -30,248 +32,153 @@
     user-select: none;
   }
   header {
-    padding: 12px 20px;
+    padding: 10px 18px;
     background: linear-gradient(90deg, var(--panel) 0%, var(--panel2) 100%);
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid var(--border);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 14px rgba(0,0,0,0.5);
     flex-shrink: 0;
   }
   h1 {
     font-size: 1.4rem;
+    font-family: 'Share Tech Mono', monospace;
     background: linear-gradient(90deg, var(--accent), var(--accent2));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
     font-weight: 700;
   }
-  .controls { display: flex; gap: 8px; flex-wrap: wrap; }
+  .controls { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
   button {
     background: var(--panel2);
     border: 1px solid var(--border);
     color: var(--text);
-    padding: 8px 14px;
-    border-radius: 6px;
+    padding: 7px 13px;
+    border-radius: 5px;
     cursor: pointer;
-    font-size: 0.85rem;
-    font-weight: 500;
+    font-size: 0.82rem;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.5px;
     transition: all 0.15s;
   }
-  button:hover {
-    background: var(--hover);
-    border-color: var(--accent);
-    transform: translateY(-1px);
-  }
+  button:hover { background: var(--hover); border-color: var(--accent); transform: translateY(-1px); }
   button:active { transform: translateY(0); }
   button.active {
     background: linear-gradient(135deg, var(--accent), #0099cc);
-    color: #000;
-    border-color: var(--accent);
-    box-shadow: 0 0 12px rgba(0,229,255,0.4);
+    color: #000; border-color: var(--accent);
+    box-shadow: 0 0 14px rgba(0,229,255,0.4);
   }
-
-  main {
-    flex: 1;
-    display: flex;
-    overflow: hidden;
-    min-height: 0;
-  }
+  main { flex: 1; display: flex; overflow: hidden; min-height: 0; }
   #canvas-container {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #050508;
-    position: relative;
-    padding: 16px;
-    min-width: 0;
+    flex: 1; display: flex;
+    justify-content: center; align-items: center;
+    background: #040408;
+    position: relative; padding: 14px; min-width: 0;
   }
   canvas {
     background: #000;
-    box-shadow: 0 0 40px rgba(0,229,255,0.15), 0 0 80px rgba(0,0,0,0.5);
-    image-rendering: pixelated;
-    image-rendering: crisp-edges;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    cursor: crosshair;
-    touch-action: none;
+    box-shadow: 0 0 50px rgba(0,229,255,0.1), 0 0 100px rgba(0,0,0,0.7);
+    image-rendering: pixelated; image-rendering: crisp-edges;
+    border: 1px solid var(--border); border-radius: 3px;
+    cursor: crosshair; touch-action: none;
   }
   .hud {
-    position: absolute;
-    top: 24px;
-    left: 24px;
-    background: rgba(0,0,0,0.65);
-    backdrop-filter: blur(8px);
-    padding: 8px 14px;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    color: var(--muted);
-    border: 1px solid var(--border);
-    pointer-events: none;
-    font-family: 'Consolas', monospace;
+    position: absolute; top: 22px; left: 22px;
+    background: rgba(0,0,0,0.75); backdrop-filter: blur(10px);
+    padding: 8px 14px; border-radius: 6px;
+    font-size: 0.72rem; color: var(--muted);
+    border: 1px solid var(--border); pointer-events: none;
+    font-family: 'Share Tech Mono', monospace; line-height: 1.7;
   }
-  .hud span { color: var(--accent); font-weight: 600; }
+  .hud span { color: var(--accent); font-weight: 700; }
+  .hud .vspan { color: var(--virus); }
   .current-mat {
-    position: absolute;
-    bottom: 24px;
-    left: 24px;
-    background: rgba(0,0,0,0.65);
-    backdrop-filter: blur(8px);
-    padding: 10px 16px;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    border: 1px solid var(--border);
-    pointer-events: none;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    position: absolute; bottom: 22px; left: 22px;
+    background: rgba(0,0,0,0.75); backdrop-filter: blur(10px);
+    padding: 9px 15px; border-radius: 6px;
+    font-size: 0.88rem; border: 1px solid var(--border);
+    pointer-events: none; display: flex; align-items: center; gap: 10px; font-weight: 600;
   }
-  .current-mat .dot {
-    width: 16px; height: 16px;
-    border-radius: 3px;
-    border: 1px solid rgba(255,255,255,0.3);
+  .current-mat .dot { width: 16px; height: 16px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.25); }
+  #virus-alert {
+    position: absolute; top: 22px; right: 22px;
+    background: rgba(192,48,255,0.12); backdrop-filter: blur(10px);
+    padding: 8px 14px; border-radius: 6px; font-size: 0.78rem;
+    border: 1px solid rgba(192,48,255,0.5); pointer-events: none; color: #e070ff;
+    font-family: 'Share Tech Mono', monospace; display: none;
+    animation: virusPulse 1s ease-in-out infinite;
   }
-
+  @keyframes virusPulse {
+    0%,100% { border-color: rgba(192,48,255,0.4); box-shadow: 0 0 8px rgba(192,48,255,0.2); }
+    50% { border-color: rgba(192,48,255,0.9); box-shadow: 0 0 22px rgba(192,48,255,0.55); }
+  }
   .sidebar {
-    width: 320px;
-    background: var(--panel);
+    width: 300px; background: var(--panel);
     border-left: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    flex-shrink: 0;
+    display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0;
   }
   .tabs {
-    display: flex;
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    overflow-x: auto;
+    display: flex; background: var(--bg2);
+    border-bottom: 1px solid var(--border); overflow-x: auto; flex-wrap: wrap;
     scrollbar-width: thin;
   }
-  .tabs::-webkit-scrollbar { height: 4px; }
-  .tabs::-webkit-scrollbar-thumb { background: var(--border); }
   .tab {
-    padding: 12px 14px;
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid transparent;
-    color: var(--muted);
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.15s;
-    border-radius: 0;
+    padding: 10px 12px; background: transparent;
+    border: none; border-bottom: 2px solid transparent;
+    color: var(--muted); font-size: 0.78rem;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    cursor: pointer; white-space: nowrap; transition: all 0.15s; border-radius: 0;
   }
   .tab:hover { color: var(--text); background: rgba(255,255,255,0.03); transform: none; }
-  .tab.active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
-    background: rgba(0,229,255,0.05);
-  }
-
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(0,229,255,0.04); }
   .tab-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
+    flex: 1; overflow-y: auto; padding: 12px;
+    display: flex; flex-direction: column; gap: 12px;
   }
-  .tab-content::-webkit-scrollbar { width: 8px; }
+  .tab-content::-webkit-scrollbar { width: 6px; }
   .tab-content::-webkit-scrollbar-track { background: var(--bg2); }
-  .tab-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-
-  .mat-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
+  .tab-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .mat-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 7px; }
   .mat-btn {
-    background: var(--panel2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 10px 8px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    border-radius: 6px;
-    cursor: pointer;
-    text-align: left;
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 42px;
+    background: var(--panel2); border: 1px solid var(--border);
+    color: var(--text); padding: 9px 8px; font-size: 0.8rem;
+    font-family: 'Rajdhani', sans-serif; font-weight: 600;
+    border-radius: 5px; cursor: pointer; text-align: left;
+    transition: all 0.15s; display: flex; align-items: center; gap: 7px; min-height: 40px;
   }
-  .mat-btn:hover {
-    background: var(--hover);
-    border-color: var(--accent);
-    transform: translateX(2px);
+  .mat-btn:hover { background: var(--hover); border-color: var(--accent); transform: translateX(2px); }
+  .mat-btn.active { background: linear-gradient(135deg,rgba(0,229,255,0.15),rgba(0,153,204,0.08)); border-color: var(--accent); box-shadow: 0 0 10px rgba(0,229,255,0.15); }
+  .mat-btn.vbtn:hover { border-color: var(--virus); }
+  .mat-btn.vbtn.active { background: linear-gradient(135deg,rgba(192,48,255,0.2),rgba(140,20,200,0.1)); border-color: var(--virus); box-shadow: 0 0 12px rgba(192,48,255,0.3); }
+  .mat-btn .swatch { width: 18px; height: 18px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.15); flex-shrink: 0; }
+  .section { background: var(--bg2); padding: 11px; border-radius: 7px; border: 1px solid var(--border); }
+  .section h3 { font-size: 0.72rem; margin-bottom: 9px; color: var(--accent); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; font-family: 'Share Tech Mono', monospace; }
+  .section h3.vhead { color: var(--virus); }
+  .slider-group { display: flex; flex-direction: column; gap: 5px; }
+  .slider-group label { font-size: 0.8rem; color: var(--muted); display: flex; justify-content: space-between; font-weight: 600; }
+  .slider-group label span { color: var(--accent); font-weight: 700; }
+  input[type="range"] { width: 100%; accent-color: var(--accent); height: 5px; }
+  .info-text { font-size: 0.76rem; color: var(--muted); line-height: 1.65; }
+  .info-text kbd { background: var(--panel2); padding: 1px 5px; border-radius: 3px; border: 1px solid var(--border); font-family: 'Share Tech Mono',monospace; font-size: 0.7rem; color: var(--accent); }
+  .virus-info {
+    background: linear-gradient(135deg,rgba(192,48,255,0.08),rgba(100,10,140,0.05));
+    border: 1px solid rgba(192,48,255,0.3); border-radius: 7px; padding: 11px;
+    font-size: 0.76rem; line-height: 1.75; color: #cc80ff;
   }
-  .mat-btn.active {
-    background: linear-gradient(135deg, rgba(0,229,255,0.2), rgba(0,153,204,0.1));
-    border-color: var(--accent);
-    box-shadow: 0 0 10px rgba(0,229,255,0.2);
-  }
-  .mat-btn .swatch {
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
-    border: 1px solid rgba(255,255,255,0.2);
-    flex-shrink: 0;
-  }
-
-  .section {
-    background: var(--bg2);
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-  }
-  .section h3 {
-    font-size: 0.75rem;
-    margin-bottom: 10px;
-    color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 700;
-  }
-  .slider-group { display: flex; flex-direction: column; gap: 6px; }
-  .slider-group label {
-    font-size: 0.8rem;
-    color: var(--muted);
-    display: flex;
-    justify-content: space-between;
-  }
-  .slider-group label span { color: var(--accent); font-weight: 600; }
-  input[type="range"] {
-    width: 100%;
-    accent-color: var(--accent);
-    height: 6px;
-  }
-  .info-text {
-    font-size: 0.75rem;
-    color: var(--muted);
-    line-height: 1.6;
-  }
-  .info-text kbd {
-    background: var(--panel2);
-    padding: 1px 6px;
-    border-radius: 3px;
-    border: 1px solid var(--border);
-    font-family: 'Consolas', monospace;
-    font-size: 0.7rem;
-    color: var(--accent);
-  }
-
+  .virus-info strong { color: #e060ff; font-weight: 700; }
+  .shortcuts-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 4px; font-size: 0.75rem; }
+  .sc { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+  .sc kbd { background: var(--panel2); padding: 2px 6px; border-radius: 3px; border: 1px solid var(--border); font-family: 'Share Tech Mono',monospace; font-size: 0.68rem; color: var(--accent); min-width: 22px; text-align: center; }
   @media (max-width: 900px) {
     main { flex-direction: column; }
-    .sidebar { width: 100%; height: 45%; border-left: none; border-top: 1px solid var(--border); }
+    .sidebar { width: 100%; height: 42%; border-left: none; border-top: 1px solid var(--border); }
     #canvas-container { padding: 8px; }
-    header { padding: 8px 12px; }
-    h1 { font-size: 1rem; }
-    .controls button { padding: 6px 10px; font-size: 0.75rem; }
+    header { padding: 7px 10px; }
+    h1 { font-size: 1rem; letter-spacing: 2px; }
+    .controls button { padding: 5px 8px; font-size: 0.73rem; }
   }
 </style>
 </head>
@@ -281,31 +188,40 @@
   <div class="controls">
     <button id="btn-pause">⏸ Pause</button>
     <button id="btn-clear">✕ Leeren</button>
-    <button id="btn-save">💾 Speichern</button>
-    <button id="btn-load">📂 Laden</button>
+    <button id="btn-save">💾 Save</button>
+    <button id="btn-load">📂 Load</button>
   </div>
 </header>
-
 <main>
   <div id="canvas-container">
     <canvas id="sim"></canvas>
     <div class="hud">
-      Partikel: <span id="hud-particles">0</span> ·
+      Partikel: <span id="hud-p">0</span> ·
       FPS: <span id="hud-fps">0</span> ·
-      💥 <span id="hud-explosions">0</span>
+      💥 <span id="hud-ex">0</span> ·
+      🦠 <span class="vspan" id="hud-v">0</span>
     </div>
     <div class="current-mat">
       <div class="dot" id="cur-dot"></div>
       <span id="cur-name">Sand</span>
     </div>
+    <div id="virus-alert">⚠ VIRUS AUSBRUCH ⚠</div>
   </div>
-
   <aside class="sidebar">
     <div class="tabs" id="tabs"></div>
-    <div class="tab-content" id="tab-content">
+    <div class="tab-content">
       <div class="section">
         <h3>Materialien</h3>
         <div class="mat-grid" id="mat-grid"></div>
+      </div>
+      <div class="section" id="virus-panel" style="display:none">
+        <h3 class="vhead">🦠 VIRUS — WARNUNG</h3>
+        <div class="virus-info">
+          <strong>Verwandelt ALLES</strong> außer Luft &amp; Wände.<br><br>
+          Infizierte Zellen lassen <strong>Tentakel wachsen</strong> — die sich verzweigen, winden und weiter infizieren.<br><br>
+          Nach einiger Zeit <strong>EXPLODIERT</strong> der Virus und schleudert Sporen durch die Luft!<br><br>
+          ☣ Einmal gestartet kaum zu stoppen.
+        </div>
       </div>
       <div class="section">
         <h3>Werkzeug</h3>
@@ -315,11 +231,15 @@
         </div>
       </div>
       <div class="section">
-        <h3>Tipps</h3>
+        <h3>Tastaturbefehle</h3>
+        <div class="shortcuts-grid" id="shortcuts"></div>
+      </div>
+      <div class="section">
+        <h3>Reaktionen</h3>
         <div class="info-text">
-          Klick & zieh zum Malen. <kbd>Leer</kbd> pausiert.
-          <kbd>X</kbd> Radierer. Probier Reaktionen:
-          Wasser+Lava=Stein, Feuer+Öl=💥, Pflanze wächst auf Wasser, Säure frisst alles.
+          💧+🌋→Stein · 🔥+Öl→Explosion · Pflanze wächst auf Wasser ·
+          Säure frisst alles · Schießpulver+Funken→💥 ·
+          🦠 Virus infiziert alles, Tentakel wachsen &amp; explodieren
         </div>
       </div>
     </div>
@@ -327,53 +247,58 @@
 </main>
 
 <script>
-// =============================================================
-//  SANDBOX PRO — Falling Sand Simulation
-// =============================================================
-
+// ================================================================
+//  SANDBOX PRO v2 — Falling Sand + Virus Overhaul
+// ================================================================
 const canvas = document.getElementById('sim');
-const ctx = canvas.getContext('2d', { alpha: false });
+const ctx    = canvas.getContext('2d', { alpha: false });
 
-// Resolution (internal pixels). CSS scales up.
-let WIDTH = 400;
-let HEIGHT = 280;
-let imageData, buf32, grid, nextGrid, moved;
+let WIDTH = 400, HEIGHT = 280;
+let imageData, buf32, grid, moved;
+let tentacleDir;  // Uint8Array — direction 0-7 for TENTACLE cells
+let virusTimer;   // Uint16Array — age for VIRUS / TENTACLE cells
+
+// 8 directions: N NE E SE S SW W NW
+const DX = [0, 1, 1, 1, 0,-1,-1,-1];
+const DY = [-1,-1, 0, 1, 1, 1, 0,-1];
+
+function allocArrays(w, h) {
+  const n = w * h;
+  imageData    = ctx.createImageData(w, h);
+  buf32        = new Uint32Array(imageData.data.buffer);
+  grid         = new Uint8Array(n);
+  moved        = new Uint8Array(n);
+  tentacleDir  = new Uint8Array(n);
+  virusTimer   = new Uint16Array(n);
+}
 
 function resizeCanvas() {
-  const container = document.getElementById('canvas-container');
-  const rect = container.getBoundingClientRect();
-  const availW = rect.width - 32;
-  const availH = rect.height - 32;
-  // Target pixel size ~3-4 CSS px per sim px
-  const ratio = 16/11;
-  let cssW = availW, cssH = availW / ratio;
-  if (cssH > availH) { cssH = availH; cssW = availH * ratio; }
-  canvas.style.width = cssW + 'px';
-  canvas.style.height = cssH + 'px';
+  const cont = document.getElementById('canvas-container');
+  const r    = cont.getBoundingClientRect();
+  const aW   = r.width  - 28, aH = r.height - 28;
+  const ratio = 16 / 11;
+  let cW = aW, cH = aW / ratio;
+  if (cH > aH) { cH = aH; cW = aH * ratio; }
+  canvas.style.width  = cW + 'px';
+  canvas.style.height = cH + 'px';
 
-  // Internal resolution (keep fairly small for performance)
-  const newW = Math.max(200, Math.min(520, Math.floor(cssW / 3)));
-  const newH = Math.floor(newW / ratio);
-  if (newW !== WIDTH || newH !== HEIGHT) {
-    // Preserve old grid centered
-    const oldGrid = grid;
-    const oldW = WIDTH, oldH = HEIGHT;
-    WIDTH = newW; HEIGHT = newH;
-    canvas.width = WIDTH;
-    canvas.height = HEIGHT;
-    imageData = ctx.createImageData(WIDTH, HEIGHT);
-    buf32 = new Uint32Array(imageData.data.buffer);
-    grid = new Uint8Array(WIDTH * HEIGHT);
-    nextGrid = new Uint8Array(WIDTH * HEIGHT);
-    moved = new Uint8Array(WIDTH * HEIGHT);
-    if (oldGrid) {
-      const offX = Math.floor((WIDTH - oldW) / 2);
-      const offY = Math.floor((HEIGHT - oldH) / 2);
-      for (let y = 0; y < oldH; y++) {
-        for (let x = 0; x < oldW; x++) {
-          const nx = x + offX, ny = y + offY;
-          if (nx >= 0 && nx < WIDTH && ny >= 0 && ny < HEIGHT) {
-            grid[ny * WIDTH + nx] = oldGrid[y * oldW + x];
+  const nW = Math.max(200, Math.min(520, Math.floor(cW / 3)));
+  const nH = Math.floor(nW / ratio);
+  if (nW !== WIDTH || nH !== HEIGHT) {
+    const og = grid, otd = tentacleDir, ovt = virusTimer;
+    const oW = WIDTH, oH = HEIGHT;
+    WIDTH = nW; HEIGHT = nH;
+    canvas.width = nW; canvas.height = nH;
+    allocArrays(nW, nH);
+    if (og) {
+      const ox = Math.floor((nW - oW) / 2);
+      const oy = Math.floor((nH - oH) / 2);
+      for (let y = 0; y < oH; y++) {
+        for (let x = 0; x < oW; x++) {
+          const nx = x+ox, ny = y+oy;
+          if (nx>=0&&nx<nW&&ny>=0&&ny<nH) {
+            const ni=ny*nW+nx, oi=y*oW+x;
+            grid[ni]=og[oi]; tentacleDir[ni]=otd[oi]; virusTimer[ni]=ovt[oi];
           }
         }
       }
@@ -381,756 +306,741 @@ function resizeCanvas() {
   }
 }
 
-// Color helper: Uint32Array on little-endian is ABGR byte order.
-function col(r, g, b, a = 255) {
-  return ((a & 0xff) << 24) | ((b & 0xff) << 16) | ((g & 0xff) << 8) | (r & 0xff);
-}
-function rnd(v) { return v + Math.floor((Math.random() - 0.5) * 20); }
+// ── color packing (little-endian ABGR) ──────────────────────
+function col(r,g,b){ return 0xff000000|((b&0xff)<<16)|((g&0xff)<<8)|(r&0xff); }
 
-// =============================================================
-//  MATERIAL DEFINITIONS
-// =============================================================
-// category: solid(powder), wall, liquid, gas, energy, life, special, bomb
+// ================================================================
+//  MATERIAL IDs
+// ================================================================
 const M = {
-  EMPTY:   0,
-  SAND:    1,
-  STONE:   2,
-  WOOD:    3,
-  WALL:    4,
-  ICE:     5,
-  SALT:    6,
-  DIRT:    7,
-  SNOW:    8,
-  GUNPOW:  9,
-  GLASS:  10,
-  METAL:  11,
-  ASH:    12,
-
-  WATER:  20,
-  LAVA:   21,
-  OIL:    22,
-  ACID:   23,
-  SLIME:  24,
-  MERCURY:25,
-  HONEY:  26,
-  BLOOD:  27,
-
-  STEAM:  40,
-  SMOKE:  41,
-  GAS:    42,
-  TOXIC:  43,
-
-  FIRE:   60,
-  PLASMA: 61,
-  SPARK:  62,
-  EMBER:  63,
-
-  PLANT:  80,
-  SEED:   81,
-  VIRUS:  82,
-  FUNGUS: 83,
-
-  BHOLE: 100,
-  SOURCE_W: 101,
-  SOURCE_L: 102,
-  PORTAL: 103,
-
-  TNT:   120,
-  NUKE:  121,
-  FUSE:  122,
-  C4:    123,
+  EMPTY:0, SAND:1, STONE:2, WOOD:3, WALL:4, ICE:5, SALT:6,
+  DIRT:7, SNOW:8, GUNPOW:9, GLASS:10, METAL:11, ASH:12,
+  WATER:20, LAVA:21, OIL:22, ACID:23, SLIME:24,
+  MERCURY:25, HONEY:26, BLOOD:27,
+  STEAM:40, SMOKE:41, GAS:42, TOXIC:43,
+  FIRE:60, PLASMA:61, SPARK:62, EMBER:63,
+  PLANT:80, SEED:81, VIRUS:82, FUNGUS:83, TENTACLE:84,
+  BHOLE:100, SOURCE_W:101, SOURCE_L:102,
+  TNT:120, NUKE:121, FUSE:122, C4:123,
 };
 
-// TYPES[id] = {name, color, cat, heavy?, flammable?}
 const TYPES = new Array(256).fill(null);
-function def(id, name, color, cat, extra = {}) {
-  TYPES[id] = { id, name, color, cat, ...extra };
-}
+function def(id,name,c,cat,e={}) { TYPES[id]={id,name,color:c,cat,...e}; }
 
-def(M.EMPTY,   'Leer',       col(0,0,0), 'special');
+def(M.EMPTY,   'Leer',          col(0,0,0),        'special');
+def(M.SAND,    'Sand',          col(228,198,108),   'powder');
+def(M.STONE,   'Stein',         col(115,115,125),   'wall');
+def(M.WOOD,    'Holz',          col(108,68,32),     'wall',  {fl:1});
+def(M.WALL,    'Wand',          col(175,175,185),   'wall');
+def(M.ICE,     'Eis',           col(165,215,255),   'wall');
+def(M.SALT,    'Salz',          col(238,238,248),   'powder');
+def(M.DIRT,    'Erde',          col(88,58,28),      'powder');
+def(M.SNOW,    'Schnee',        col(235,248,255),   'powder');
+def(M.GUNPOW,  'Schießpulver',  col(55,55,65),      'powder',{fl:1});
+def(M.GLASS,   'Glas',          col(195,228,238),   'wall');
+def(M.METAL,   'Metall',        col(155,155,175),   'wall');
+def(M.ASH,     'Asche',         col(78,78,82),      'powder');
+def(M.WATER,   'Wasser',        col(38,115,235),    'liquid');
+def(M.LAVA,    'Lava',          col(255,98,18),     'liquid');
+def(M.OIL,     'Öl',            col(58,38,12),      'liquid',{fl:1});
+def(M.ACID,    'Säure',         col(155,255,38),    'liquid');
+def(M.SLIME,   'Schleim',       col(38,195,118),    'liquid');
+def(M.MERCURY, 'Quecksilber',   col(195,195,215),   'liquid');
+def(M.HONEY,   'Honig',         col(228,168,28),    'liquid');
+def(M.BLOOD,   'Blut',          col(148,18,28),     'liquid');
+def(M.STEAM,   'Dampf',         col(215,215,228),   'gas');
+def(M.SMOKE,   'Rauch',         col(58,58,62),      'gas');
+def(M.GAS,     'Gas',           col(195,228,138),   'gas',   {fl:1});
+def(M.TOXIC,   'Giftgas',       col(138,195,58),    'gas');
+def(M.FIRE,    'Feuer',         col(255,138,28),    'energy');
+def(M.PLASMA,  'Plasma',        col(218,98,255),    'energy');
+def(M.SPARK,   'Funke',         col(255,255,158),   'energy');
+def(M.EMBER,   'Glut',          col(255,78,18),     'energy');
+def(M.PLANT,   'Pflanze',       col(48,175,58),     'life');
+def(M.SEED,    'Samen',         col(138,108,48),    'life');
+def(M.VIRUS,   'Virus',         col(192,30,255),    'life');
+def(M.FUNGUS,  'Pilz',          col(195,148,178),   'life');
+def(M.TENTACLE,'Tentakel',      col(100,12,160),    'life');
+def(M.BHOLE,   'Schwarzes Loch',col(8,0,18),        'special');
+def(M.SOURCE_W,'Wasserquelle',  col(78,158,255),    'special');
+def(M.SOURCE_L,'Lavaquelle',    col(255,138,38),    'special');
+def(M.TNT,     'TNT',           col(198,28,28),     'bomb');
+def(M.NUKE,    'Nuke',          col(78,8,8),        'bomb');
+def(M.FUSE,    'Zündschnur',    col(218,178,78),    'bomb');
+def(M.C4,      'C4',            col(218,218,148),   'bomb');
 
-// SOLIDS / POWDERS
-def(M.SAND,    'Sand',       col(230, 200, 110), 'powder');
-def(M.STONE,   'Stein',      col(120, 120, 130), 'wall');
-def(M.WOOD,    'Holz',       col(110,  70,  35), 'wall', { flammable: true });
-def(M.WALL,    'Wand',       col(180, 180, 190), 'wall');
-def(M.ICE,     'Eis',        col(170, 220, 255), 'wall');
-def(M.SALT,    'Salz',       col(240, 240, 250), 'powder');
-def(M.DIRT,    'Erde',       col( 90,  60,  30), 'powder');
-def(M.SNOW,    'Schnee',     col(240, 250, 255), 'powder');
-def(M.GUNPOW,  'Schießpulver', col( 60, 60, 70), 'powder', { flammable: true });
-def(M.GLASS,   'Glas',       col(200, 230, 240), 'wall');
-def(M.METAL,   'Metall',     col(160, 160, 180), 'wall');
-def(M.ASH,     'Asche',      col( 80,  80,  85), 'powder');
-
-// LIQUIDS
-def(M.WATER,   'Wasser',     col( 40, 120, 240), 'liquid');
-def(M.LAVA,    'Lava',       col(255, 100,  20), 'liquid');
-def(M.OIL,     'Öl',         col( 60,  40,  15), 'liquid', { flammable: true });
-def(M.ACID,    'Säure',      col(160, 255,  40), 'liquid');
-def(M.SLIME,   'Schleim',    col( 40, 200, 120), 'liquid');
-def(M.MERCURY, 'Quecksilber',col(200, 200, 220), 'liquid');
-def(M.HONEY,   'Honig',      col(230, 170,  30), 'liquid');
-def(M.BLOOD,   'Blut',       col(150,  20,  30), 'liquid');
-
-// GASES
-def(M.STEAM,   'Dampf',      col(220, 220, 230), 'gas');
-def(M.SMOKE,   'Rauch',      col( 60,  60,  65), 'gas');
-def(M.GAS,     'Gas',        col(200, 230, 140), 'gas', { flammable: true });
-def(M.TOXIC,   'Giftgas',    col(140, 200,  60), 'gas');
-
-// ENERGY
-def(M.FIRE,    'Feuer',      col(255, 140,  30), 'energy');
-def(M.PLASMA,  'Plasma',     col(220, 100, 255), 'energy');
-def(M.SPARK,   'Funke',      col(255, 255, 160), 'energy');
-def(M.EMBER,   'Glut',       col(255,  80,  20), 'energy');
-
-// LIFE
-def(M.PLANT,   'Pflanze',    col( 50, 180,  60), 'life');
-def(M.SEED,    'Samen',      col(140, 110,  50), 'life');
-def(M.VIRUS,   'Virus',      col(180,  40, 180), 'life');
-def(M.FUNGUS,  'Pilz',       col(200, 150, 180), 'life');
-
-// SPECIAL
-def(M.BHOLE,   'Schwarzes Loch', col(10, 0, 20), 'special');
-def(M.SOURCE_W,'Wasserquelle',   col( 80, 160, 255), 'special');
-def(M.SOURCE_L,'Lavaquelle',     col(255, 140,  40), 'special');
-def(M.PORTAL,  'Portal',         col(140,  80, 255), 'special');
-
-// BOMBS
-def(M.TNT,     'TNT',        col(200,  30,  30), 'bomb');
-def(M.NUKE,    'Nuke',       col( 80,  10,  10), 'bomb');
-def(M.FUSE,    'Zündschnur', col(220, 180,  80), 'bomb');
-def(M.C4,      'C4',         col(220, 220, 150), 'bomb');
-
-// Color for empty - transparent black (but we use alpha false, so pure black)
-TYPES[M.EMPTY].color = col(0, 0, 0, 255);
-
-// =============================================================
+// ================================================================
 //  CATEGORIES / TABS
-// =============================================================
-const CATEGORIES = [
-  { key: 'powder',  label: '🏖 Feststoffe',    ids: [M.SAND, M.DIRT, M.SALT, M.SNOW, M.GUNPOW, M.ASH, M.STONE, M.WOOD, M.WALL, M.GLASS, M.METAL, M.ICE] },
-  { key: 'liquid',  label: '💧 Flüssig',       ids: [M.WATER, M.LAVA, M.OIL, M.ACID, M.SLIME, M.MERCURY, M.HONEY, M.BLOOD] },
-  { key: 'gas',     label: '☁ Gase',           ids: [M.STEAM, M.SMOKE, M.GAS, M.TOXIC] },
-  { key: 'energy',  label: '🔥 Energie',       ids: [M.FIRE, M.PLASMA, M.SPARK, M.EMBER] },
-  { key: 'life',    label: '🌱 Leben',         ids: [M.PLANT, M.SEED, M.VIRUS, M.FUNGUS] },
-  { key: 'special', label: '✨ Spezial',       ids: [M.SOURCE_W, M.SOURCE_L, M.BHOLE, M.PORTAL, M.EMPTY] },
-  { key: 'bomb',    label: '💥 Bomben',        ids: [M.TNT, M.C4, M.NUKE, M.FUSE] },
+// ================================================================
+const CATS = [
+  {key:'powder', label:'🏖 Feststoffe', ids:[M.SAND,M.DIRT,M.SALT,M.SNOW,M.GUNPOW,M.ASH,M.STONE,M.WOOD,M.WALL,M.GLASS,M.METAL,M.ICE]},
+  {key:'liquid', label:'💧 Flüssig',    ids:[M.WATER,M.LAVA,M.OIL,M.ACID,M.SLIME,M.MERCURY,M.HONEY,M.BLOOD]},
+  {key:'gas',    label:'☁ Gase',        ids:[M.STEAM,M.SMOKE,M.GAS,M.TOXIC]},
+  {key:'energy', label:'🔥 Energie',    ids:[M.FIRE,M.PLASMA,M.SPARK,M.EMBER]},
+  {key:'life',   label:'🌱 Leben',      ids:[M.PLANT,M.SEED,M.FUNGUS,M.VIRUS,M.TENTACLE]},
+  {key:'special',label:'✨ Spezial',    ids:[M.SOURCE_W,M.SOURCE_L,M.BHOLE,M.EMPTY]},
+  {key:'bomb',   label:'💥 Bomben',     ids:[M.TNT,M.C4,M.NUKE,M.FUSE]},
 ];
 
-// =============================================================
+// ================================================================
 //  STATE
-// =============================================================
-let selectedType = M.SAND;
-let brushSize = 6;
-let isPaused = false;
-let isMouseDown = false;
-let mouseX = 0, mouseY = 0;
-let particleCount = 0;
-let explosionCount = 0;
-let lastTime = performance.now();
-let frameCount = 0, fps = 0;
-let activeTab = 'powder';
+// ================================================================
+let selType   = M.SAND;
+let brushSz   = 6;
+let paused    = false;
+let mdown     = false;
+let mx=0, my=0;
+let pCount=0, exCount=0, vCount=0;
+let lastT=performance.now(), fCount=0, fps=0;
+let activeTab='powder';
+let tick=0;
 
-// =============================================================
-//  UI SETUP
-// =============================================================
-const tabsEl = document.getElementById('tabs');
-const matGridEl = document.getElementById('mat-grid');
+const KEYS = [
+  {k:'S',m:M.SAND},{k:'W',m:M.WATER},{k:'F',m:M.FIRE},{k:'I',m:M.ICE},
+  {k:'A',m:M.LAVA},{k:'O',m:M.OIL},{k:'C',m:M.ACID},{k:'P',m:M.PLANT},
+  {k:'V',m:M.VIRUS},{k:'T',m:M.TNT},{k:'N',m:M.NUKE},{k:'G',m:M.GAS},
+  {k:'H',m:M.BHOLE},{k:'X',m:M.EMPTY},
+];
 
-CATEGORIES.forEach(cat => {
-  const b = document.createElement('button');
-  b.className = 'tab' + (cat.key === activeTab ? ' active' : '');
-  b.textContent = cat.label;
-  b.onclick = () => { activeTab = cat.key; renderTabs(); renderMaterials(); };
+// ================================================================
+//  UI
+// ================================================================
+const tabsEl=document.getElementById('tabs');
+const gridEl=document.getElementById('mat-grid');
+
+CATS.forEach(c => {
+  const b=document.createElement('button');
+  b.className='tab'+(c.key===activeTab?' active':'');
+  b.textContent=c.label;
+  b.onclick=()=>{activeTab=c.key;refreshTabs();refreshMats();};
   tabsEl.appendChild(b);
 });
 
-function renderTabs() {
-  [...tabsEl.children].forEach((el, i) => {
-    el.classList.toggle('active', CATEGORIES[i].key === activeTab);
-  });
+function refreshTabs(){
+  [...tabsEl.children].forEach((el,i)=>el.classList.toggle('active',CATS[i].key===activeTab));
 }
+function c32toCss(u){return `rgb(${u&0xff},${(u>>8)&0xff},${(u>>16)&0xff})`;}
 
-function renderMaterials() {
-  matGridEl.innerHTML = '';
-  const cat = CATEGORIES.find(c => c.key === activeTab);
-  cat.ids.forEach(id => {
-    const t = TYPES[id];
-    if (!t) return;
-    const btn = document.createElement('button');
-    btn.className = 'mat-btn' + (id === selectedType ? ' active' : '');
-    const sw = document.createElement('div');
-    sw.className = 'swatch';
-    sw.style.background = colorToCss(t.color);
-    if (id === M.EMPTY) { sw.style.background = 'repeating-linear-gradient(45deg, #333, #333 4px, #555 4px, #555 8px)'; }
+function refreshMats(){
+  gridEl.innerHTML='';
+  document.getElementById('virus-panel').style.display=activeTab==='life'?'':'none';
+  const cat=CATS.find(c=>c.key===activeTab);
+  cat.ids.forEach(id=>{
+    const T=TYPES[id]; if(!T) return;
+    const isV=(id===M.VIRUS||id===M.TENTACLE);
+    const btn=document.createElement('button');
+    btn.className='mat-btn'+(isV?' vbtn':'')+(id===selType?' active':'');
+    const sw=document.createElement('div'); sw.className='swatch';
+    sw.style.background=id===M.EMPTY?'repeating-linear-gradient(45deg,#2a2a2a,#2a2a2a 4px,#444 4px,#444 8px)':c32toCss(T.color);
     btn.appendChild(sw);
-    const label = document.createElement('span');
-    label.textContent = id === M.EMPTY ? 'Radierer' : t.name;
-    btn.appendChild(label);
-    btn.onclick = () => selectMaterial(id);
-    matGridEl.appendChild(btn);
+    const sp=document.createElement('span'); sp.textContent=id===M.EMPTY?'Radierer':T.name;
+    btn.appendChild(sp);
+    btn.onclick=()=>selMat(id);
+    gridEl.appendChild(btn);
   });
 }
 
-function colorToCss(u32) {
-  const r = u32 & 0xff;
-  const g = (u32 >> 8) & 0xff;
-  const b = (u32 >> 16) & 0xff;
-  return `rgb(${r},${g},${b})`;
+function selMat(id){
+  selType=id; refreshMats();
+  const T=TYPES[id];
+  document.getElementById('cur-name').textContent=id===M.EMPTY?'Radierer':T.name;
+  document.getElementById('cur-dot').style.background=id===M.EMPTY?'#333':c32toCss(T.color);
 }
 
-function selectMaterial(id) {
-  selectedType = id;
-  renderMaterials();
-  const t = TYPES[id];
-  document.getElementById('cur-name').textContent = id === M.EMPTY ? 'Radierer' : t.name;
-  document.getElementById('cur-dot').style.background = id === M.EMPTY ? '#444' : colorToCss(t.color);
-}
-
-document.getElementById('brush-size').addEventListener('input', e => {
-  brushSize = parseInt(e.target.value);
-  document.getElementById('brush-val').textContent = brushSize;
+// shortcuts UI
+const scEl=document.getElementById('shortcuts');
+KEYS.forEach(s=>{
+  const d=document.createElement('div'); d.className='sc';
+  const lbl=TYPES[s.m]?(s.m===M.EMPTY?'Radierer':TYPES[s.m].name):'?';
+  d.innerHTML=`<kbd>${s.k}</kbd><span>${lbl}</span>`;
+  scEl.appendChild(d);
 });
-document.getElementById('btn-pause').onclick = togglePause;
-document.getElementById('btn-clear').onclick = () => { grid.fill(0); nextGrid.fill(0); explosionCount = 0; };
-document.getElementById('btn-save').onclick = () => {
-  try {
-    const data = { w: WIDTH, h: HEIGHT, g: btoa(String.fromCharCode(...grid)) };
-    localStorage.setItem('sandbox_pro_save', JSON.stringify(data));
-    flash('Gespeichert!');
-  } catch(e) { flash('Fehler beim Speichern'); }
+
+document.getElementById('brush-size').addEventListener('input',e=>{
+  brushSz=parseInt(e.target.value);
+  document.getElementById('brush-val').textContent=brushSz;
+});
+document.getElementById('btn-pause').onclick=togglePause;
+document.getElementById('btn-clear').onclick=()=>{
+  grid.fill(0); tentacleDir.fill(0); virusTimer.fill(0); exCount=0; vCount=0;
 };
-document.getElementById('btn-load').onclick = () => {
-  try {
-    const raw = localStorage.getItem('sandbox_pro_save');
-    if (!raw) return flash('Kein Spielstand');
-    const d = JSON.parse(raw);
-    if (d.w !== WIDTH || d.h !== HEIGHT) return flash('Größe passt nicht');
-    const bin = atob(d.g);
-    for (let i = 0; i < bin.length; i++) grid[i] = bin.charCodeAt(i);
-    flash('Geladen!');
-  } catch(e) { flash('Fehler beim Laden'); }
+document.getElementById('btn-save').onclick=()=>{
+  try{
+    localStorage.setItem('sbv2',JSON.stringify({w:WIDTH,h:HEIGHT,g:btoa(String.fromCharCode(...grid))}));
+    flash('✓ Gespeichert');
+  }catch(e){flash('Fehler');}
+};
+document.getElementById('btn-load').onclick=()=>{
+  try{
+    const raw=localStorage.getItem('sbv2');
+    if(!raw) return flash('Kein Spielstand');
+    const d=JSON.parse(raw);
+    if(d.w!==WIDTH||d.h!==HEIGHT) return flash('Größe passt nicht');
+    const bin=atob(d.g);
+    for(let i=0;i<bin.length;i++) grid[i]=bin.charCodeAt(i);
+    flash('✓ Geladen');
+  }catch(e){flash('Fehler');}
 };
 
-function flash(msg) {
-  const n = document.getElementById('cur-name');
-  const old = n.textContent;
-  n.textContent = msg;
-  setTimeout(() => n.textContent = old, 1200);
+function flash(msg){
+  const n=document.getElementById('cur-name'),o=n.textContent;
+  n.textContent=msg; setTimeout(()=>n.textContent=o,1400);
 }
-
-function togglePause() {
-  isPaused = !isPaused;
-  document.getElementById('btn-pause').textContent = isPaused ? '▶ Weiter' : '⏸ Pause';
+function togglePause(){
+  paused=!paused;
+  document.getElementById('btn-pause').textContent=paused?'▶ Weiter':'⏸ Pause';
 }
-
-// Keyboard shortcuts
-window.addEventListener('keydown', e => {
-  if (e.repeat) return;
-  if (e.key === ' ') { e.preventDefault(); togglePause(); return; }
-  const map = {
-    's': M.SAND, 'w': M.WATER, 'f': M.FIRE, 'i': M.ICE, 'a': M.LAVA,
-    'o': M.OIL, 'c': M.ACID, 'p': M.PLANT, 'v': M.VIRUS,
-    'h': M.BHOLE, 't': M.TNT, 'n': M.NUKE, 'x': M.EMPTY,
-    'l': M.SLIME, 'g': M.GAS,
-  };
-  const k = e.key.toLowerCase();
-  if (map[k] !== undefined) {
-    selectMaterial(map[k]);
-    // Also switch tab to show the selection
-    const cat = CATEGORIES.find(c => c.ids.includes(map[k]));
-    if (cat) { activeTab = cat.key; renderTabs(); renderMaterials(); }
+window.addEventListener('keydown',e=>{
+  if(e.repeat) return;
+  if(e.key===' '){e.preventDefault();togglePause();return;}
+  const k=e.key.toUpperCase();
+  const s=KEYS.find(x=>x.k===k);
+  if(s){
+    selMat(s.m);
+    const cat=CATS.find(c=>c.ids.includes(s.m));
+    if(cat){activeTab=cat.key;refreshTabs();refreshMats();}
   }
 });
 
-// =============================================================
+// ================================================================
 //  INPUT
-// =============================================================
-function getCanvasPos(e) {
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = WIDTH / rect.width;
-  const scaleY = HEIGHT / rect.height;
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  return {
-    x: Math.floor((clientX - rect.left) * scaleX),
-    y: Math.floor((clientY - rect.top) * scaleY)
-  };
+// ================================================================
+function canvasPos(e){
+  const r=canvas.getBoundingClientRect();
+  const cx=e.touches?e.touches[0].clientX:e.clientX;
+  const cy=e.touches?e.touches[0].clientY:e.clientY;
+  return{x:Math.floor((cx-r.left)*WIDTH/r.width),y:Math.floor((cy-r.top)*HEIGHT/r.height)};
 }
-canvas.addEventListener('mousedown', e => { isMouseDown = true; const p = getCanvasPos(e); mouseX = p.x; mouseY = p.y; paint(); });
-canvas.addEventListener('mousemove', e => { const p = getCanvasPos(e); mouseX = p.x; mouseY = p.y; if (isMouseDown) paint(); });
-window.addEventListener('mouseup', () => isMouseDown = false);
-canvas.addEventListener('mouseleave', () => {});
-canvas.addEventListener('touchstart', e => { e.preventDefault(); isMouseDown = true; const p = getCanvasPos(e); mouseX = p.x; mouseY = p.y; paint(); }, { passive: false });
-canvas.addEventListener('touchmove',  e => { e.preventDefault(); const p = getCanvasPos(e); mouseX = p.x; mouseY = p.y; if (isMouseDown) paint(); }, { passive: false });
-canvas.addEventListener('touchend',   () => isMouseDown = false);
+canvas.addEventListener('mousedown',e=>{mdown=true;const p=canvasPos(e);mx=p.x;my=p.y;paint();});
+canvas.addEventListener('mousemove',e=>{const p=canvasPos(e);mx=p.x;my=p.y;if(mdown)paint();});
+window.addEventListener('mouseup',()=>mdown=false);
+canvas.addEventListener('touchstart',e=>{e.preventDefault();mdown=true;const p=canvasPos(e);mx=p.x;my=p.y;paint();},{passive:false});
+canvas.addEventListener('touchmove', e=>{e.preventDefault();const p=canvasPos(e);mx=p.x;my=p.y;if(mdown)paint();},{passive:false});
+canvas.addEventListener('touchend',()=>mdown=false);
 
-function paint() {
-  const r = brushSize;
-  const type = selectedType;
-  for (let dy = -r; dy <= r; dy++) {
-    for (let dx = -r; dx <= r; dx++) {
-      if (dx*dx + dy*dy > r*r) continue;
-      const nx = mouseX + dx, ny = mouseY + dy;
-      if (nx < 0 || nx >= WIDTH || ny < 0 || ny >= HEIGHT) continue;
-      const i = ny * WIDTH + nx;
-      if (type === M.EMPTY) { grid[i] = 0; }
-      else if (grid[i] === 0 || type >= M.BHOLE) {
-        // Don't sparse-fill powder — slight density
-        if (TYPES[type].cat === 'powder' && Math.random() < 0.25) continue;
-        grid[i] = type;
+function paint(){
+  const r=brushSz, type=selType;
+  for(let dy=-r;dy<=r;dy++){
+    for(let dx=-r;dx<=r;dx++){
+      if(dx*dx+dy*dy>r*r) continue;
+      const nx=mx+dx, ny=my+dy;
+      if(nx<0||nx>=WIDTH||ny<0||ny>=HEIGHT) continue;
+      const i=ny*WIDTH+nx;
+      if(type===M.EMPTY){grid[i]=0;tentacleDir[i]=0;virusTimer[i]=0;}
+      else if(grid[i]===0||type>=M.BHOLE){
+        if(TYPES[type].cat==='powder'&&Math.random()<0.25) continue;
+        grid[i]=type;
+        if(type===M.TENTACLE) tentacleDir[i]=Math.floor(Math.random()*8);
+        if(type===M.VIRUS)    virusTimer[i]=0;
       }
     }
   }
 }
 
-// =============================================================
-//  PHYSICS
-// =============================================================
-function idx(x, y) { return y * WIDTH + x; }
-function inB(x, y) { return x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT; }
-function get(x, y) { return inB(x, y) ? grid[idx(x, y)] : M.WALL; }
+// ================================================================
+//  PHYSICS HELPERS
+// ================================================================
+function ii(x,y){return y*WIDTH+x;}
+function inB(x,y){return x>=0&&x<WIDTH&&y>=0&&y<HEIGHT;}
+function gv(x,y){return inB(x,y)?grid[ii(x,y)]:M.WALL;}
 
-function trySwap(x1, y1, x2, y2) {
-  const i1 = idx(x1, y1), i2 = idx(x2, y2);
-  if (moved[i1] || moved[i2]) return false;
-  const a = grid[i1], b = grid[i2];
-  grid[i1] = b; grid[i2] = a;
-  moved[i1] = 1; moved[i2] = 1;
+function swap(x1,y1,x2,y2){
+  const i1=ii(x1,y1),i2=ii(x2,y2);
+  if(moved[i1]||moved[i2]) return false;
+  let t; t=grid[i1];grid[i1]=grid[i2];grid[i2]=t;
+  t=tentacleDir[i1];tentacleDir[i1]=tentacleDir[i2];tentacleDir[i2]=t;
+  t=virusTimer[i1];virusTimer[i1]=virusTimer[i2];virusTimer[i2]=t;
+  moved[i1]=1;moved[i2]=1;
   return true;
 }
 
-function density(t) {
-  // higher = heavier
-  if (t === M.EMPTY) return 0;
-  if (t === M.STEAM || t === M.SMOKE || t === M.GAS || t === M.TOXIC) return -1;
-  if (t === M.FIRE || t === M.SPARK) return -0.5;
-  if (t === M.OIL) return 2;
-  if (t === M.WATER) return 3;
-  if (t === M.ACID) return 3;
-  if (t === M.BLOOD) return 3;
-  if (t === M.SLIME) return 3;
-  if (t === M.HONEY) return 4;
-  if (t === M.LAVA) return 5;
-  if (t === M.MERCURY) return 8;
-  if (t === M.SAND || t === M.DIRT || t === M.SALT || t === M.ASH || t === M.SNOW || t === M.GUNPOW) return 6;
-  return 100; // walls, solids
+function dens(t){
+  if(t===M.EMPTY)return 0;
+  if(t===M.STEAM||t===M.SMOKE||t===M.GAS||t===M.TOXIC)return -1;
+  if(t===M.FIRE||t===M.SPARK)return -0.5;
+  if(t===M.OIL)return 2;
+  if(t===M.WATER||t===M.ACID||t===M.BLOOD||t===M.SLIME)return 3;
+  if(t===M.HONEY)return 4;
+  if(t===M.LAVA)return 5;
+  if(t===M.MERCURY)return 8;
+  if(t===M.SAND||t===M.DIRT||t===M.SALT||t===M.ASH||t===M.SNOW||t===M.GUNPOW)return 6;
+  return 100;
 }
 
-function burn(x, y, chance = 0.1) {
-  const i = idx(x, y);
-  const t = grid[i];
-  if (t === M.WOOD && Math.random() < chance * 0.5) { grid[i] = M.FIRE; return; }
-  if (t === M.OIL && Math.random() < chance * 2) { grid[i] = M.FIRE; return; }
-  if (t === M.GUNPOW && Math.random() < chance * 3) { explode(x, y, 5); return; }
-  if (t === M.GAS && Math.random() < chance * 2) { explode(x, y, 3); return; }
-  if (t === M.FUSE && Math.random() < chance * 1.5) { grid[i] = M.FIRE; return; }
-  if (t === M.PLANT && Math.random() < chance) { grid[i] = M.FIRE; return; }
-  if (t === M.SEED && Math.random() < chance) { grid[i] = M.FIRE; return; }
-  if (t === M.TNT && Math.random() < chance * 2) { explode(x, y, 8); return; }
-  if (t === M.C4 && Math.random() < chance * 2) { explode(x, y, 12); return; }
-  if (t === M.NUKE && Math.random() < chance * 2) { explode(x, y, 25); return; }
-  if (t === M.ICE && Math.random() < chance) { grid[i] = M.WATER; return; }
-  if (t === M.SNOW && Math.random() < chance * 1.5) { grid[i] = M.WATER; return; }
-  if (t === M.WATER && Math.random() < chance * 2) { grid[i] = M.STEAM; return; }
+function burn(x,y,ch=0.1){
+  const i=ii(x,y),t=grid[i];
+  if(t===M.WOOD   &&Math.random()<ch*0.5){grid[i]=M.FIRE;return;}
+  if(t===M.OIL    &&Math.random()<ch*2)  {grid[i]=M.FIRE;return;}
+  if(t===M.GUNPOW &&Math.random()<ch*3)  {boom(x,y,5);return;}
+  if(t===M.GAS    &&Math.random()<ch*2)  {boom(x,y,3);return;}
+  if(t===M.FUSE   &&Math.random()<ch*1.5){grid[i]=M.FIRE;return;}
+  if(t===M.PLANT  &&Math.random()<ch)    {grid[i]=M.FIRE;return;}
+  if(t===M.SEED   &&Math.random()<ch)    {grid[i]=M.FIRE;return;}
+  if(t===M.TNT    &&Math.random()<ch*2)  {boom(x,y,8);return;}
+  if(t===M.C4     &&Math.random()<ch*2)  {boom(x,y,12);return;}
+  if(t===M.NUKE   &&Math.random()<ch*2)  {boom(x,y,25);return;}
+  if(t===M.ICE    &&Math.random()<ch)    {grid[i]=M.WATER;return;}
+  if(t===M.SNOW   &&Math.random()<ch*1.5){grid[i]=M.WATER;return;}
+  if(t===M.WATER  &&Math.random()<ch*2)  {grid[i]=M.STEAM;return;}
 }
 
-function explode(cx, cy, radius) {
-  explosionCount++;
-  const r2 = radius * radius;
-  for (let dy = -radius; dy <= radius; dy++) {
-    for (let dx = -radius; dx <= radius; dx++) {
-      const d2 = dx*dx + dy*dy;
-      if (d2 > r2) continue;
-      const nx = cx + dx, ny = cy + dy;
-      if (!inB(nx, ny)) continue;
-      const i = idx(nx, ny);
-      const t = grid[i];
-      if (t === M.WALL || t === M.METAL || t === M.BHOLE) continue;
-      const rand = Math.random();
-      if (d2 < r2 * 0.3) {
-        grid[i] = rand < 0.6 ? M.FIRE : (rand < 0.85 ? M.SMOKE : M.EMPTY);
-      } else if (d2 < r2 * 0.7) {
-        grid[i] = rand < 0.4 ? M.FIRE : (rand < 0.7 ? M.EMBER : (rand < 0.9 ? M.SMOKE : M.EMPTY));
-      } else {
-        grid[i] = rand < 0.2 ? M.FIRE : (rand < 0.5 ? M.SMOKE : M.EMPTY);
+function boom(cx,cy,rad){
+  exCount++;
+  const r2=rad*rad;
+  for(let dy=-rad;dy<=rad;dy++){
+    for(let dx=-rad;dx<=rad;dx++){
+      const d2=dx*dx+dy*dy; if(d2>r2) continue;
+      const nx=cx+dx,ny=cy+dy; if(!inB(nx,ny)) continue;
+      const i=ii(nx,ny),t=grid[i];
+      if(t===M.WALL||t===M.METAL||t===M.BHOLE) continue;
+      const r=Math.random();
+      if(d2<r2*.3)      grid[i]=r<.6?M.FIRE:r<.85?M.SMOKE:M.EMPTY;
+      else if(d2<r2*.7) grid[i]=r<.4?M.FIRE:r<.7?M.EMBER:r<.9?M.SMOKE:M.EMPTY;
+      else              grid[i]=r<.2?M.FIRE:r<.5?M.SMOKE:M.EMPTY;
+    }
+  }
+}
+
+// Can virus infect this?
+function canInfect(t){
+  return t!==M.EMPTY && t!==M.VIRUS && t!==M.TENTACLE &&
+         t!==M.WALL  && t!==M.BHOLE;
+}
+
+// Try to spawn a tentacle from (x,y) in direction dir
+function spawnTent(x,y,dir){
+  const nx=x+DX[dir],ny=y+DY[dir];
+  if(!inB(nx,ny)) return;
+  if(grid[ii(nx,ny)]===M.EMPTY){
+    grid[ii(nx,ny)]=M.TENTACLE;
+    tentacleDir[ii(nx,ny)]=dir;
+    virusTimer[ii(nx,ny)]=0;
+  }
+}
+
+// Scatter virus spores in a radius (after explosion)
+function virusSpores(cx,cy,rad,density){
+  for(let dy=-rad;dy<=rad;dy++){
+    for(let dx=-rad;dx<=rad;dx++){
+      const d2=dx*dx+dy*dy; if(d2>rad*rad) continue;
+      const nx=cx+dx,ny=cy+dy; if(!inB(nx,ny)) continue;
+      if(grid[ii(nx,ny)]===M.EMPTY&&Math.random()<density/(d2/2+1)){
+        grid[ii(nx,ny)]=M.VIRUS;
+        virusTimer[ii(nx,ny)]=0;
+        if(Math.random()<0.45) spawnTent(nx,ny,Math.floor(Math.random()*8));
       }
     }
   }
 }
 
-function update() {
+// ================================================================
+//  MAIN UPDATE
+// ================================================================
+function update(){
   moved.fill(0);
-  particleCount = 0;
+  pCount=0; vCount=0;
+  tick++;
 
-  // Iterate bottom-up for gravity
-  for (let y = HEIGHT - 1; y >= 0; y--) {
-    const leftToRight = (y & 1) === 0 ? Math.random() < 0.5 : Math.random() < 0.5;
-    const xStart = leftToRight ? 0 : WIDTH - 1;
-    const xEnd = leftToRight ? WIDTH : -1;
-    const xStep = leftToRight ? 1 : -1;
+  for(let y=HEIGHT-1;y>=0;y--){
+    const lr=Math.random()<0.5;
+    const x0=lr?0:WIDTH-1, xe=lr?WIDTH:-1, xs=lr?1:-1;
+    for(let x=x0;x!==xe;x+=xs){
+      const i=ii(x,y);
+      const t=grid[i];
+      if(t===0||moved[i]) continue;
+      pCount++;
 
-    for (let x = xStart; x !== xEnd; x += xStep) {
-      const i = idx(x, y);
-      const t = grid[i];
-      if (t === 0) continue;
-      if (moved[i]) continue;
-      particleCount++;
+      const cat=TYPES[t]?TYPES[t].cat:null;
 
-      const cat = TYPES[t] ? TYPES[t].cat : null;
-
-      // --- POWDERS ---
-      if (cat === 'powder') {
-        // Fall
-        if (y + 1 < HEIGHT) {
-          const below = grid[idx(x, y + 1)];
-          if (below === 0) { trySwap(x, y, x, y + 1); continue; }
-          // Fall through lighter liquids
-          if (density(below) < density(t) && density(below) > 0) { trySwap(x, y, x, y + 1); continue; }
-          const dirP = Math.random() < 0.5 ? 1 : -1;
-          const bl = x + dirP, br = x - dirP;
-          if (bl >= 0 && bl < WIDTH && grid[idx(bl, y + 1)] === 0) { trySwap(x, y, bl, y + 1); continue; }
-          if (br >= 0 && br < WIDTH && grid[idx(br, y + 1)] === 0) { trySwap(x, y, br, y + 1); continue; }
+      // ────────────────── POWDERS ──────────────────
+      if(cat==='powder'){
+        if(y+1<HEIGHT){
+          const b=grid[ii(x,y+1)];
+          if(b===0){swap(x,y,x,y+1);continue;}
+          if(dens(b)<dens(t)&&dens(b)>0){swap(x,y,x,y+1);continue;}
+          const d=Math.random()<.5?1:-1;
+          if(x+d>=0&&x+d<WIDTH&&grid[ii(x+d,y+1)]===0){swap(x,y,x+d,y+1);continue;}
+          if(x-d>=0&&x-d<WIDTH&&grid[ii(x-d,y+1)]===0){swap(x,y,x-d,y+1);continue;}
         }
-        // Special powder behavior
-        if (t === M.SALT) {
-          // Dissolves in water
-          for (const [dx, dy] of [[0,-1],[0,1],[-1,0],[1,0]]) {
-            if (get(x+dx, y+dy) === M.WATER && Math.random() < 0.02) {
-              grid[idx(x+dx, y+dy)] = M.WATER; // stays but indicate
-              grid[i] = M.EMPTY;
-              break;
+        if(t===M.SALT){
+          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]])
+            if(gv(x+dx,y+dy)===M.WATER&&Math.random()<.02){grid[ii(x+dx,y+dy)]=M.WATER;grid[i]=0;break;}
+        }
+        if(t===M.SNOW&&Math.random()<.002) grid[i]=M.WATER;
+        continue;
+      }
+
+      // ────────────────── LIQUIDS ──────────────────
+      if(cat==='liquid'){
+        const vs=t===M.HONEY?.3:t===M.OIL?.7:t===M.LAVA?.5:1;
+        if(Math.random()<vs){
+          if(y+1<HEIGHT){
+            const b=grid[ii(x,y+1)];
+            if(b===0){swap(x,y,x,y+1);continue;}
+            if(dens(b)<dens(t)&&dens(b)>0){swap(x,y,x,y+1);continue;}
+            const d=Math.random()<.5?1:-1;
+            if(x+d>=0&&x+d<WIDTH&&grid[ii(x+d,y+1)]===0){swap(x,y,x+d,y+1);continue;}
+            if(x-d>=0&&x-d<WIDTH&&grid[ii(x-d,y+1)]===0){swap(x,y,x-d,y+1);continue;}
+          }
+          const sp=t===M.HONEY?1:t===M.OIL?2:t===M.LAVA?1:3;
+          const ds=Math.random()<.5?1:-1;
+          for(let s=1;s<=sp;s++){
+            const nx=x+ds*s; if(nx<0||nx>=WIDTH) break;
+            if(grid[ii(nx,y)]!==0) break;
+            if(s===sp||grid[ii(nx+ds,y)]!==0){swap(x,y,nx,y);break;}
+          }
+        }
+        if(t===M.WATER){
+          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
+            const nt=gv(x+dx,y+dy);
+            if(nt===M.LAVA){grid[ii(x+dx,y+dy)]=M.STONE;grid[i]=M.STEAM;break;}
+            if(nt===M.FIRE) grid[ii(x+dx,y+dy)]=M.STEAM;
+          }
+        }
+        if(t===M.LAVA){
+          if(Math.random()<.02) for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]) burn(x+dx,y+dy,.5);
+          if(Math.random()<.003) grid[i]=M.STONE;
+        }
+        if(t===M.ACID){
+          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
+            const nx=x+dx,ny=y+dy; if(!inB(nx,ny)) continue;
+            const nt=grid[ii(nx,ny)];
+            if(nt&&nt!==M.ACID&&nt!==M.WALL&&nt!==M.GLASS&&nt!==M.BHOLE&&Math.random()<.08){
+              grid[ii(nx,ny)]=0; if(Math.random()<.3) grid[i]=0; break;
             }
           }
         }
-        if (t === M.SNOW) {
-          if (Math.random() < 0.002) grid[i] = M.WATER;
+        if(t===M.OIL){
+          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]])
+            if((gv(x+dx,y+dy)===M.FIRE||gv(x+dx,y+dy)===M.LAVA)&&Math.random()<.2) grid[i]=M.FIRE;
         }
         continue;
       }
 
-      // --- LIQUIDS ---
-      if (cat === 'liquid') {
-        const visc = t === M.HONEY ? 0.3 : (t === M.OIL ? 0.7 : (t === M.LAVA ? 0.5 : 1));
-        if (Math.random() < visc) {
-          if (y + 1 < HEIGHT) {
-            const below = grid[idx(x, y + 1)];
-            if (below === 0) { trySwap(x, y, x, y + 1); continue; }
-            if (density(below) < density(t) && density(below) > 0) { trySwap(x, y, x, y + 1); continue; }
-            const dirL = Math.random() < 0.5 ? 1 : -1;
-            if (x+dirL >= 0 && x+dirL < WIDTH && grid[idx(x+dirL, y+1)] === 0) { trySwap(x, y, x+dirL, y+1); continue; }
-            if (x-dirL >= 0 && x-dirL < WIDTH && grid[idx(x-dirL, y+1)] === 0) { trySwap(x, y, x-dirL, y+1); continue; }
-          }
-          // Horizontal spread
-          const spread = t === M.HONEY ? 1 : (t === M.OIL ? 2 : (t === M.LAVA ? 1 : 3));
-          const dirS = Math.random() < 0.5 ? 1 : -1;
-          for (let s = 1; s <= spread; s++) {
-            const nx = x + dirS * s;
-            if (nx < 0 || nx >= WIDTH) break;
-            if (grid[idx(nx, y)] !== 0) break;
-            if (s === spread || grid[idx(nx + dirS, y)] !== 0) {
-              trySwap(x, y, nx, y);
-              break;
-            }
-          }
+      // ────────────────── GASES ──────────────────
+      if(cat==='gas'){
+        if(Math.random()<.8){
+          if(y-1>=0&&grid[ii(x,y-1)]===0){swap(x,y,x,y-1);continue;}
+          const dg=Math.random()<.5?1:-1;
+          if(y-1>=0&&x+dg>=0&&x+dg<WIDTH&&grid[ii(x+dg,y-1)]===0){swap(x,y,x+dg,y-1);continue;}
+          if(x+dg>=0&&x+dg<WIDTH&&grid[ii(x+dg,y)]===0){swap(x,y,x+dg,y);continue;}
         }
-
-        // Reactions
-        if (t === M.WATER) {
-          for (const [dx, dy] of [[0,-1],[0,1],[-1,0],[1,0]]) {
-            const nt = get(x+dx, y+dy);
-            if (nt === M.LAVA) { grid[idx(x+dx,y+dy)] = M.STONE; grid[i] = M.STEAM; break; }
-            if (nt === M.FIRE) { grid[idx(x+dx,y+dy)] = M.STEAM; }
-            if (nt === M.PLANT && Math.random() < 0.001) {
-              // plant grows toward water — handled in plant
-            }
-          }
-        }
-        if (t === M.LAVA) {
-          if (Math.random() < 0.02) {
-            for (const [dx, dy] of [[0,-1],[0,1],[-1,0],[1,0]]) {
-              burn(x+dx, y+dy, 0.5);
-            }
-          }
-          if (Math.random() < 0.003) grid[i] = M.STONE;
-        }
-        if (t === M.ACID) {
-          for (const [dx, dy] of [[0,-1],[0,1],[-1,0],[1,0]]) {
-            const nx = x+dx, ny = y+dy;
-            if (!inB(nx,ny)) continue;
-            const nt = grid[idx(nx,ny)];
-            if (nt !== 0 && nt !== M.ACID && nt !== M.WALL && nt !== M.GLASS && nt !== M.BHOLE && Math.random() < 0.08) {
-              grid[idx(nx,ny)] = M.EMPTY;
-              if (Math.random() < 0.3) grid[i] = M.EMPTY;
-              break;
-            }
-          }
-        }
-        if (t === M.OIL) {
-          for (const [dx, dy] of [[0,-1],[0,1],[-1,0],[1,0]]) {
-            if (get(x+dx, y+dy) === M.FIRE || get(x+dx, y+dy) === M.LAVA) {
-              if (Math.random() < 0.2) grid[i] = M.FIRE;
-            }
+        if(t===M.STEAM&&Math.random()<.002) grid[i]=M.WATER;
+        if(t===M.SMOKE&&Math.random()<.008) grid[i]=0;
+        if(t===M.GAS  &&Math.random()<.001) grid[i]=0;
+        if(t===M.TOXIC&&Math.random()<.001) grid[i]=0;
+        if(t===M.GAS){
+          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
+            const nt=gv(x+dx,y+dy);
+            if(nt===M.FIRE||nt===M.LAVA||nt===M.SPARK){boom(x,y,2);break;}
           }
         }
         continue;
       }
 
-      // --- GASES ---
-      if (cat === 'gas') {
-        // Rise
-        if (Math.random() < 0.8) {
-          if (y - 1 >= 0 && grid[idx(x, y - 1)] === 0) { trySwap(x, y, x, y - 1); continue; }
-          const dirG = Math.random() < 0.5 ? 1 : -1;
-          if (y-1 >= 0 && x+dirG >= 0 && x+dirG < WIDTH && grid[idx(x+dirG, y-1)] === 0) { trySwap(x, y, x+dirG, y-1); continue; }
-          if (x+dirG >= 0 && x+dirG < WIDTH && grid[idx(x+dirG, y)] === 0) { trySwap(x, y, x+dirG, y); continue; }
+      // ────────────────── ENERGY ──────────────────
+      if(cat==='energy'){
+        if(t===M.FIRE){
+          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0],[-1,-1],[1,-1],[-1,1],[1,1]]) burn(x+dx,y+dy,.15);
+          if(Math.random()<.3&&y-1>=0&&grid[ii(x,y-1)]===0) swap(x,y,x,y-1);
+          if(Math.random()<.08) grid[i]=Math.random()<.4?M.SMOKE:0;
         }
-        // Decay
-        if (t === M.STEAM && Math.random() < 0.002) grid[i] = M.WATER;
-        if (t === M.SMOKE && Math.random() < 0.008) grid[i] = M.EMPTY;
-        if (t === M.GAS && Math.random() < 0.001) grid[i] = M.EMPTY;
-        if (t === M.TOXIC && Math.random() < 0.001) grid[i] = M.EMPTY;
-        // Gas ignites
-        if (t === M.GAS) {
-          for (const [dx, dy] of [[0,-1],[0,1],[-1,0],[1,0]]) {
-            const nt = get(x+dx, y+dy);
-            if (nt === M.FIRE || nt === M.LAVA || nt === M.SPARK) { explode(x, y, 2); break; }
+        if(t===M.PLASMA){
+          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
+            burn(x+dx,y+dy,.3);
+            if(gv(x+dx,y+dy)===M.PLASMA&&Math.random()<.01) grid[i]=M.FIRE;
           }
+          if(Math.random()<.02) grid[i]=M.FIRE;
+        }
+        if(t===M.SPARK){
+          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]) burn(x+dx,y+dy,.4);
+          if(Math.random()<.2) grid[i]=0;
+        }
+        if(t===M.EMBER){
+          if(Math.random()<.05) grid[i]=Math.random()<.5?M.FIRE:M.ASH;
+          if(y+1<HEIGHT&&grid[ii(x,y+1)]===0) swap(x,y,x,y+1);
         }
         continue;
       }
 
-      // --- ENERGY ---
-      if (cat === 'energy') {
-        if (t === M.FIRE) {
-          // Burn neighbors
-          for (const [dx, dy] of [[0,-1],[0,1],[-1,0],[1,0],[-1,-1],[1,-1],[-1,1],[1,1]]) {
-            burn(x+dx, y+dy, 0.15);
-          }
-          // Rise
-          if (Math.random() < 0.3 && y - 1 >= 0 && grid[idx(x, y - 1)] === 0) { trySwap(x, y, x, y - 1); }
-          // Decay
-          if (Math.random() < 0.08) grid[i] = Math.random() < 0.4 ? M.SMOKE : M.EMPTY;
-        }
-        if (t === M.PLASMA) {
-          for (const [dx, dy] of [[0,-1],[0,1],[-1,0],[1,0]]) {
-            burn(x+dx, y+dy, 0.3);
-            if (get(x+dx, y+dy) === M.PLASMA && Math.random() < 0.01) grid[i] = M.FIRE;
-          }
-          if (Math.random() < 0.02) grid[i] = M.FIRE;
-        }
-        if (t === M.SPARK) {
-          for (const [dx, dy] of [[0,-1],[0,1],[-1,0],[1,0]]) {
-            burn(x+dx, y+dy, 0.4);
-          }
-          if (Math.random() < 0.2) grid[i] = M.EMPTY;
-        }
-        if (t === M.EMBER) {
-          if (Math.random() < 0.05) grid[i] = Math.random() < 0.5 ? M.FIRE : M.ASH;
-          // Powder-like fall
-          if (y+1 < HEIGHT && grid[idx(x, y+1)] === 0) trySwap(x, y, x, y+1);
-        }
-        continue;
-      }
+      // ────────────────── LIFE ──────────────────
+      if(cat==='life'){
 
-      // --- LIFE ---
-      if (cat === 'life') {
-        if (t === M.PLANT) {
-          // Grow toward water or into empty cells adjacent to water/dirt
-          if (Math.random() < 0.05) {
-            for (const [dx, dy] of [[0,-1],[-1,0],[1,0],[0,1]]) {
-              const nx = x+dx, ny = y+dy;
-              if (!inB(nx,ny)) continue;
-              const nt = grid[idx(nx,ny)];
-              if (nt === 0) {
-                // Need water nearby to grow
-                let hasWater = false;
-                for (const [dx2,dy2] of [[-1,0],[1,0],[0,-1],[0,1],[-2,0],[2,0]]) {
-                  if (get(nx+dx2, ny+dy2) === M.WATER) { hasWater = true; break; }
-                }
-                if (hasWater && Math.random() < 0.3) {
-                  grid[idx(nx,ny)] = M.PLANT;
-                  // consume a bit of water
-                  for (const [dx2,dy2] of [[-1,0],[1,0],[0,-1],[0,1]]) {
-                    if (get(nx+dx2, ny+dy2) === M.WATER && Math.random() < 0.3) {
-                      grid[idx(nx+dx2, ny+dy2)] = M.EMPTY;
-                      break;
-                    }
-                  }
+        // ══════ VIRUS ══════
+        if(t===M.VIRUS){
+          vCount++;
+          if(virusTimer[i]<60000) virusTimer[i]++;
+          const age=virusTimer[i];
+
+          // Infect all 8 neighbors — everything that isn't immune
+          const infRate=Math.min(0.06+age*0.00004, 0.18);
+          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0],[1,1],[-1,1],[1,-1],[-1,-1]]){
+            const nx=x+dx,ny=y+dy;
+            if(!inB(nx,ny)) continue;
+            const ni=ii(nx,ny), nt=grid[ni];
+            if(!canInfect(nt)) continue;
+            if(Math.random()<infRate){
+              grid[ni]=M.VIRUS;
+              virusTimer[ni]=0;
+              // Spawn tentacle outward from newly infected cell
+              if(Math.random()<0.22){
+                const tdir=Math.floor(Math.random()*8);
+                spawnTent(nx,ny,tdir);
+              }
+            }
+          }
+
+          // Emit random tentacles occasionally
+          if(Math.random()<0.006){
+            spawnTent(x,y,Math.floor(Math.random()*8));
+          }
+
+          // VIRUS EXPLOSION: old cells randomly explode and scatter spores
+          if(age>350&&Math.random()<0.0012*(age/350)){
+            boom(x,y,5);
+            virusSpores(x,y,20, 0.18);
+          }
+          continue;
+        }
+
+        // ══════ TENTACLE ══════
+        if(t===M.TENTACLE){
+          vCount++;
+          if(virusTimer[i]<60000) virusTimer[i]++;
+          const age=virusTimer[i];
+          const dir=tentacleDir[i];
+
+          // Grow: try to extend the tip
+          if(Math.random()<0.14){
+            // Directions to try: primary, then slight bends
+            const tryD=[dir,(dir+1)%8,(dir+7)%8,(dir+2)%8,(dir+6)%8];
+            let grew=false;
+            for(const d of tryD){
+              const nx=x+DX[d],ny=y+DY[d];
+              if(!inB(nx,ny)) continue;
+              const ni=ii(nx,ny),nt=grid[ni];
+              if(nt===M.EMPTY){
+                // Tip advances: old cell becomes VIRUS, new cell is TENTACLE
+                grid[i]=M.VIRUS; virusTimer[i]=Math.min(age,50);
+                grid[ni]=M.TENTACLE; tentacleDir[ni]=d; virusTimer[ni]=Math.max(0,age-8);
+                moved[ni]=1;
+                grew=true; break;
+              } else if(canInfect(nt)&&Math.random()<0.3){
+                // Infect what the tip touches, tip stays put as virus
+                grid[ni]=M.VIRUS; virusTimer[ni]=0;
+                grid[i]=M.VIRUS;  virusTimer[i]=age;
+                grew=true; break;
+              }
+            }
+            // If completely stuck, dissolve to virus
+            if(!grew&&Math.random()<0.04){
+              grid[i]=M.VIRUS; virusTimer[i]=age;
+            }
+          }
+
+          // BRANCH: occasionally fork a new tentacle ~90° off
+          if(Math.random()<0.008){
+            const bdir=(dir+(Math.random()<0.5?2:6))%8;
+            const nx=x+DX[bdir],ny=y+DY[bdir];
+            if(inB(nx,ny)&&grid[ii(nx,ny)]===M.EMPTY){
+              grid[ii(nx,ny)]=M.TENTACLE;
+              tentacleDir[ii(nx,ny)]=bdir;
+              virusTimer[ii(nx,ny)]=0;
+            }
+          }
+
+          // TENTACLE TIP EXPLOSION
+          if(age>600&&Math.random()<0.004){
+            boom(x,y,3);
+            virusSpores(x,y,10,0.28);
+          }
+          continue;
+        }
+
+        // ══════ PLANT ══════
+        if(t===M.PLANT){
+          if(Math.random()<0.05){
+            for(const[dx,dy]of[[0,-1],[-1,0],[1,0],[0,1]]){
+              const nx=x+dx,ny=y+dy; if(!inB(nx,ny)) continue;
+              const nt=grid[ii(nx,ny)];
+              if(nt===0){
+                let hw=false;
+                for(const[dx2,dy2]of[[-1,0],[1,0],[0,-1],[0,1],[-2,0],[2,0]])
+                  if(gv(nx+dx2,ny+dy2)===M.WATER){hw=true;break;}
+                if(hw&&Math.random()<0.3){
+                  grid[ii(nx,ny)]=M.PLANT;
+                  for(const[dx2,dy2]of[[-1,0],[1,0],[0,-1],[0,1]])
+                    if(gv(nx+dx2,ny+dy2)===M.WATER&&Math.random()<0.3){grid[ii(nx+dx2,ny+dy2)]=0;break;}
                   break;
                 }
               }
-              if (nt === M.WATER && Math.random() < 0.05) {
-                grid[idx(nx,ny)] = M.PLANT;
-                break;
-              }
+              if(nt===M.WATER&&Math.random()<0.05){grid[ii(nx,ny)]=M.PLANT;break;}
             }
           }
+          continue;
         }
-        if (t === M.SEED) {
-          // Fall like powder
-          if (y+1 < HEIGHT) {
-            if (grid[idx(x,y+1)] === 0) { trySwap(x, y, x, y+1); continue; }
-            const dirP = Math.random() < 0.5 ? 1 : -1;
-            if (x+dirP >= 0 && x+dirP < WIDTH && grid[idx(x+dirP,y+1)] === 0) { trySwap(x, y, x+dirP, y+1); continue; }
+
+        // ══════ SEED ══════
+        if(t===M.SEED){
+          if(y+1<HEIGHT){
+            if(grid[ii(x,y+1)]===0){swap(x,y,x,y+1);continue;}
+            const d=Math.random()<.5?1:-1;
+            if(x+d>=0&&x+d<WIDTH&&grid[ii(x+d,y+1)]===0){swap(x,y,x+d,y+1);continue;}
           }
-          // Grow in dirt+water
-          let touchDirt = false, touchWater = false;
-          for (const [dx,dy] of [[0,-1],[0,1],[-1,0],[1,0]]) {
-            if (get(x+dx,y+dy) === M.DIRT) touchDirt = true;
-            if (get(x+dx,y+dy) === M.WATER) touchWater = true;
+          let td=false,tw=false;
+          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
+            if(gv(x+dx,y+dy)===M.DIRT) td=true;
+            if(gv(x+dx,y+dy)===M.WATER) tw=true;
           }
-          if (touchDirt && touchWater && Math.random() < 0.1) grid[i] = M.PLANT;
+          if(td&&tw&&Math.random()<0.1) grid[i]=M.PLANT;
+          continue;
         }
-        if (t === M.VIRUS) {
-          // Infect adjacent life/liquid
-          for (const [dx,dy] of [[0,-1],[0,1],[-1,0],[1,0]]) {
-            const nx = x+dx, ny = y+dy;
-            if (!inB(nx,ny)) continue;
-            const nt = grid[idx(nx,ny)];
-            if ((nt === M.PLANT || nt === M.SEED || nt === M.BLOOD || nt === M.WATER || nt === M.FUNGUS) && Math.random() < 0.05) {
-              grid[idx(nx,ny)] = M.VIRUS;
+
+        // ══════ FUNGUS ══════
+        if(t===M.FUNGUS){
+          if(Math.random()<0.02){
+            for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
+              const nx=x+dx,ny=y+dy;
+              if(gv(nx,ny)===M.DIRT||gv(nx,ny)===M.WOOD){grid[ii(nx,ny)]=M.FUNGUS;break;}
             }
           }
-          if (Math.random() < 0.001) grid[i] = M.EMPTY;
+          continue;
         }
-        if (t === M.FUNGUS) {
-          if (Math.random() < 0.02) {
-            for (const [dx,dy] of [[0,-1],[0,1],[-1,0],[1,0]]) {
-              const nx = x+dx, ny = y+dy;
-              if (get(nx,ny) === M.DIRT || get(nx,ny) === M.WOOD) {
-                grid[idx(nx,ny)] = M.FUNGUS;
-                break;
-              }
-            }
+        continue;
+      }
+
+      // ────────────────── SPECIAL ──────────────────
+      if(t===M.BHOLE){
+        const R=8;
+        for(let dy2=-R;dy2<=R;dy2++){
+          for(let dx2=-R;dx2<=R;dx2++){
+            if(!dx2&&!dy2) continue;
+            const d2=dx2*dx2+dy2*dy2; if(d2>R*R) continue;
+            const nx=x+dx2,ny=y+dy2; if(!inB(nx,ny)) continue;
+            const nt=grid[ii(nx,ny)];
+            if(!nt||nt===M.BHOLE||nt===M.WALL) continue;
+            if(Math.random()<0.08/(d2+1)*4) grid[ii(nx,ny)]=0;
+          }
+        }
+        continue;
+      }
+      if(t===M.SOURCE_W){
+        for(const[dx,dy]of[[0,1],[-1,0],[1,0],[0,-1]])
+          if(gv(x+dx,y+dy)===0){grid[ii(x+dx,y+dy)]=M.WATER;break;}
+        continue;
+      }
+      if(t===M.SOURCE_L){
+        for(const[dx,dy]of[[0,1],[-1,0],[1,0],[0,-1]])
+          if(gv(x+dx,y+dy)===0){grid[ii(x+dx,y+dy)]=M.LAVA;break;}
+        continue;
+      }
+
+      // ────────────────── BOMBS ──────────────────
+      if(cat==='bomb'){
+        if((t===M.TNT||t===M.C4||t===M.NUKE)&&y+1<HEIGHT&&grid[ii(x,y+1)]===0){
+          swap(x,y,x,y+1); continue;
+        }
+        if(t===M.FUSE){
+          for(const[dx,dy]of[[0,-1],[0,1],[-1,0],[1,0]]){
+            const nt=gv(x+dx,y+dy);
+            if(nt===M.FIRE||nt===M.LAVA||nt===M.SPARK||nt===M.EMBER)
+              if(Math.random()<.3){grid[i]=M.FIRE;break;}
           }
         }
         continue;
       }
 
-      // --- SPECIAL ---
-      if (t === M.BHOLE) {
-        // Suck neighbors in large radius
-        const R = 8;
-        for (let dy = -R; dy <= R; dy++) {
-          for (let dx = -R; dx <= R; dx++) {
-            if (dx === 0 && dy === 0) continue;
-            const d2 = dx*dx + dy*dy;
-            if (d2 > R*R) continue;
-            const nx = x+dx, ny = y+dy;
-            if (!inB(nx,ny)) continue;
-            const nt = grid[idx(nx,ny)];
-            if (nt === 0 || nt === M.BHOLE || nt === M.WALL) continue;
-            if (Math.random() < 0.08 / (d2 + 1) * 4) {
-              grid[idx(nx,ny)] = M.EMPTY;
-            }
-          }
-        }
-        continue;
-      }
-      if (t === M.SOURCE_W) {
-        for (const [dx,dy] of [[0,1],[-1,0],[1,0],[0,-1]]) {
-          if (get(x+dx,y+dy) === M.EMPTY) { grid[idx(x+dx,y+dy)] = M.WATER; break; }
-        }
-        continue;
-      }
-      if (t === M.SOURCE_L) {
-        for (const [dx,dy] of [[0,1],[-1,0],[1,0],[0,-1]]) {
-          if (get(x+dx,y+dy) === M.EMPTY) { grid[idx(x+dx,y+dy)] = M.LAVA; break; }
-        }
-        continue;
-      }
-
-      // --- BOMBS ---
-      if (cat === 'bomb') {
-        // Fall like powder (except WALL-like)
-        if (t === M.TNT || t === M.C4 || t === M.NUKE) {
-          if (y+1 < HEIGHT && grid[idx(x,y+1)] === 0) { trySwap(x, y, x, y+1); continue; }
-        }
-        if (t === M.FUSE) {
-          // Ignite from neighbors
-          for (const [dx,dy] of [[0,-1],[0,1],[-1,0],[1,0]]) {
-            const nt = get(x+dx,y+dy);
-            if (nt === M.FIRE || nt === M.LAVA || nt === M.SPARK || nt === M.EMBER) {
-              if (Math.random() < 0.3) { grid[i] = M.FIRE; break; }
-            }
-          }
-        }
-        continue;
-      }
-
-      // Walls, ice, etc. do nothing
-      if (t === M.ICE) {
-        if (Math.random() < 0.0005) grid[i] = M.WATER;
-      }
+      if(t===M.ICE&&Math.random()<.0005) grid[i]=M.WATER;
     }
   }
 }
 
-// =============================================================
+// ================================================================
 //  RENDER
-// =============================================================
-function render() {
-  const time = performance.now();
-  frameCount++;
-  if (time - lastTime >= 500) {
-    fps = Math.round(frameCount * 1000 / (time - lastTime));
-    frameCount = 0;
-    lastTime = time;
-  }
+// ================================================================
+function render(){
+  const now=performance.now();
+  fCount++;
+  if(now-lastT>=500){ fps=Math.round(fCount*1000/(now-lastT)); fCount=0; lastT=now; }
 
-  const len = WIDTH * HEIGHT;
-  for (let i = 0; i < len; i++) {
-    const t = grid[i];
-    if (t === 0) { buf32[i] = 0xff000000; continue; }
-    const type = TYPES[t];
-    if (!type) { buf32[i] = 0xff000000; continue; }
-    let c = type.color;
-    // Flicker for energy
-    if (t === M.FIRE || t === M.LAVA || t === M.PLASMA || t === M.SPARK || t === M.EMBER) {
-      const f = 0.85 + Math.random() * 0.3;
-      const r = Math.min(255, ((c & 0xff) * f) | 0);
-      const g = Math.min(255, (((c >> 8) & 0xff) * f) | 0);
-      const b = Math.min(255, (((c >> 16) & 0xff) * f) | 0);
-      c = 0xff000000 | (b << 16) | (g << 8) | r;
+  // Sine waves for pulsing effects
+  const pSlow = (Math.sin(now*.004)*.5+.5);   // 0–1, ~0.6Hz
+  const pFast = (Math.sin(now*.014)*.5+.5);   // 0–1, ~2Hz
+
+  const len=WIDTH*HEIGHT;
+  for(let i=0;i<len;i++){
+    const t=grid[i];
+    if(t===0){buf32[i]=0xff000000;continue;}
+    const T=TYPES[t];
+    if(!T){buf32[i]=0xff000000;continue;}
+    let c=T.color;
+
+    if(t===M.FIRE||t===M.LAVA||t===M.PLASMA||t===M.SPARK||t===M.EMBER){
+      const f=.80+Math.random()*.40;
+      const r=Math.min(255,((c&0xff)*f)|0);
+      const g=Math.min(255,(((c>>8)&0xff)*f)|0);
+      const b=Math.min(255,(((c>>16)&0xff)*f)|0);
+      c=0xff000000|(b<<16)|(g<<8)|r;
     }
-    buf32[i] = c;
-  }
-  ctx.putImageData(imageData, 0, 0);
+    else if(t===M.VIRUS){
+      const age=virusTimer[i];
+      const ag=Math.min(1,age/300);
+      const pulse=.65+pSlow*.50;
+      const noise=(Math.random()-.5)*28;
+      const r=Math.min(255,Math.max(0,((190+ag*55+noise)*pulse)|0));
+      const g=Math.min(255,Math.max(0,((28+ag*15+noise*.3)*pulse)|0));
+      const b=Math.min(255,(255*pulse)|0);
+      c=0xff000000|(b<<16)|(g<<8)|r;
+    }
+    else if(t===M.TENTACLE){
+      const age=virusTimer[i];
+      const ag=Math.min(1,age/400);
+      const pulse=.70+pFast*.38;
+      const n=(Math.random()-.5)*20;
+      // Purple → slimy green as it ages
+      const r=Math.min(255,Math.max(0,((105-ag*35+n)*pulse)|0));
+      const g=Math.min(255,Math.max(0,((10+ag*70+n*.5)*pulse)|0));
+      const b=Math.min(255,((160-ag*30)*pulse)|0);
+      c=0xff000000|(b<<16)|(g<<8)|r;
+    }
 
-  // HUD
-  document.getElementById('hud-particles').textContent = particleCount;
+    buf32[i]=c;
+  }
+  ctx.putImageData(imageData,0,0);
+
+  document.getElementById('hud-p').textContent   = pCount;
   document.getElementById('hud-fps').textContent = fps;
-  document.getElementById('hud-explosions').textContent = explosionCount;
+  document.getElementById('hud-ex').textContent  = exCount;
+  document.getElementById('hud-v').textContent   = vCount;
+
+  const alertEl=document.getElementById('virus-alert');
+  if(vCount>80){
+    alertEl.style.display='block';
+    alertEl.textContent=vCount>600?'☣ KRITISCHE INFEKTION ☣':'⚠ VIRUS AUSBRUCH ⚠';
+  } else {
+    alertEl.style.display='none';
+  }
 }
 
-// =============================================================
-//  MAIN LOOP
-// =============================================================
-let acc = 0;
-let lastLoop = performance.now();
-function loop() {
-  const now = performance.now();
-  const dt = now - lastLoop;
-  lastLoop = now;
-  acc += dt;
-  // Run physics at ~60Hz max
-  if (!isPaused) {
-    if (acc > 16) { update(); acc = 0; }
-  }
+// ================================================================
+//  LOOP
+// ================================================================
+let acc=0, prevT=performance.now();
+function loop(){
+  const now=performance.now();
+  acc+=now-prevT; prevT=now;
+  if(!paused&&acc>16){ update(); acc=0; }
   render();
   requestAnimationFrame(loop);
 }
 
-// =============================================================
+// ================================================================
 //  INIT
-// =============================================================
-window.addEventListener('resize', resizeCanvas);
+// ================================================================
+window.addEventListener('resize',resizeCanvas);
 resizeCanvas();
-renderMaterials();
-selectMaterial(M.SAND);
+refreshMats();
+selMat(M.SAND);
 loop();
 </script>
 </body>
