@@ -8,374 +8,213 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html, body {
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
-    overscroll-behavior: none;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
+    height: 100%; width: 100%; overflow: hidden; overscroll-behavior: none;
+    -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent;
   }
   body {
-    display: flex;
-    height: 100dvh;
-    width: 100dvw;
+    display: flex; height: 100dvh; width: 100dvw;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-    background: #0a0a0a;
-    color: #eee;
-    font-size: 14px;
+    background: #0a0a0a; color: #eee; font-size: 14px;
+  }
+
+  /* ── MODE SELECTION ── */
+  #mode-screen {
+    position: fixed; inset: 0; background: #06060a; z-index: 9999;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 40px;
+    background-image: radial-gradient(ellipse at 20% 30%, rgba(76,217,100,0.06) 0%, transparent 60%),
+                      radial-gradient(ellipse at 80% 70%, rgba(100,80,255,0.06) 0%, transparent 60%);
+  }
+  #mode-screen-top { text-align: center; }
+  #mode-screen-top .logo { font-size: 3rem; margin-bottom: 8px; }
+  #mode-screen-top h1 {
+    font-size: 2.2rem; font-weight: 900; letter-spacing: 2px;
+    background: linear-gradient(135deg, #4cd964, #00e5ff);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  #mode-screen-top p { color: #667; font-size: 0.85rem; margin-top: 6px; }
+  #mode-cards { display: flex; gap: 20px; }
+  .mode-card {
+    width: 220px; padding: 28px 24px;
+    background: linear-gradient(160deg, #16161e, #111118);
+    border: 1px solid #2a2a38;
+    border-radius: 16px; cursor: pointer; text-align: center;
+    transition: all 0.2s ease; position: relative; overflow: hidden;
+  }
+  .mode-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(76,217,100,0.08), transparent);
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .mode-card:hover::before { opacity: 1; }
+  .mode-card:hover { border-color: #4cd964; transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(76,217,100,0.15); }
+  .mode-card:active { transform: translateY(0); }
+  .mode-card .mc-icon { font-size: 2.8rem; margin-bottom: 12px; }
+  .mode-card .mc-title { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 8px; }
+  .mode-card .mc-desc { font-size: 0.76rem; color: #667; line-height: 1.6; }
+  .mode-card .mc-badge {
+    display: inline-block; margin-top: 12px; padding: 3px 10px;
+    background: rgba(76,217,100,0.12); border: 1px solid rgba(76,217,100,0.3);
+    border-radius: 20px; font-size: 0.68rem; color: #4cd964; font-weight: 700;
+  }
+  @media (max-width: 520px) {
+    #mode-cards { flex-direction: column; }
+    .mode-card { width: 85vw; }
+    #mode-screen-top h1 { font-size: 1.6rem; }
   }
 
   /* ── LEFT PANEL ── */
   #panel {
-    width: 230px;
-    min-width: 230px;
+    width: 230px; min-width: 230px;
     background: linear-gradient(180deg, #1f1f23 0%, #17171b 100%);
     border-right: 1px solid #2a2a30;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    display: flex; flex-direction: column; overflow: hidden;
     box-shadow: 2px 0 12px rgba(0,0,0,0.5);
   }
-  #panel-top {
-    padding: 12px 12px 10px;
-    border-bottom: 1px solid #2a2a30;
-    flex-shrink: 0;
-  }
+  #panel-top { padding: 12px 12px 10px; border-bottom: 1px solid #2a2a30; flex-shrink: 0; }
   #panel-top h1 {
-    font-size: 0.95rem;
-    font-weight: 800;
-    letter-spacing: 1.2px;
-    color: #fff;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    font-size: 0.95rem; font-weight: 800; letter-spacing: 1.2px; color: #fff;
+    margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
   }
   #panel-top h1 span { font-size: 1.1rem; }
-
   .ctrl-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.72rem;
-    color: #9aa;
-    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px; font-size: 0.72rem;
+    color: #9aa; margin-bottom: 8px;
   }
   .ctrl-row label { min-width: 32px; font-weight: 600; }
-  .ctrl-row input[type=range] {
-    flex: 1;
-    accent-color: #4cd964;
-    cursor: pointer;
-    height: 4px;
-  }
-  .ctrl-row .val {
-    font-weight: 700;
-    color: #fff;
-    min-width: 22px;
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .tool-btns {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
-    margin-top: 6px;
-  }
+  .ctrl-row input[type=range] { flex: 1; accent-color: #4cd964; cursor: pointer; height: 4px; }
+  .ctrl-row .val { font-weight: 700; color: #fff; min-width: 22px; text-align: right; font-variant-numeric: tabular-nums; }
+  .tool-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 6px; }
   .tool-btns button {
-    padding: 8px 4px;
-    background: #2a2a30;
-    border: 1px solid #35353e;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    cursor: pointer;
-    color: #ddd;
-    transition: all .12s;
+    padding: 8px 4px; background: #2a2a30; border: 1px solid #35353e; border-radius: 6px;
+    font-size: 0.95rem; cursor: pointer; color: #ddd; transition: all .12s;
   }
   .tool-btns button:hover { background: #35353e; border-color: #4cd964; }
   .tool-btns button:active { transform: scale(0.95); }
-  .tool-btns button.active {
-    background: linear-gradient(180deg, #4cd964 0%, #3aa850 100%);
-    border-color: #4cd964;
-    color: #000;
-  }
+  .tool-btns button.active { background: linear-gradient(180deg,#4cd964,#3aa850); border-color:#4cd964; color:#000; }
 
-  #tabs {
-    display: flex;
-    flex-wrap: wrap;
-    padding: 8px 8px 4px;
-    gap: 4px;
-    border-bottom: 1px solid #2a2a30;
-    flex-shrink: 0;
-  }
+  #tabs { display: flex; flex-wrap: wrap; padding: 8px 8px 4px; gap: 4px; border-bottom: 1px solid #2a2a30; flex-shrink: 0; }
   .tab {
-    padding: 6px 8px;
-    background: #2a2a30;
-    border: 1px solid #35353e;
-    border-radius: 6px;
-    font-size: 0.7rem;
-    cursor: pointer;
-    color: #bbb;
-    font-weight: 600;
-    transition: all .12s;
-    flex: 1 0 auto;
-    text-align: center;
+    padding: 6px 8px; background: #2a2a30; border: 1px solid #35353e; border-radius: 6px;
+    font-size: 0.7rem; cursor: pointer; color: #bbb; font-weight: 600; transition: all .12s; flex: 1 0 auto; text-align: center;
   }
   .tab:hover { background: #35353e; }
-  .tab.active {
-    background: linear-gradient(180deg, #4cd964 0%, #3aa850 100%);
-    color: #000;
-    border-color: #4cd964;
-    box-shadow: 0 2px 6px rgba(76,217,100,0.3);
-  }
+  .tab.active { background: linear-gradient(180deg,#4cd964,#3aa850); color:#000; border-color:#4cd964; box-shadow: 0 2px 6px rgba(76,217,100,0.3); }
 
-  #mat-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: 6px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
+  #mat-list { flex: 1; overflow-y: auto; padding: 6px; display: flex; flex-direction: column; gap: 2px; }
   #mat-list::-webkit-scrollbar { width: 6px; }
   #mat-list::-webkit-scrollbar-track { background: transparent; }
   #mat-list::-webkit-scrollbar-thumb { background: #35353e; border-radius: 3px; }
   #mat-list::-webkit-scrollbar-thumb:hover { background: #4a4a55; }
 
   .mat-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 7px 10px;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 6px;
-    cursor: pointer;
-    text-align: left;
-    font-size: 0.82rem;
-    color: #ddd;
-    font-weight: 500;
-    transition: all .1s;
-    width: 100%;
+    display: flex; align-items: center; gap: 10px; padding: 7px 10px;
+    background: transparent; border: 1px solid transparent; border-radius: 6px;
+    cursor: pointer; text-align: left; font-size: 0.82rem; color: #ddd; font-weight: 500;
+    transition: all .1s; width: 100%;
   }
   .mat-btn:hover { background: #2a2a30; border-color: #35353e; }
-  .mat-btn.active {
-    background: linear-gradient(90deg, #4cd964 0%, #3aa850 100%);
-    color: #000;
-    border-color: #4cd964;
-    font-weight: 700;
-    box-shadow: 0 2px 8px rgba(76,217,100,0.25);
-  }
-  .mat-btn .sw {
-    width: 18px;
-    height: 18px;
-    border-radius: 4px;
-    border: 1px solid rgba(0,0,0,0.4);
-    flex-shrink: 0;
-    box-shadow: inset 0 1px 2px rgba(255,255,255,0.1), 0 1px 2px rgba(0,0,0,0.3);
-  }
+  .mat-btn.active { background: linear-gradient(90deg,#4cd964,#3aa850); color:#000; border-color:#4cd964; font-weight:700; box-shadow: 0 2px 8px rgba(76,217,100,0.25); }
+  .mat-btn .sw { width:18px;height:18px;border-radius:4px;border:1px solid rgba(0,0,0,0.4);flex-shrink:0;box-shadow:inset 0 1px 2px rgba(255,255,255,0.1),0 1px 2px rgba(0,0,0,0.3); }
 
-  #cur {
-    padding: 10px 12px;
-    border-top: 1px solid #2a2a30;
-    font-size: 0.78rem;
-    color: #9aa;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: #17171b;
-    flex-shrink: 0;
+  /* NPC tab styles */
+  .npc-spawn-btn {
+    display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+    background: #1e1e24; border: 1px solid #2a2a38; border-radius: 8px;
+    cursor: pointer; font-size: 0.85rem; color: #ddd; font-weight: 600;
+    transition: all .15s; width: 100%; margin-bottom: 4px;
   }
-  #cur .sw {
-    width: 16px; height: 16px;
-    border-radius: 4px;
-    border: 1px solid rgba(0,0,0,0.4);
-    box-shadow: inset 0 1px 2px rgba(255,255,255,0.1);
+  .npc-spawn-btn:hover { background: #2a2a38; border-color: #4cd964; color: #fff; }
+  .npc-spawn-btn:active { transform: scale(0.97); }
+  .npc-spawn-btn .npc-icon { font-size: 1.4rem; }
+  .npc-spawn-btn .npc-info { text-align: left; }
+  .npc-spawn-btn .npc-name { font-size: 0.85rem; font-weight: 700; }
+  .npc-spawn-btn .npc-hint { font-size: 0.68rem; color: #667; }
+  .npc-count-bar {
+    padding: 8px 10px; background: #1a1a20; border-radius: 6px;
+    font-size: 0.75rem; color: #9aa; border: 1px solid #2a2a30;
+    margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;
   }
-  #cur-name { font-weight: 700; color: #fff; }
+  .npc-count-bar span { color: #4cd964; font-weight: 700; }
+  .npc-clear-btn {
+    width: 100%; padding: 8px; background: rgba(255,80,80,0.1);
+    border: 1px solid rgba(255,80,80,0.25); border-radius: 6px;
+    color: #ff8080; font-size: 0.78rem; cursor: pointer; font-weight: 600;
+    transition: all .15s; margin-top: 4px;
+  }
+  .npc-clear-btn:hover { background: rgba(255,80,80,0.18); border-color: rgba(255,80,80,0.5); }
+
+  #cur { padding:10px 12px;border-top:1px solid #2a2a30;font-size:0.78rem;color:#9aa;display:flex;align-items:center;gap:8px;background:#17171b;flex-shrink:0; }
+  #cur .sw { width:16px;height:16px;border-radius:4px;border:1px solid rgba(0,0,0,0.4);box-shadow:inset 0 1px 2px rgba(255,255,255,0.1); }
+  #cur-name { font-weight:700;color:#fff; }
 
   /* ── RIGHT: CANVAS ── */
-  #right {
-    flex: 1;
-    min-width: 0;
-    min-height: 0;
-    position: relative;
-    background: #0a0a0a;
-    overflow: hidden;
-  }
-  canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
-    image-rendering: pixelated;
-    image-rendering: crisp-edges;
-    cursor: crosshair;
-    touch-action: none;
-    background: #050505;
-  }
+  #right { flex:1;min-width:0;min-height:0;position:relative;background:#0a0a0a;overflow:hidden; }
+  canvas { display:block;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;cursor:crosshair;touch-action:none;background:#050505; }
 
-  .overlay {
-    position: absolute;
-    pointer-events: none;
-    background: rgba(20,20,24,0.85);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 8px;
-    color: #eee;
-    font-size: 0.72rem;
-    font-variant-numeric: tabular-nums;
-  }
-  #hud {
-    top: 10px;
-    right: 10px;
-    padding: 8px 12px;
-    line-height: 1.7;
-  }
-  #hud b { color: #fff; font-weight: 700; }
-  #hud .vc { color: #ff5090; font-weight: 700; }
-  #hud .ex { color: #ffa030; font-weight: 700; }
+  .overlay { position:absolute;pointer-events:none;background:rgba(20,20,24,0.85);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:#eee;font-size:0.72rem;font-variant-numeric:tabular-nums; }
+  #hud { top:10px;right:10px;padding:8px 12px;line-height:1.7; }
+  #hud b { color:#fff;font-weight:700; }
+  #hud .vc { color:#ff5090;font-weight:700; }
+  #hud .ex { color:#ffa030;font-weight:700; }
+  #cam-hud { top:10px;left:10px;padding:6px 10px;font-size:0.68rem;color:#667;display:none; }
+  #cam-hud b { color:#aaa; }
 
-  #virus-alert {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    padding: 6px 12px;
-    background: rgba(200,20,80,0.15);
-    border: 1px solid rgba(255,80,144,0.4);
-    border-radius: 6px;
-    color: #ff7aa8;
-    font-size: 0.72rem;
-    font-weight: 700;
-    pointer-events: none;
-    display: none;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    animation: pulse .9s ease-in-out infinite;
-  }
-  @keyframes pulse {
-    0%,100% { opacity: .75; }
-    50% { opacity: 1; box-shadow: 0 0 12px rgba(255,80,144,0.4); }
-  }
+  #virus-alert { position:absolute;top:10px;left:10px;padding:6px 12px;background:rgba(200,20,80,0.15);border:1px solid rgba(255,80,144,0.4);border-radius:6px;color:#ff7aa8;font-size:0.72rem;font-weight:700;pointer-events:none;display:none;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);animation:pulse .9s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:.75;}50%{opacity:1;box-shadow:0 0 12px rgba(255,80,144,0.4);} }
 
-  .float-btn {
-    position: absolute;
-    background: rgba(30,30,35,0.85);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: #ddd;
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    cursor: pointer;
-    font-size: 1rem;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    transition: all .15s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .float-btn:hover { background: rgba(50,50,58,0.9); transform: scale(1.08); }
-  #help-btn { bottom: 12px; right: 12px; }
-  #mobile-toggle {
-    bottom: 12px; left: 12px;
-    display: none;
-  }
+  .float-btn { position:absolute;background:rgba(30,30,35,0.85);border:1px solid rgba(255,255,255,0.1);color:#ddd;border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:1rem;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:all .15s;display:flex;align-items:center;justify-content:center; }
+  .float-btn:hover { background:rgba(50,50,58,0.9);transform:scale(1.08); }
+  #help-btn { bottom:12px;right:12px; }
+  #mobile-toggle { bottom:12px;left:12px;display:none; }
 
-  #help-modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 1000;
-    animation: fadeIn .2s ease-out;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-  }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  #help-content {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    background: #1f1f23;
-    border: 1px solid #35353e;
-    border-radius: 12px;
-    padding: 24px;
-    max-width: 440px;
-    width: calc(100% - 40px);
-    max-height: 80vh;
-    overflow-y: auto;
-    box-shadow: 0 16px 48px rgba(0,0,0,0.6);
-  }
-  #help-content h2 {
-    margin-bottom: 16px;
-    font-size: 1.1rem;
-    color: #fff;
-  }
-  #help-content h3 {
-    margin-top: 14px;
-    margin-bottom: 6px;
-    font-size: 0.85rem;
-    color: #4cd964;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  #help-content .shortcut {
-    display: flex;
-    justify-content: space-between;
-    margin: 4px 0;
-    font-size: 0.82rem;
-    color: #ccc;
-  }
-  #help-content .key {
-    background: #2a2a30;
-    border: 1px solid #3a3a44;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-weight: 600;
-    font-family: ui-monospace, Menlo, monospace;
-    color: #4cd964;
-    font-size: 0.75rem;
-  }
-  #help-close {
-    position: absolute;
-    top: 12px; right: 14px;
-    cursor: pointer;
-    font-size: 1.4rem;
-    color: #888;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-  }
-  #help-close:hover { background: #2a2a30; color: #fff; }
+  #help-modal { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;animation:fadeIn .2s ease-out;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px); }
+  @keyframes fadeIn { from{opacity:0;}to{opacity:1;} }
+  #help-content { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#1f1f23;border:1px solid #35353e;border-radius:12px;padding:24px;max-width:440px;width:calc(100% - 40px);max-height:80vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,0.6); }
+  #help-content h2 { margin-bottom:16px;font-size:1.1rem;color:#fff; }
+  #help-content h3 { margin-top:14px;margin-bottom:6px;font-size:0.85rem;color:#4cd964;text-transform:uppercase;letter-spacing:0.5px; }
+  #help-content .shortcut { display:flex;justify-content:space-between;margin:4px 0;font-size:0.82rem;color:#ccc; }
+  #help-content .key { background:#2a2a30;border:1px solid #3a3a44;padding:2px 8px;border-radius:4px;font-weight:600;font-family:ui-monospace,Menlo,monospace;color:#4cd964;font-size:0.75rem; }
+  #help-close { position:absolute;top:12px;right:14px;cursor:pointer;font-size:1.4rem;color:#888;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%; }
+  #help-close:hover { background:#2a2a30;color:#fff; }
 
-  /* ── MOBILE ── */
   @media (max-width: 760px) {
     body { flex-direction: column; }
-    #panel {
-      width: 100%;
-      min-width: 0;
-      max-width: none;
-      height: 45dvh;
-      max-height: 45dvh;
-      order: 2;
-      border-right: none;
-      border-top: 1px solid #2a2a30;
-      box-shadow: 0 -2px 12px rgba(0,0,0,0.5);
-    }
-    #right { order: 1; min-height: 0; }
-    #panel.hidden { height: 0; max-height: 0; }
-    #mobile-toggle { display: flex; }
-    #tabs { padding: 6px; }
-    .tab { flex: 1 0 calc(25% - 4px); font-size: 0.68rem; padding: 5px 6px; }
+    #panel { width:100%;min-width:0;max-width:none;height:45dvh;max-height:45dvh;order:2;border-right:none;border-top:1px solid #2a2a30;box-shadow:0 -2px 12px rgba(0,0,0,0.5); }
+    #right { order:1;min-height:0; }
+    #panel.hidden { height:0;max-height:0; }
+    #mobile-toggle { display:flex; }
+    #tabs { padding:6px; }
+    .tab { flex:1 0 calc(25% - 4px);font-size:0.68rem;padding:5px 6px; }
   }
 </style>
 </head>
 <body>
+
+<!-- MODE SELECTION -->
+<div id="mode-screen">
+  <div id="mode-screen-top">
+    <div class="logo">⚡</div>
+    <h1>SANDBOX ULTRA</h1>
+    <p>Wähle deinen Spielmodus</p>
+  </div>
+  <div id="mode-cards">
+    <div class="mode-card" onclick="startGame('normal')">
+      <div class="mc-icon">🎮</div>
+      <div class="mc-title">Normal Mode</div>
+      <div class="mc-desc">Freie Sandbox auf fester<br>Leinwand — kein Limit</div>
+      <div class="mc-badge">KLASSISCH</div>
+    </div>
+    <div class="mode-card" onclick="startGame('generated')">
+      <div class="mc-icon">🌍</div>
+      <div class="mc-title">Generated Mode</div>
+      <div class="mc-desc">Prozedural generierte Welt<br>Bäume · Höhlen · Erze · NPCs</div>
+      <div class="mc-badge">NEU ✨</div>
+    </div>
+  </div>
+</div>
 
 <div id="panel">
   <div id="panel-top">
@@ -392,10 +231,8 @@
       <button id="btn-load" title="Laden">📂</button>
     </div>
   </div>
-
   <div id="tabs"></div>
   <div id="mat-list"></div>
-
   <div id="cur">
     <div class="sw" id="cur-dot"></div>
     <span id="cur-name">Sand</span>
@@ -407,6 +244,9 @@
   <div id="hud" class="overlay">
     FPS <b id="hud-fps">0</b> · Partikel <b id="hud-p">0</b><br>
     💥 <span class="ex" id="hud-ex">0</span> · 🦠 <span class="vc" id="hud-v">0</span>
+  </div>
+  <div id="cam-hud" class="overlay">
+    Kamera <b id="hud-cam">0, 0</b> · NPCs <b id="hud-npc">0</b>
   </div>
   <div id="virus-alert">⚠ VIRUS</div>
   <button id="help-btn" class="float-btn" title="Hilfe (H)">❓</button>
@@ -429,6 +269,10 @@
     <div class="shortcut"><span>Pause</span><span class="key">Leer</span></div>
     <div class="shortcut"><span>Alles löschen</span><span class="key">Entf</span></div>
     <div class="shortcut"><span>Hilfe</span><span class="key">H</span></div>
+    <h3 id="gen-help-title" style="display:none">Generated Mode – Kamera</h3>
+    <div class="shortcut" id="gen-help-row" style="display:none"><span>Kamera bewegen</span><span class="key">↑ ↓ ← →</span></div>
+    <div class="shortcut" id="gen-help-row2" style="display:none"><span>Schnell scrollen</span><span class="key">Shift + ↑↓←→</span></div>
+    <div class="shortcut" id="gen-help-row3" style="display:none"><span>Kamera ziehen</span><span>Rechtsklick-Ziehen</span></div>
     <h3>Tipps</h3>
     <div style="font-size:0.8rem;color:#aaa;line-height:1.6;margin-top:4px;">
       • Sand + Lava = Glas<br>
@@ -450,8 +294,8 @@ const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
 let WIDTH = 1, HEIGHT = 1;
 let imageData, buf32, grid, moved, extra, extra2;
 
-const DX8 = [0, 1, 1, 1, 0, -1, -1, -1];
-const DY8 = [-1, -1, 0, 1, 1, 1, 0, -1];
+const DX8 = [0,1,1,1,0,-1,-1,-1];
+const DY8 = [-1,-1,0,1,1,1,0,-1];
 const N4  = [[0,-1],[0,1],[-1,0],[1,0]];
 const N8  = [[0,-1],[0,1],[-1,0],[1,0],[-1,-1],[1,-1],[-1,1],[1,1]];
 
@@ -461,1022 +305,1386 @@ function alloc(w, h) {
   buf32 = new Uint32Array(imageData.data.buffer);
   grid  = new Uint8Array(n);
   moved = new Uint8Array(n);
-  extra = new Uint16Array(n);  // generic: virus timer, tentacle dir, charge, etc.
-  extra2 = new Uint8Array(n);  // generic: heat, portal id, etc.
+  extra = new Uint16Array(n);
+  extra2 = new Uint8Array(n);
 }
 
 function resize() {
   const r = document.getElementById('right').getBoundingClientRect();
-  // Adaptive resolution - aim for ~300 px wide, scale down on small screens
   const scale = Math.max(2.2, Math.min(3.5, r.width / 320));
   const nW = Math.max(100, Math.floor(r.width / scale));
   const nH = Math.max(80,  Math.floor(r.height / scale));
   if (nW === WIDTH && nH === HEIGHT) return;
-
   const og = grid, oe = extra, oe2 = extra2, oW = WIDTH, oH = HEIGHT;
   WIDTH = nW; HEIGHT = nH;
   canvas.width = nW; canvas.height = nH;
   alloc(nW, nH);
-
-  if (og && oW > 1) {
+  if (og && oW > 1 && gameMode === 'normal') {
     const ox = Math.floor((nW - oW) / 2), oy = Math.floor((nH - oH) / 2);
     for (let y = 0; y < oH; y++) {
       for (let x = 0; x < oW; x++) {
         const nx = x + ox, ny = y + oy;
         if (nx >= 0 && nx < nW && ny >= 0 && ny < nH) {
-          const ni = ny * nW + nx, oi = y * oW + x;
-          grid[ni] = og[oi];
-          extra[ni] = oe[oi];
-          extra2[ni] = oe2[oi];
+          const ni = ny*nW+nx, oi = y*oW+x;
+          grid[ni]=og[oi]; extra[ni]=oe[oi]; extra2[ni]=oe2[oi];
         }
       }
     }
   }
+  if (gameMode === 'generated') {
+    ensureChunks();
+    loadView();
+  }
 }
 
-function col(r, g, b) { return 0xff000000 | ((b & 0xff) << 16) | ((g & 0xff) << 8) | (r & 0xff); }
+function col(r,g,b){ return 0xff000000|((b&0xff)<<16)|((g&0xff)<<8)|(r&0xff); }
 
 // ── MATERIALS ──
 const M = {
-  EMPTY: 0,
-  // Powders
-  SAND: 1, DIRT: 2, SALT: 3, SNOW: 4, GUNPOW: 5, ASH: 6, COAL: 7, SAND_DARK: 8, MUD: 9,
-  // Solids/Walls
-  STONE: 20, WOOD: 21, WALL: 22, GLASS: 23, METAL: 24, CONCRETE: 25, ICE: 26,
-  DIAMOND: 27, GOLD: 28, WIRE: 29, RUBBER: 30, PAPER: 31, COTTON: 32,
-  // Liquids
-  WATER: 40, LAVA: 41, OIL: 42, ACID: 43, SLIME: 44, MERCURY: 45, HONEY: 46, BLOOD: 47, NAPALM: 48,
-  // Gases
-  STEAM: 60, SMOKE: 61, GAS: 62, TOXIC: 63, CLOUD: 64,
-  // Energy
-  FIRE: 80, PLASMA: 81, SPARK: 82, EMBER: 83, LIGHT: 84,
-  // Life
-  PLANT: 100, SEED: 101, VIRUS: 102, FUNGUS: 103, TENTACLE: 104, ALGAE: 105, GRASS: 106,
-  // Special
-  BHOLE: 130, SOURCE_W: 131, SOURCE_L: 132, BUBBLE: 133,
-  CLONE: 134, PORTAL_A: 135, PORTAL_B: 136, BATTERY: 137,
-  // Bombs
-  TNT: 160, C4: 161, NUKE: 162, FUSE: 163, MINE: 164,
+  EMPTY:0,
+  SAND:1,DIRT:2,SALT:3,SNOW:4,GUNPOW:5,ASH:6,COAL:7,SAND_DARK:8,MUD:9,
+  STONE:20,WOOD:21,WALL:22,GLASS:23,METAL:24,CONCRETE:25,ICE:26,
+  DIAMOND:27,GOLD:28,WIRE:29,RUBBER:30,PAPER:31,COTTON:32,
+  WATER:40,LAVA:41,OIL:42,ACID:43,SLIME:44,MERCURY:45,HONEY:46,BLOOD:47,NAPALM:48,
+  STEAM:60,SMOKE:61,GAS:62,TOXIC:63,CLOUD:64,
+  FIRE:80,PLASMA:81,SPARK:82,EMBER:83,LIGHT:84,
+  PLANT:100,SEED:101,VIRUS:102,FUNGUS:103,TENTACLE:104,ALGAE:105,GRASS:106,
+  BHOLE:130,SOURCE_W:131,SOURCE_L:132,BUBBLE:133,CLONE:134,PORTAL_A:135,PORTAL_B:136,BATTERY:137,
+  TNT:160,C4:161,NUKE:162,FUSE:163,MINE:164,
 };
 
 const T = new Array(256).fill(null);
-function def(id, nm, c, cat, noise = 12) { T[id] = { id, nm, color: c, cat, noise }; }
+function def(id,nm,c,cat,noise=12){ T[id]={id,nm,color:c,cat,noise}; }
 
-def(M.EMPTY,     'Radierer',      0,                  'special', 0);
-def(M.SAND,      'Sand',          col(228,198,108),   'powder', 20);
-def(M.DIRT,      'Erde',          col(88,58,28),      'powder', 18);
-def(M.SALT,      'Salz',          col(238,238,248),   'powder', 10);
-def(M.SNOW,      'Schnee',        col(235,248,255),   'powder', 12);
-def(M.GUNPOW,    'Schießpulver',  col(55,55,65),      'powder', 14);
-def(M.ASH,       'Asche',         col(78,78,82),      'powder', 16);
-def(M.COAL,      'Kohle',         col(40,36,42),      'powder', 14);
-def(M.SAND_DARK, 'Dunkelsand',    col(180,150,80),    'powder', 18);
-def(M.MUD,       'Schlamm',       col(70,45,22),      'powder', 16);
+def(M.EMPTY,'Radierer',0,'special',0);
+def(M.SAND,'Sand',col(228,198,108),'powder',20);
+def(M.DIRT,'Erde',col(88,58,28),'powder',18);
+def(M.SALT,'Salz',col(238,238,248),'powder',10);
+def(M.SNOW,'Schnee',col(235,248,255),'powder',12);
+def(M.GUNPOW,'Schießpulver',col(55,55,65),'powder',14);
+def(M.ASH,'Asche',col(78,78,82),'powder',16);
+def(M.COAL,'Kohle',col(40,36,42),'powder',14);
+def(M.SAND_DARK,'Dunkelsand',col(180,150,80),'powder',18);
+def(M.MUD,'Schlamm',col(70,45,22),'powder',16);
+def(M.STONE,'Stein',col(115,115,125),'wall',18);
+def(M.WOOD,'Holz',col(108,68,32),'wall',22);
+def(M.WALL,'Wand',col(175,175,185),'wall',8);
+def(M.GLASS,'Glas',col(195,228,238),'wall',6);
+def(M.METAL,'Metall',col(155,155,175),'wall',10);
+def(M.CONCRETE,'Beton',col(140,140,145),'wall',14);
+def(M.ICE,'Eis',col(165,215,255),'wall',10);
+def(M.DIAMOND,'Diamant',col(180,240,255),'wall',8);
+def(M.GOLD,'Gold',col(235,200,60),'wall',10);
+def(M.WIRE,'Draht',col(180,120,60),'wall',6);
+def(M.RUBBER,'Gummi',col(50,40,48),'wall',10);
+def(M.PAPER,'Papier',col(240,230,210),'wall',8);
+def(M.COTTON,'Baumwolle',col(245,245,240),'wall',14);
+def(M.WATER,'Wasser',col(38,115,235),'liquid',18);
+def(M.LAVA,'Lava',col(255,98,18),'liquid',25);
+def(M.OIL,'Öl',col(58,38,12),'liquid',14);
+def(M.ACID,'Säure',col(155,255,38),'liquid',22);
+def(M.SLIME,'Schleim',col(38,195,118),'liquid',18);
+def(M.MERCURY,'Quecksilber',col(195,195,215),'liquid',18);
+def(M.HONEY,'Honig',col(228,168,28),'liquid',16);
+def(M.BLOOD,'Blut',col(148,18,28),'liquid',18);
+def(M.NAPALM,'Napalm',col(200,80,30),'liquid',20);
+def(M.STEAM,'Dampf',col(215,215,228),'gas',16);
+def(M.SMOKE,'Rauch',col(58,58,62),'gas',18);
+def(M.GAS,'Gas',col(195,228,138),'gas',14);
+def(M.TOXIC,'Giftgas',col(138,195,58),'gas',16);
+def(M.CLOUD,'Wolke',col(245,245,250),'gas',10);
+def(M.FIRE,'Feuer',col(255,138,28),'energy',40);
+def(M.PLASMA,'Plasma',col(218,98,255),'energy',50);
+def(M.SPARK,'Funke',col(255,255,158),'energy',30);
+def(M.EMBER,'Glut',col(255,78,18),'energy',40);
+def(M.LIGHT,'Licht',col(255,255,180),'energy',30);
+def(M.PLANT,'Pflanze',col(48,175,58),'life',22);
+def(M.SEED,'Samen',col(138,108,48),'life',12);
+def(M.VIRUS,'Virus',col(192,30,255),'life',30);
+def(M.FUNGUS,'Pilz',col(195,148,178),'life',20);
+def(M.TENTACLE,'Tentakel',col(100,12,160),'life',24);
+def(M.ALGAE,'Alge',col(78,165,78),'life',16);
+def(M.GRASS,'Gras',col(90,180,50),'life',18);
+def(M.BHOLE,'Schw. Loch',col(8,0,18),'special',0);
+def(M.SOURCE_W,'Wasserquelle',col(78,158,255),'special',0);
+def(M.SOURCE_L,'Lavaquelle',col(255,138,38),'special',0);
+def(M.BUBBLE,'Blase',col(200,235,255),'special',0);
+def(M.CLONE,'Klon',col(200,200,220),'special',0);
+def(M.PORTAL_A,'Portal A',col(80,180,255),'special',0);
+def(M.PORTAL_B,'Portal B',col(255,140,80),'special',0);
+def(M.BATTERY,'Batterie',col(60,220,140),'special',0);
+def(M.TNT,'TNT',col(198,28,28),'bomb',10);
+def(M.C4,'C4',col(218,218,148),'bomb',8);
+def(M.NUKE,'Nuke',col(78,8,8),'bomb',10);
+def(M.FUSE,'Zündschnur',col(218,178,78),'bomb',10);
+def(M.MINE,'Mine',col(138,28,28),'bomb',10);
 
-def(M.STONE,     'Stein',         col(115,115,125),   'wall',   18);
-def(M.WOOD,      'Holz',          col(108,68,32),     'wall',   22);
-def(M.WALL,      'Wand',          col(175,175,185),   'wall',    8);
-def(M.GLASS,     'Glas',          col(195,228,238),   'wall',    6);
-def(M.METAL,     'Metall',        col(155,155,175),   'wall',   10);
-def(M.CONCRETE,  'Beton',         col(140,140,145),   'wall',   14);
-def(M.ICE,       'Eis',           col(165,215,255),   'wall',   10);
-def(M.DIAMOND,   'Diamant',       col(180,240,255),   'wall',    8);
-def(M.GOLD,      'Gold',          col(235,200,60),    'wall',   10);
-def(M.WIRE,      'Draht',         col(180,120,60),    'wall',    6);
-def(M.RUBBER,    'Gummi',         col(50,40,48),      'wall',   10);
-def(M.PAPER,     'Papier',        col(240,230,210),   'wall',    8);
-def(M.COTTON,    'Baumwolle',     col(245,245,240),   'wall',   14);
-
-def(M.WATER,     'Wasser',        col(38,115,235),    'liquid', 18);
-def(M.LAVA,      'Lava',          col(255,98,18),     'liquid', 25);
-def(M.OIL,       'Öl',            col(58,38,12),      'liquid', 14);
-def(M.ACID,      'Säure',         col(155,255,38),    'liquid', 22);
-def(M.SLIME,     'Schleim',       col(38,195,118),    'liquid', 18);
-def(M.MERCURY,   'Quecksilber',   col(195,195,215),   'liquid', 18);
-def(M.HONEY,     'Honig',         col(228,168,28),    'liquid', 16);
-def(M.BLOOD,     'Blut',          col(148,18,28),     'liquid', 18);
-def(M.NAPALM,    'Napalm',        col(200,80,30),     'liquid', 20);
-
-def(M.STEAM,     'Dampf',         col(215,215,228),   'gas',    16);
-def(M.SMOKE,     'Rauch',         col(58,58,62),      'gas',    18);
-def(M.GAS,       'Gas',           col(195,228,138),   'gas',    14);
-def(M.TOXIC,     'Giftgas',       col(138,195,58),    'gas',    16);
-def(M.CLOUD,     'Wolke',         col(245,245,250),   'gas',    10);
-
-def(M.FIRE,      'Feuer',         col(255,138,28),    'energy', 40);
-def(M.PLASMA,    'Plasma',        col(218,98,255),    'energy', 50);
-def(M.SPARK,     'Funke',         col(255,255,158),   'energy', 30);
-def(M.EMBER,     'Glut',          col(255,78,18),     'energy', 40);
-def(M.LIGHT,     'Licht',         col(255,255,180),   'energy', 30);
-
-def(M.PLANT,     'Pflanze',       col(48,175,58),     'life',   22);
-def(M.SEED,      'Samen',         col(138,108,48),    'life',   12);
-def(M.VIRUS,     'Virus',         col(192,30,255),    'life',   30);
-def(M.FUNGUS,    'Pilz',          col(195,148,178),   'life',   20);
-def(M.TENTACLE,  'Tentakel',      col(100,12,160),    'life',   24);
-def(M.ALGAE,     'Alge',          col(78,165,78),     'life',   16);
-def(M.GRASS,     'Gras',          col(90,180,50),     'life',   18);
-
-def(M.BHOLE,     'Schw. Loch',    col(8,0,18),        'special', 0);
-def(M.SOURCE_W,  'Wasserquelle',  col(78,158,255),    'special', 0);
-def(M.SOURCE_L,  'Lavaquelle',    col(255,138,38),    'special', 0);
-def(M.BUBBLE,    'Blase',         col(200,235,255),   'special', 0);
-def(M.CLONE,     'Klon',          col(200,200,220),   'special', 0);
-def(M.PORTAL_A,  'Portal A',      col(80,180,255),    'special', 0);
-def(M.PORTAL_B,  'Portal B',      col(255,140,80),    'special', 0);
-def(M.BATTERY,   'Batterie',      col(60,220,140),    'special', 0);
-
-def(M.TNT,       'TNT',           col(198,28,28),     'bomb',   10);
-def(M.C4,        'C4',            col(218,218,148),   'bomb',    8);
-def(M.NUKE,      'Nuke',          col(78,8,8),        'bomb',   10);
-def(M.FUSE,      'Zündschnur',    col(218,178,78),    'bomb',   10);
-def(M.MINE,      'Mine',          col(138,28,28),     'bomb',   10);
-
-const CATS = [
-  { k:'🏖', label:'Fest', ids:[M.SAND,M.SAND_DARK,M.DIRT,M.MUD,M.SALT,M.SNOW,M.GUNPOW,M.COAL,M.ASH,M.STONE,M.WOOD,M.WALL,M.GLASS,M.METAL,M.CONCRETE,M.ICE,M.DIAMOND,M.GOLD,M.PAPER,M.COTTON,M.RUBBER] },
-  { k:'💧', label:'Flüssig', ids:[M.WATER,M.LAVA,M.OIL,M.NAPALM,M.ACID,M.SLIME,M.MERCURY,M.HONEY,M.BLOOD,M.BUBBLE] },
-  { k:'☁',  label:'Gas', ids:[M.STEAM,M.SMOKE,M.GAS,M.TOXIC,M.CLOUD] },
-  { k:'🔥', label:'Energie', ids:[M.FIRE,M.PLASMA,M.SPARK,M.EMBER,M.LIGHT,M.WIRE,M.BATTERY] },
-  { k:'🌱', label:'Leben', ids:[M.PLANT,M.GRASS,M.SEED,M.FUNGUS,M.ALGAE,M.VIRUS,M.TENTACLE] },
-  { k:'✨', label:'Spezial', ids:[M.SOURCE_W,M.SOURCE_L,M.BHOLE,M.CLONE,M.PORTAL_A,M.PORTAL_B,M.EMPTY] },
-  { k:'💥', label:'Bomben', ids:[M.TNT,M.C4,M.NUKE,M.FUSE,M.MINE] },
+const CATS_BASE = [
+  {k:'🏖',label:'Fest',ids:[M.SAND,M.SAND_DARK,M.DIRT,M.MUD,M.SALT,M.SNOW,M.GUNPOW,M.COAL,M.ASH,M.STONE,M.WOOD,M.WALL,M.GLASS,M.METAL,M.CONCRETE,M.ICE,M.DIAMOND,M.GOLD,M.PAPER,M.COTTON,M.RUBBER]},
+  {k:'💧',label:'Flüssig',ids:[M.WATER,M.LAVA,M.OIL,M.NAPALM,M.ACID,M.SLIME,M.MERCURY,M.HONEY,M.BLOOD,M.BUBBLE]},
+  {k:'☁',label:'Gas',ids:[M.STEAM,M.SMOKE,M.GAS,M.TOXIC,M.CLOUD]},
+  {k:'🔥',label:'Energie',ids:[M.FIRE,M.PLASMA,M.SPARK,M.EMBER,M.LIGHT,M.WIRE,M.BATTERY]},
+  {k:'🌱',label:'Leben',ids:[M.PLANT,M.GRASS,M.SEED,M.FUNGUS,M.ALGAE,M.VIRUS,M.TENTACLE]},
+  {k:'✨',label:'Spezial',ids:[M.SOURCE_W,M.SOURCE_L,M.BHOLE,M.CLONE,M.PORTAL_A,M.PORTAL_B,M.EMPTY]},
+  {k:'💥',label:'Bomben',ids:[M.TNT,M.C4,M.NUKE,M.FUSE,M.MINE]},
 ];
+let CATS = [...CATS_BASE];
 
-// ── STATE ──
-let sel = M.SAND, brush = 8, paused = false;
-let mdown = false, mx = 0, my = 0, lastMx = -1, lastMy = -1;
-let pCnt = 0, exCnt = 0, vCnt = 0;
-let lastT = performance.now(), fCnt = 0, fps = 0, tick = 0;
-let activeTab = 0;
+// ── GAME MODE ──
+let gameMode = null; // 'normal' | 'generated'
 
-// ── UI SETUP ──
-const tabsEl = document.getElementById('tabs');
-const matEl  = document.getElementById('mat-list');
+// ═══════════════════════════════════════════════════════════
+// GENERATED MODE SYSTEM
+// ═══════════════════════════════════════════════════════════
+const CHUNK_W   = 64;
+const WORLD_H   = 260;
+const BEDROCK_Y = 254; // Bedrock starts here
 
-CATS.forEach((c, i) => {
-  const b = document.createElement('button');
-  b.className = 'tab' + (i === 0 ? ' active' : '');
-  b.textContent = c.k + ' ' + c.label;
-  b.onclick = () => { activeTab = i; refreshTabs(); refreshMats(); };
-  tabsEl.appendChild(b);
-});
+const worldChunks = new Map(); // chunkIdx -> Uint8Array(CHUNK_W * WORLD_H)
+const worldExtra  = new Map(); // chunkIdx -> Uint16Array
+const worldExtra2 = new Map(); // chunkIdx -> Uint8Array
 
-function refreshTabs() {
-  [...tabsEl.children].forEach((el, i) => el.classList.toggle('active', i === activeTab));
+let camX = 0, camY = 0;
+const cameraKeys = {};
+
+// ── Noise ──
+function nhash(x, seed) {
+  let n = ((x * 374761393 + seed * 668265263) | 0);
+  n = (n ^ (n >>> 13)) * 1274126177 | 0;
+  return ((n ^ (n >>> 16)) >>> 0) / 0xffffffff;
+}
+function smoothstep(t) { return t*t*(3-2*t); }
+function lerp(a,b,t) { return a+(b-a)*t; }
+
+function valueNoise1D(x, seed) {
+  const xi = Math.floor(x), xf = x - xi;
+  return lerp(nhash(xi,seed), nhash(xi+1,seed), smoothstep(xf));
+}
+function octave1D(x, octs, freq, seed) {
+  let v=0, a=1, ma=0;
+  for (let o=0; o<octs; o++) {
+    v += valueNoise1D(x*freq, seed+o*1000)*a;
+    ma+=a; freq*=2; a*=0.5;
+  }
+  return v/ma;
+}
+function valueNoise2D(x, y, seed) {
+  const xi=Math.floor(x), yi=Math.floor(y), xf=x-xi, yf=y-yi;
+  const n00=nhash(xi+yi*57, seed), n10=nhash(xi+1+yi*57,seed);
+  const n01=nhash(xi+(yi+1)*57,seed), n11=nhash(xi+1+(yi+1)*57,seed);
+  const sx=smoothstep(xf), sy=smoothstep(yf);
+  return lerp(lerp(n00,n10,sx), lerp(n01,n11,sx), sy);
+}
+function octave2D(x, y, octs, freq, seed) {
+  let v=0, a=1, ma=0;
+  for (let o=0; o<octs; o++) {
+    v+=valueNoise2D(x*freq,y*freq,seed+o*1000)*a;
+    ma+=a; freq*=2; a*=0.5;
+  }
+  return v/ma;
 }
 
-function c2css(u) { return `rgb(${u&0xff},${(u>>8)&0xff},${(u>>16)&0xff})`; }
+// ── Terrain Height ──
+function getSurfaceY(wx) {
+  // Large hills
+  const h1 = octave1D(wx, 4, 0.004, 1337) * 55 - 27;
+  // Fine detail
+  const h2 = octave1D(wx, 3, 0.025, 2456) * 14 - 7;
+  // Wide valleys
+  const h3 = octave1D(wx, 2, 0.0015, 9988) * 30 - 15;
+  return Math.round(82 + h1 + h2 + h3);
+}
+
+// Precomputed surface cache per world-x (cleared when chunks change — we just recompute)
+const surfCache = new Map();
+function getSY(wx) {
+  if (surfCache.has(wx)) return surfCache.get(wx);
+  const v = getSurfaceY(wx); surfCache.set(wx, v); return v;
+}
+
+// ── Chunk Generation ──
+function generateChunk(ci) {
+  const data  = new Uint8Array(CHUNK_W * WORLD_H);
+  const edata = new Uint16Array(CHUNK_W * WORLD_H);
+  const edata2= new Uint8Array(CHUNK_W * WORLD_H);
+  const startX = ci * CHUNK_W;
+
+  // ── Pass 1: Base terrain ──
+  for (let lx = 0; lx < CHUNK_W; lx++) {
+    const wx = startX + lx;
+    const sy = getSY(wx);
+
+    for (let wy = 0; wy < WORLD_H; wy++) {
+      const idx = wy * CHUNK_W + lx;
+
+      // Bedrock
+      if (wy >= BEDROCK_Y) { data[idx] = M.WALL; continue; }
+
+      // Sky
+      if (wy < sy) { data[idx] = M.EMPTY; continue; }
+
+      // Grass
+      if (wy === sy) { data[idx] = M.GRASS; continue; }
+
+      // Dirt layer
+      const dirtD = 3 + Math.floor(nhash(wx+77, 99) * 4);
+      if (wy <= sy + dirtD) { data[idx] = M.DIRT; continue; }
+
+      // Cave carving with 2D noise
+      const depth = wy - sy;
+      // Caves only below surface by 5+ cells
+      if (depth > 5) {
+        const cv = octave2D(wx*0.9, wy*0.9, 3, 0.07, 777);
+        if (cv > 0.67) { data[idx] = M.EMPTY; continue; }
+
+        // Occasionally underground water lakes
+        if (cv > 0.62 && depth > 20 && nhash(wx+wy*7, 444) < 0.18) {
+          data[idx] = M.WATER; continue;
+        }
+      }
+
+      // Ores (in stone)
+      if (depth > 8) {
+        const ore = nhash(wx + wy*317, 456);
+        if (ore < 0.022)           { data[idx]=M.COAL;    continue; }
+        if (depth>25 && ore>0.978) { data[idx]=M.METAL;   continue; }
+        if (depth>45 && ore>0.984) { data[idx]=M.GOLD;    continue; }
+        if (depth>65 && ore>0.992) { data[idx]=M.DIAMOND; continue; }
+        if (depth>30 && ore>0.969 && ore<0.975) { data[idx]=M.SALT; continue; } // quartz-like
+      }
+
+      data[idx] = M.STONE;
+    }
+  }
+
+  // ── Pass 2: Rivers (fill valleys) ──
+  for (let lx = 0; lx < CHUNK_W; lx++) {
+    const wx = startX + lx;
+    const sy = getSY(wx);
+    // Check if this is a valley (lower than wide neighbors)
+    const syl = getSY(wx-6);
+    const syr = getSY(wx+6);
+    if (sy > syl + 4 && sy > syr + 4) {
+      // Fill with water
+      for (let d = 0; d <= 2; d++) {
+        const wy = sy + d;
+        if (wy < WORLD_H) {
+          const idx = wy * CHUNK_W + lx;
+          data[idx] = M.WATER;
+        }
+      }
+      data[sy * CHUNK_W + lx] = M.WATER;
+    }
+  }
+
+  // ── Pass 3: Trees ──
+  // Use spacing: check every column, skip within CHUNK_W range
+  let lastTree = -99;
+  for (let lx = 2; lx < CHUNK_W - 4; lx++) {
+    const wx = startX + lx;
+    const sy = getSY(wx);
+    if (sy <= 5 || sy >= WORLD_H - 20) continue; // No trees near extremes
+
+    // Only place tree if surface cell is GRASS
+    if (data[sy * CHUNK_W + lx] !== M.GRASS) continue;
+
+    // Tree probability with spacing
+    const tr = nhash(wx, 789);
+    const treeDens = 0.06 + octave1D(wx, 2, 0.003, 5555) * 0.1;
+    if (tr > treeDens || lx - lastTree < 4) continue;
+    lastTree = lx;
+
+    const tType = nhash(wx, 888);
+    let trunkH, trunkW, leafR;
+    if (tType < 0.30)      { trunkH=3+Math.floor(nhash(wx,1)*3); trunkW=1; leafR=2; }
+    else if (tType < 0.60) { trunkH=6+Math.floor(nhash(wx,1)*4); trunkW=1; leafR=3; }
+    else if (tType < 0.82) { trunkH=10+Math.floor(nhash(wx,1)*5); trunkW=1; leafR=4; }
+    else                   { trunkH=14+Math.floor(nhash(wx,1)*7); trunkW=2; leafR=5; }
+
+    // Trunk
+    for (let th=1; th<=trunkH; th++) {
+      const twy = sy - th;
+      if (twy<0 || twy>=WORLD_H) continue;
+      for (let tw=0; tw<trunkW; tw++) {
+        const tlx = lx+tw;
+        if (tlx>=0 && tlx<CHUNK_W) data[twy*CHUNK_W+tlx]=M.WOOD;
+      }
+    }
+
+    // Leaves (organic blob)
+    const leafTopY = sy - trunkH + 1;
+    for (let dy=-leafR-1; dy<=leafR+1; dy++) {
+      for (let dx=-leafR-1; dx<=leafR+1; dx++) {
+        const lwy = leafTopY + dy;
+        const llx = lx + dx + Math.floor(trunkW/2);
+        if (lwy<0||lwy>=WORLD_H||llx<0||llx>=CHUNK_W) continue;
+        const d2 = dx*dx + dy*dy;
+        const thresh = leafR*leafR + nhash(wx*3+dx+dy*7, 5678)*leafR*1.5;
+        if (d2>thresh) continue;
+        const li = lwy*CHUNK_W+llx;
+        if (!data[li] || data[li]===M.EMPTY) data[li]=M.PLANT;
+      }
+    }
+  }
+
+  // ── Pass 4: Volcano (rare) ──
+  const volcSeed = nhash(ci, 1234);
+  if (volcSeed < 0.07) { // ~7% chance per chunk
+    const volcLx = 10 + Math.floor(nhash(ci, 5678) * (CHUNK_W - 20));
+    const wx = startX + volcLx;
+    const sy = getSY(wx);
+    const volcH = 16 + Math.floor(nhash(ci, 9999) * 12);
+    const volcW = Math.floor(volcH * 0.55);
+
+    // Cone: stack of stone layers, getting narrower
+    for (let h=0; h<volcH; h++) {
+      const w = Math.floor(volcW * (1 - h/volcH));
+      const wy = sy - h;
+      if (wy<0 || wy>=WORLD_H) continue;
+      for (let dx=-w; dx<=w; dx++) {
+        const llx = volcLx+dx;
+        if (llx<0||llx>=CHUNK_W) continue;
+        const li = wy*CHUNK_W+llx;
+        // Only overwrite empty/grass/dirt (don't destroy existing stone)
+        if (!data[li]||data[li]===M.GRASS||data[li]===M.DIRT||data[li]===M.EMPTY)
+          data[li]=M.STONE;
+      }
+    }
+
+    // Lava in crater
+    const craterY = sy - volcH + 1;
+    const craterW = 2 + Math.floor(nhash(ci,777)*2);
+    for (let dy=0; dy<=4; dy++) {
+      for (let dx=-craterW; dx<=craterW; dx++) {
+        const llx = volcLx+dx;
+        const wy = craterY+dy;
+        if (llx>=0&&llx<CHUNK_W&&wy>=0&&wy<WORLD_H) {
+          data[wy*CHUNK_W+llx]=M.LAVA;
+        }
+      }
+    }
+    // Lava source at bottom of crater
+    const srcY = craterY + 2;
+    if (srcY>=0&&srcY<WORLD_H) data[srcY*CHUNK_W+volcLx]=M.SOURCE_L;
+
+    // Smoke above
+    for (let dy=-3; dy<0; dy++) {
+      const wy = craterY+dy;
+      if (wy>=0&&wy<WORLD_H) {
+        if (nhash(volcLx+dy, 333)<0.5) data[wy*CHUNK_W+volcLx]=M.SMOKE;
+      }
+    }
+  }
+
+  worldChunks.set(ci, data);
+  worldExtra.set(ci, edata);
+  worldExtra2.set(ci, edata2);
+}
+
+function ensureChunks() {
+  const ci0 = Math.floor(camX / CHUNK_W) - 1;
+  const ci1 = Math.floor((camX + WIDTH) / CHUNK_W) + 1;
+  for (let ci = ci0; ci <= ci1; ci++) {
+    if (!worldChunks.has(ci)) generateChunk(ci);
+  }
+}
+
+// ── World Access ──
+function worldGet(wx, wy) {
+  if (wy < 0) return M.EMPTY;
+  if (wy >= WORLD_H) return M.WALL;
+  const ci = Math.floor(wx / CHUNK_W);
+  const chunk = worldChunks.get(ci);
+  if (!chunk) return M.EMPTY;
+  const lx = ((wx % CHUNK_W) + CHUNK_W) % CHUNK_W;
+  return chunk[wy * CHUNK_W + lx];
+}
+function worldSet(wx, wy, val) {
+  if (wy<0||wy>=WORLD_H) return;
+  const ci = Math.floor(wx / CHUNK_W);
+  const chunk = worldChunks.get(ci);
+  if (!chunk) return;
+  const lx = ((wx%CHUNK_W)+CHUNK_W)%CHUNK_W;
+  chunk[wy*CHUNK_W+lx] = val;
+}
+function worldGetE(wx,wy) {
+  if (wy<0||wy>=WORLD_H) return 0;
+  const ci=Math.floor(wx/CHUNK_W);
+  const ch=worldExtra.get(ci); if(!ch) return 0;
+  const lx=((wx%CHUNK_W)+CHUNK_W)%CHUNK_W;
+  return ch[wy*CHUNK_W+lx];
+}
+function worldSetE(wx,wy,val) {
+  if (wy<0||wy>=WORLD_H) return;
+  const ci=Math.floor(wx/CHUNK_W);
+  const ch=worldExtra.get(ci); if(!ch) return;
+  const lx=((wx%CHUNK_W)+CHUNK_W)%CHUNK_W;
+  ch[wy*CHUNK_W+lx]=val;
+}
+function worldGetE2(wx,wy) {
+  if (wy<0||wy>=WORLD_H) return 0;
+  const ci=Math.floor(wx/CHUNK_W);
+  const ch=worldExtra2.get(ci); if(!ch) return 0;
+  const lx=((wx%CHUNK_W)+CHUNK_W)%CHUNK_W;
+  return ch[wy*CHUNK_W+lx];
+}
+function worldSetE2(wx,wy,val) {
+  if (wy<0||wy>=WORLD_H) return;
+  const ci=Math.floor(wx/CHUNK_W);
+  const ch=worldExtra2.get(ci); if(!ch) return;
+  const lx=((wx%CHUNK_W)+CHUNK_W)%CHUNK_W;
+  ch[wy*CHUNK_W+lx]=val;
+}
+
+// ── View Sync (World ↔ Grid) ──
+function loadView() {
+  ensureChunks();
+  for (let y = 0; y < HEIGHT; y++) {
+    const wy = y + camY;
+    const rowOff = y * WIDTH;
+    if (wy < 0 || wy >= WORLD_H) {
+      for (let x=0;x<WIDTH;x++) { grid[rowOff+x]=0; extra[rowOff+x]=0; extra2[rowOff+x]=0; }
+      continue;
+    }
+    let ci  = Math.floor(camX / CHUNK_W);
+    let lx  = ((camX % CHUNK_W) + CHUNK_W) % CHUNK_W;
+    let ch  = worldChunks.get(ci);
+    let che = worldExtra.get(ci);
+    let ch2 = worldExtra2.get(ci);
+    const rowChunk = wy * CHUNK_W;
+
+    for (let x = 0; x < WIDTH; x++) {
+      if (lx >= CHUNK_W) { ci++; lx=0; ch=worldChunks.get(ci); che=worldExtra.get(ci); ch2=worldExtra2.get(ci); }
+      const wi = rowChunk + lx;
+      grid[rowOff+x]  = ch  ? ch[wi]  : 0;
+      extra[rowOff+x] = che ? che[wi] : 0;
+      extra2[rowOff+x]= ch2 ? ch2[wi] : 0;
+      lx++;
+    }
+  }
+}
+
+function saveView() {
+  for (let y = 0; y < HEIGHT; y++) {
+    const wy = y + camY;
+    const rowOff = y * WIDTH;
+    if (wy < 0 || wy >= WORLD_H) continue;
+    let ci  = Math.floor(camX / CHUNK_W);
+    let lx  = ((camX % CHUNK_W) + CHUNK_W) % CHUNK_W;
+    let ch  = worldChunks.get(ci);
+    let che = worldExtra.get(ci);
+    let ch2 = worldExtra2.get(ci);
+    const rowChunk = wy * CHUNK_W;
+
+    for (let x = 0; x < WIDTH; x++) {
+      if (lx >= CHUNK_W) { ci++; lx=0; ch=worldChunks.get(ci); che=worldExtra.get(ci); ch2=worldExtra2.get(ci); }
+      const wi = rowChunk + lx;
+      if (ch)  ch[wi]  = grid[rowOff+x];
+      if (che) che[wi] = extra[rowOff+x];
+      if (ch2) ch2[wi] = extra2[rowOff+x];
+      lx++;
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// NPC SYSTEM
+// ═══════════════════════════════════════════════════════════
+const NPC_DEFS = {
+  pig:     { emoji:'🐷', color:'#f8a8b8', color2:'#e88898', w:4, h:3, speed:0.25, name:'Schwein' },
+  chicken: { emoji:'🐔', color:'#fffde0', color2:'#ffcc30', w:3, h:3, speed:0.30, name:'Huhn' },
+  sheep:   { emoji:'🐑', color:'#e8e8e8', color2:'#c0c0c0', w:4, h:4, speed:0.20, name:'Schaf' },
+  cow:     { emoji:'🐄', color:'#8b5a2b', color2:'#ffffff', w:5, h:3, speed:0.22, name:'Kuh' },
+};
+
+const NPCs = [];
+let npcIdCounter = 0;
+
+function isNPCSolid(wx, wy) {
+  const t = gameMode === 'generated' ? worldGet(Math.floor(wx), Math.floor(wy))
+                                     : (inB(Math.floor(wx),Math.floor(wy)) ? grid[ii(Math.floor(wx),Math.floor(wy))] : M.WALL);
+  if (!t || t===M.EMPTY) return false;
+  const ti = T[t];
+  if (!ti) return false;
+  return ti.cat==='wall'||ti.cat==='powder'||ti.cat==='bomb';
+}
+
+function spawnNPC(type) {
+  const def = NPC_DEFS[type];
+  const wx = camX + WIDTH/2 + (Math.random()-0.5)*30;
+  let wy;
+  if (gameMode === 'generated') {
+    wy = getSY(Math.floor(wx)) - def.h - 1;
+  } else {
+    wy = 0;
+  }
+  NPCs.push({
+    id: npcIdCounter++,
+    type, wx, wy,
+    vx: 0, vy: 0,
+    onGround: false,
+    moveTimer: Math.floor(Math.random()*80),
+    facing: Math.random()<0.5?1:-1,
+    legAnim: 0,
+    dead: false,
+  });
+}
+
+function updateNPCs() {
+  const GRAVITY = 0.18;
+  const MAX_VY = 4;
+  for (let ni = NPCs.length-1; ni >= 0; ni--) {
+    const npc = NPCs[ni];
+    if (npc.dead) { NPCs.splice(ni,1); continue; }
+    const def = NPC_DEFS[npc.type];
+
+    // Gravity
+    npc.vy = Math.min(npc.vy + GRAVITY, MAX_VY);
+
+    // Vertical movement
+    const newWy = npc.wy + npc.vy;
+    const footY = newWy + def.h;
+    let grounded = false;
+
+    if (npc.vy >= 0) {
+      // Check ground: check center and slightly left/right of bottom
+      const checks = [Math.floor(npc.wx + def.w/2), Math.floor(npc.wx+1), Math.floor(npc.wx+def.w-1)];
+      for (const cx of checks) {
+        if (isNPCSolid(cx, footY)) { grounded=true; break; }
+      }
+    } else {
+      // Check ceiling
+      const cx = Math.floor(npc.wx + def.w/2);
+      if (isNPCSolid(cx, newWy)) { npc.vy=0; continue; }
+    }
+
+    if (grounded && npc.vy>=0) {
+      npc.wy = Math.floor(footY) - def.h;
+      npc.vy = 0;
+      npc.onGround = true;
+    } else {
+      npc.wy = newWy;
+      npc.onGround = false;
+    }
+
+    // Horizontal movement
+    npc.moveTimer--;
+    if (npc.moveTimer <= 0) {
+      npc.moveTimer = 50 + Math.floor(Math.random()*120);
+      const r = Math.random();
+      if (r < 0.25)      npc.vx = 0;
+      else if (r < 0.62) npc.vx = def.speed + Math.random()*0.15;
+      else               npc.vx = -(def.speed + Math.random()*0.15);
+      npc.facing = npc.vx >= 0 ? 1 : -1;
+    }
+
+    if (npc.vx !== 0 && npc.onGround) {
+      const newWx = npc.wx + npc.vx;
+      // Check front wall (at foot level)
+      const frontX = npc.vx>0 ? Math.floor(newWx+def.w) : Math.floor(newWx)-1;
+      const frontFootY = Math.floor(npc.wy+def.h-1);
+      const frontMidY  = Math.floor(npc.wy+def.h/2);
+
+      const wallAtFoot = isNPCSolid(frontX, frontFootY);
+      const wallAtMid  = isNPCSolid(frontX, frontMidY);
+
+      if (wallAtMid || (wallAtFoot && isNPCSolid(frontX, frontFootY-1))) {
+        // Try step up (1 cell)
+        if (!isNPCSolid(frontX, frontFootY-1) && !isNPCSolid(frontX, Math.floor(npc.wy)-1)) {
+          npc.wy -= 1;
+          npc.wx = newWx;
+        } else {
+          npc.vx = -npc.vx;
+          npc.facing = npc.vx>=0?1:-1;
+        }
+      } else {
+        npc.wx = newWx;
+      }
+    } else if (npc.vx !== 0) {
+      npc.wx += npc.vx;
+    }
+
+    // Leg animation
+    if (Math.abs(npc.vx) > 0.05 && npc.onGround) npc.legAnim += 0.25;
+
+    // Die if in lava/acid/fire
+    const cx=Math.floor(npc.wx+def.w/2), cy=Math.floor(npc.wy+def.h/2);
+    const ct = gameMode==='generated'?worldGet(cx,cy):(inB(cx,cy)?grid[ii(cx,cy)]:0);
+    if (ct===M.LAVA||ct===M.ACID||ct===M.FIRE||ct===M.PLASMA) npc.dead=true;
+
+    // Clamp world bounds
+    if (gameMode==='generated') {
+      npc.wy = Math.max(-10, Math.min(BEDROCK_Y-def.h-1, npc.wy));
+    }
+  }
+}
+
+function renderNPCs() {
+  for (const npc of NPCs) {
+    const def = NPC_DEFS[npc.type];
+    // Screen pos (canvas pixel = world cell)
+    const sx = npc.wx - camX;
+    const sy = npc.wy - camY;
+    if (sx < -def.w-2 || sx > WIDTH+2 || sy < -def.h-2 || sy > HEIGHT+2) continue;
+
+    const s = Math.round; // for pixel-perfect drawing
+
+    // Body
+    ctx.fillStyle = def.color;
+    ctx.fillRect(Math.round(sx), Math.round(sy), def.w, def.h);
+
+    // Spots / patterns
+    if (npc.type==='cow') {
+      ctx.fillStyle='#fff';
+      ctx.fillRect(Math.round(sx)+1, Math.round(sy)+1, 2, 1);
+    }
+    if (npc.type==='sheep') {
+      ctx.fillStyle='#d0d0d0';
+      ctx.fillRect(Math.round(sx)+1, Math.round(sy)+1, 2, 2);
+    }
+
+    // Head (slightly lighter, on appropriate side)
+    const headX = npc.facing>0 ? Math.round(sx)+def.w-2 : Math.round(sx);
+    ctx.fillStyle = def.color2;
+    ctx.fillRect(headX, Math.round(sy), 2, 2);
+
+    // Eye
+    ctx.fillStyle='#111';
+    const eyeX = npc.facing>0 ? headX+1 : headX;
+    ctx.fillRect(eyeX, Math.round(sy), 1, 1);
+
+    // Legs (animated)
+    const legPhase = npc.legAnim;
+    const leg1 = Math.sin(legPhase) > 0 ? 1 : 0;
+    const leg2 = Math.sin(legPhase) > 0 ? 0 : 1;
+    ctx.fillStyle = def.color2;
+    const legY = Math.round(sy)+def.h;
+    const lCount = npc.type==='chicken'?2:4;
+    const step = def.w / lCount;
+    for (let li=0; li<lCount; li++) {
+      const off = (li%2===0)?leg1:leg2;
+      ctx.fillRect(Math.round(sx) + Math.round(li*step), legY-off, 1, 1+off);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// GAME START
+// ═══════════════════════════════════════════════════════════
+function startGame(mode) {
+  gameMode = mode;
+  document.getElementById('mode-screen').style.display='none';
+
+  if (mode==='generated') {
+    CATS = [...CATS_BASE, {k:'🐾',label:'NPCs',ids:[],isNPCTab:true}];
+    document.getElementById('cam-hud').style.display='block';
+    document.getElementById('gen-help-title').style.display='';
+    document.getElementById('gen-help-row').style.display='';
+    document.getElementById('gen-help-row2').style.display='';
+    document.getElementById('gen-help-row3').style.display='';
+
+    // Initial camera position (surface level)
+    const surfY0 = getSY(0);
+    camX = -Math.floor(WIDTH/2);
+    camY = Math.max(0, surfY0 - Math.floor(HEIGHT*0.65));
+
+    ensureChunks();
+    loadView();
+  } else {
+    CATS = [...CATS_BASE];
+  }
+
+  refreshTabs();
+  refreshMats();
+  pick(M.SAND);
+  loop();
+}
+
+// ── STATE ──
+let sel=M.SAND, brush=8, paused=false;
+let mdown=false, mx=0, my=0, lastMx=-1, lastMy=-1;
+let pCnt=0, exCnt=0, vCnt=0;
+let lastT=performance.now(), fCnt=0, fps=0, tick=0;
+let activeTab=0;
+
+// Right-click drag (camera pan)
+let rightDrag=false, rightDragPx=0, rightDragPy=0;
+
+// ── UI ──
+const tabsEl=document.getElementById('tabs');
+const matEl=document.getElementById('mat-list');
+
+function buildTabs() {
+  tabsEl.innerHTML='';
+  CATS.forEach((c,i)=>{
+    const b=document.createElement('button');
+    b.className='tab'+(i===0?' active':'');
+    b.textContent=c.k+' '+c.label;
+    b.onclick=()=>{ activeTab=i; refreshTabs(); refreshMats(); };
+    tabsEl.appendChild(b);
+  });
+}
+function refreshTabs() {
+  if (tabsEl.children.length!==CATS.length) buildTabs();
+  [...tabsEl.children].forEach((el,i)=>el.classList.toggle('active',i===activeTab));
+}
+
+function c2css(u){ return `rgb(${u&0xff},${(u>>8)&0xff},${(u>>16)&0xff})`; }
 
 function refreshMats() {
-  matEl.innerHTML = '';
-  CATS[activeTab].ids.forEach(id => {
-    const ti = T[id]; if (!ti) return;
-    const btn = document.createElement('button');
-    btn.className = 'mat-btn' + (id === sel ? ' active' : '');
-    const sw = document.createElement('div'); sw.className = 'sw';
-    sw.style.background = id === M.EMPTY
-      ? 'repeating-linear-gradient(45deg,#444,#444 3px,#666 3px,#666 6px)'
-      : c2css(ti.color);
+  matEl.innerHTML='';
+  const cat=CATS[activeTab];
+  if (!cat) return;
+
+  // NPC tab
+  if (cat.isNPCTab) {
+    const countBar=document.createElement('div');
+    countBar.className='npc-count-bar';
+    countBar.innerHTML=`NPCs in Welt: <span>${NPCs.length}</span>`;
+    matEl.appendChild(countBar);
+
+    Object.entries(NPC_DEFS).forEach(([type,def])=>{
+      const btn=document.createElement('button');
+      btn.className='npc-spawn-btn';
+      btn.innerHTML=`<span class="npc-icon">${def.emoji}</span><div class="npc-info"><div class="npc-name">${def.name}</div><div class="npc-hint">Klicken zum Spawnen</div></div>`;
+      btn.onclick=()=>{ spawnNPC(type); refreshMats(); };
+      matEl.appendChild(btn);
+    });
+
+    const clearBtn=document.createElement('button');
+    clearBtn.className='npc-clear-btn';
+    clearBtn.textContent='🗑 Alle NPCs löschen';
+    clearBtn.onclick=()=>{ NPCs.length=0; refreshMats(); };
+    matEl.appendChild(clearBtn);
+    return;
+  }
+
+  // Normal material tab
+  cat.ids.forEach(id=>{
+    const ti=T[id]; if(!ti) return;
+    const btn=document.createElement('button');
+    btn.className='mat-btn'+(id===sel?' active':'');
+    const sw=document.createElement('div'); sw.className='sw';
+    sw.style.background=id===M.EMPTY
+      ?'repeating-linear-gradient(45deg,#444,#444 3px,#666 3px,#666 6px)'
+      :c2css(ti.color);
     btn.appendChild(sw);
-    const sp = document.createElement('span'); sp.textContent = ti.nm;
+    const sp=document.createElement('span'); sp.textContent=ti.nm;
     btn.appendChild(sp);
-    btn.onclick = () => pick(id);
+    btn.onclick=()=>pick(id);
     matEl.appendChild(btn);
   });
 }
 
 function pick(id) {
-  sel = id;
+  sel=id;
   refreshMats();
-  const ti = T[id];
-  document.getElementById('cur-name').textContent = ti.nm;
-  const dot = document.getElementById('cur-dot');
-  dot.style.background = id === M.EMPTY
-    ? 'repeating-linear-gradient(45deg,#444,#444 3px,#666 3px,#666 6px)'
-    : c2css(ti.color);
+  const ti=T[id];
+  document.getElementById('cur-name').textContent=ti.nm;
+  const dot=document.getElementById('cur-dot');
+  dot.style.background=id===M.EMPTY
+    ?'repeating-linear-gradient(45deg,#444,#444 3px,#666 3px,#666 6px)'
+    :c2css(ti.color);
 }
 
-document.getElementById('brush-size').oninput = e => {
-  brush = +e.target.value;
-  document.getElementById('brush-val').textContent = brush;
-};
-document.getElementById('btn-pause').onclick = () => {
-  paused = !paused;
-  document.getElementById('btn-pause').textContent = paused ? '▶' : '⏸';
-};
-document.getElementById('btn-clear').onclick = () => {
-  grid.fill(0); extra.fill(0); extra2.fill(0);
-  exCnt = 0; vCnt = 0;
-};
-document.getElementById('btn-save').onclick = () => {
+document.getElementById('brush-size').oninput=e=>{ brush=+e.target.value; document.getElementById('brush-val').textContent=brush; };
+document.getElementById('btn-pause').onclick=()=>{ paused=!paused; document.getElementById('btn-pause').textContent=paused?'▶':'⏸'; };
+document.getElementById('btn-clear').onclick=()=>{ grid.fill(0);extra.fill(0);extra2.fill(0);exCnt=0;vCnt=0; };
+document.getElementById('btn-save').onclick=()=>{
   try {
-    // Compact: save grid as binary, then base64
-    const bin = new Uint8Array(4 + grid.length);
-    bin[0] = WIDTH & 0xff; bin[1] = (WIDTH >> 8) & 0xff;
-    bin[2] = HEIGHT & 0xff; bin[3] = (HEIGHT >> 8) & 0xff;
-    bin.set(grid, 4);
-    let s = '';
-    for (let i = 0; i < bin.length; i++) s += String.fromCharCode(bin[i]);
-    localStorage.setItem('sbu', btoa(s));
+    const bin=new Uint8Array(4+grid.length);
+    bin[0]=WIDTH&0xff;bin[1]=(WIDTH>>8)&0xff;bin[2]=HEIGHT&0xff;bin[3]=(HEIGHT>>8)&0xff;
+    bin.set(grid,4);
+    let s=''; for(let i=0;i<bin.length;i++) s+=String.fromCharCode(bin[i]);
+    localStorage.setItem('sbu',btoa(s));
     flashMsg('✓ Gespeichert');
-  } catch (e) { flashMsg('✗ Fehler'); }
+  } catch(e){ flashMsg('✗ Fehler'); }
 };
-document.getElementById('btn-load').onclick = () => {
+document.getElementById('btn-load').onclick=()=>{
   try {
-    const raw = localStorage.getItem('sbu'); if (!raw) return flashMsg('Kein Speicher');
-    const s = atob(raw);
-    const w = s.charCodeAt(0) | (s.charCodeAt(1) << 8);
-    const h = s.charCodeAt(2) | (s.charCodeAt(3) << 8);
-    if (w !== WIDTH || h !== HEIGHT) return flashMsg('Größe anders');
-    for (let i = 0; i < grid.length; i++) grid[i] = s.charCodeAt(i + 4);
-    extra.fill(0); extra2.fill(0);
+    const raw=localStorage.getItem('sbu'); if(!raw) return flashMsg('Kein Speicher');
+    const s=atob(raw);
+    const w=s.charCodeAt(0)|(s.charCodeAt(1)<<8);
+    const h=s.charCodeAt(2)|(s.charCodeAt(3)<<8);
+    if(w!==WIDTH||h!==HEIGHT) return flashMsg('Größe anders');
+    for(let i=0;i<grid.length;i++) grid[i]=s.charCodeAt(i+4);
+    extra.fill(0);extra2.fill(0);
     flashMsg('✓ Geladen');
-  } catch (e) { flashMsg('✗ Fehler'); }
+  } catch(e){ flashMsg('✗ Fehler'); }
 };
 
 function flashMsg(txt) {
-  const v = document.getElementById('virus-alert');
-  const prevDisp = v.style.display;
-  const prevTxt = v.textContent;
-  v.textContent = txt;
-  v.style.display = 'block';
-  v.style.background = 'rgba(76,217,100,0.2)';
-  v.style.borderColor = 'rgba(76,217,100,0.5)';
-  v.style.color = '#a0ffa0';
-  setTimeout(() => {
-    v.style.display = prevDisp;
-    v.textContent = prevTxt;
-    v.style.background = '';
-    v.style.borderColor = '';
-    v.style.color = '';
-  }, 1200);
+  const v=document.getElementById('virus-alert');
+  const wasShown=v.style.display==='block'&&(v.textContent.includes('INFEKTION')||v.textContent==='⚠ VIRUS');
+  v.textContent=txt; v.style.display='block';
+  v.style.background='rgba(76,217,100,0.2)'; v.style.borderColor='rgba(76,217,100,0.5)'; v.style.color='#a0ffa0';
+  setTimeout(()=>{
+    v.style.background=''; v.style.borderColor=''; v.style.color='';
+    if(!wasShown) v.style.display='none';
+  },1500);
 }
 
-document.getElementById('help-btn').onclick = () => {
-  document.getElementById('help-modal').style.display = 'block';
-};
-document.getElementById('help-close').onclick = () => {
-  document.getElementById('help-modal').style.display = 'none';
-};
-document.getElementById('help-modal').onclick = e => {
-  if (e.target.id === 'help-modal') document.getElementById('help-modal').style.display = 'none';
-};
+document.getElementById('help-btn').onclick=()=>{ document.getElementById('help-modal').style.display='block'; };
+document.getElementById('help-close').onclick=()=>{ document.getElementById('help-modal').style.display='none'; };
+document.getElementById('help-modal').onclick=e=>{ if(e.target.id==='help-modal') document.getElementById('help-modal').style.display='none'; };
+document.getElementById('mobile-toggle').onclick=()=>{ document.getElementById('panel').classList.toggle('hidden'); };
 
-document.getElementById('mobile-toggle').onclick = () => {
-  document.getElementById('panel').classList.toggle('hidden');
-};
-
-window.addEventListener('keydown', e => {
-  if (e.repeat) return;
-  if (e.target.tagName === 'INPUT') return;
-  if (e.key === ' ') { e.preventDefault(); document.getElementById('btn-pause').click(); return; }
-  if (e.key === 'Delete') { e.preventDefault(); document.getElementById('btn-clear').click(); return; }
-  if (e.key === 'h' || e.key === 'H') { e.preventDefault(); document.getElementById('help-btn').click(); return; }
-  const map = {
-    s: M.SAND, w: M.WATER, f: M.FIRE, i: M.ICE, l: M.LAVA, o: M.OIL, a: M.ACID,
-    p: M.PLANT, v: M.VIRUS, t: M.TNT, n: M.NUKE, g: M.GAS, x: M.EMPTY,
-    d: M.DIRT, b: M.BLOOD, e: M.STONE, c: M.COAL, m: M.METAL,
-  };
-  const m = map[e.key.toLowerCase()];
-  if (m !== undefined) {
-    const ci = CATS.findIndex(c => c.ids.includes(m));
-    if (ci >= 0) { activeTab = ci; refreshTabs(); refreshMats(); }
-    pick(m);
+window.addEventListener('keydown',e=>{
+  cameraKeys[e.key]=true;
+  if(e.repeat) return;
+  if(e.target.tagName==='INPUT') return;
+  if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) { e.preventDefault(); return; }
+  if(e.key===' '){ e.preventDefault(); document.getElementById('btn-pause').click(); return; }
+  if(e.key==='Delete'){ e.preventDefault(); document.getElementById('btn-clear').click(); return; }
+  if(e.key==='h'||e.key==='H'){ e.preventDefault(); document.getElementById('help-btn').click(); return; }
+  const map={s:M.SAND,w:M.WATER,f:M.FIRE,i:M.ICE,l:M.LAVA,o:M.OIL,a:M.ACID,
+    p:M.PLANT,v:M.VIRUS,t:M.TNT,n:M.NUKE,g:M.GAS,x:M.EMPTY,
+    d:M.DIRT,b:M.BLOOD,e:M.STONE,c:M.COAL,m:M.METAL};
+  const mm=map[e.key.toLowerCase()];
+  if(mm!==undefined){
+    const ci=CATS.findIndex(c=>c.ids&&c.ids.includes(mm));
+    if(ci>=0){activeTab=ci;refreshTabs();refreshMats();}
+    pick(mm);
   }
 });
+window.addEventListener('keyup',e=>{ delete cameraKeys[e.key]; });
 
 // ── MOUSE / TOUCH ──
 function cpos(e) {
-  const r = canvas.getBoundingClientRect();
-  const cx = e.touches ? e.touches[0].clientX : e.clientX;
-  const cy = e.touches ? e.touches[0].clientY : e.clientY;
+  const r=canvas.getBoundingClientRect();
+  const cx=e.touches?e.touches[0].clientX:e.clientX;
+  const cy=e.touches?e.touches[0].clientY:e.clientY;
   return {
-    x: Math.floor((cx - r.left) * WIDTH  / r.width),
-    y: Math.floor((cy - r.top ) * HEIGHT / r.height),
+    x:Math.floor((cx-r.left)*WIDTH/r.width),
+    y:Math.floor((cy-r.top)*HEIGHT/r.height)
   };
 }
 
-canvas.addEventListener('mousedown', e => {
-  mdown = true; const p = cpos(e); mx = p.x; my = p.y;
-  lastMx = mx; lastMy = my;
-  paint(mx, my);
+canvas.addEventListener('contextmenu',e=>e.preventDefault());
+canvas.addEventListener('mousedown',e=>{
+  if(e.button===2){
+    rightDrag=true;
+    rightDragPx=e.clientX; rightDragPy=e.clientY;
+    return;
+  }
+  mdown=true; const p=cpos(e); mx=p.x;my=p.y;lastMx=mx;lastMy=my; paint(mx,my);
 });
-canvas.addEventListener('mousemove', e => {
-  const p = cpos(e); mx = p.x; my = p.y;
-  if (mdown) paintLine(lastMx, lastMy, mx, my);
-  lastMx = mx; lastMy = my;
+canvas.addEventListener('mousemove',e=>{
+  if(rightDrag && gameMode==='generated'){
+    const r=canvas.getBoundingClientRect();
+    const sx=WIDTH/r.width, sy=HEIGHT/r.height;
+    const dx=Math.round((e.clientX-rightDragPx)*sx);
+    const dy=Math.round((e.clientY-rightDragPy)*sy);
+    if(dx!==0||dy!==0){
+      saveView();
+      camX-=dx; camY-=dy;
+      camY=Math.max(0,Math.min(WORLD_H-HEIGHT,camY));
+      ensureChunks(); loadView();
+      rightDragPx+=dx/sx; rightDragPy+=dy/sy;
+    }
+    return;
+  }
+  const p=cpos(e); mx=p.x;my=p.y;
+  if(mdown) paintLine(lastMx,lastMy,mx,my);
+  lastMx=mx;lastMy=my;
 });
-window.addEventListener('mouseup', () => { mdown = false; lastMx = -1; lastMy = -1; });
+window.addEventListener('mouseup',e=>{
+  if(e.button===2){rightDrag=false;return;}
+  mdown=false;lastMx=-1;lastMy=-1;
+});
 
-canvas.addEventListener('touchstart', e => {
-  e.preventDefault(); mdown = true;
-  const p = cpos(e); mx = p.x; my = p.y;
-  lastMx = mx; lastMy = my;
-  paint(mx, my);
-}, { passive: false });
-canvas.addEventListener('touchmove', e => {
+canvas.addEventListener('touchstart',e=>{
+  e.preventDefault();mdown=true;
+  const p=cpos(e);mx=p.x;my=p.y;lastMx=mx;lastMy=my;paint(mx,my);
+},{passive:false});
+canvas.addEventListener('touchmove',e=>{
   e.preventDefault();
-  const p = cpos(e); mx = p.x; my = p.y;
-  if (mdown) paintLine(lastMx, lastMy, mx, my);
-  lastMx = mx; lastMy = my;
-}, { passive: false });
-canvas.addEventListener('touchend', () => { mdown = false; lastMx = -1; lastMy = -1; });
+  const p=cpos(e);mx=p.x;my=p.y;
+  if(mdown) paintLine(lastMx,lastMy,mx,my);
+  lastMx=mx;lastMy=my;
+},{passive:false});
+canvas.addEventListener('touchend',()=>{ mdown=false;lastMx=-1;lastMy=-1; });
 
-// Bresenham line drawing to avoid gaps on fast swipes
-function paintLine(x0, y0, x1, y1) {
-  if (x0 < 0 || y0 < 0) { paint(x1, y1); return; }
-  const dx = Math.abs(x1 - x0), dy = Math.abs(y1 - y0);
-  const sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
-  let err = dx - dy, x = x0, y = y0;
-  for (let guard = 0; guard < 10000; guard++) {
-    paint(x, y);
-    if (x === x1 && y === y1) break;
-    const e2 = 2 * err;
-    if (e2 > -dy) { err -= dy; x += sx; }
-    if (e2 <  dx) { err += dx; y += sy; }
+function paintLine(x0,y0,x1,y1) {
+  if(x0<0||y0<0){paint(x1,y1);return;}
+  const dx=Math.abs(x1-x0),dy=Math.abs(y1-y0);
+  const sx=x0<x1?1:-1,sy=y0<y1?1:-1;
+  let err=dx-dy,x=x0,y=y0;
+  for(let g=0;g<10000;g++){
+    paint(x,y);
+    if(x===x1&&y===y1) break;
+    const e2=2*err;
+    if(e2>-dy){err-=dy;x+=sx;}
+    if(e2<dx){err+=dx;y+=sy;}
   }
 }
 
-function paint(cx, cy) {
-  const r = brush;
-  const r2 = r * r;
-  const isReplaceable = sel === M.EMPTY || sel === M.BHOLE || sel === M.SOURCE_W ||
-                        sel === M.SOURCE_L || sel === M.CLONE || sel === M.PORTAL_A ||
-                        sel === M.PORTAL_B || sel === M.BATTERY;
-  for (let dy = -r; dy <= r; dy++) {
-    for (let dx = -r; dx <= r; dx++) {
-      if (dx * dx + dy * dy > r2) continue;
-      const nx = cx + dx, ny = cy + dy;
-      if (nx < 0 || nx >= WIDTH || ny < 0 || ny >= HEIGHT) continue;
-      const i = ny * WIDTH + nx;
-      if (sel === M.EMPTY) {
-        grid[i] = 0; extra[i] = 0; extra2[i] = 0;
-      } else if (!grid[i] || isReplaceable) {
-        const ti = T[sel];
-        if (ti && ti.cat === 'powder' && Math.random() < 0.15) continue;
-        grid[i] = sel; extra[i] = 0; extra2[i] = 0;
-        if (sel === M.TENTACLE) extra[i] = Math.floor(Math.random() * 8);
+function paint(cx,cy) {
+  const r=brush,r2=r*r;
+  const isRepl=sel===M.EMPTY||sel===M.BHOLE||sel===M.SOURCE_W||sel===M.SOURCE_L||
+                sel===M.CLONE||sel===M.PORTAL_A||sel===M.PORTAL_B||sel===M.BATTERY;
+  for(let dy=-r;dy<=r;dy++){
+    for(let dx=-r;dx<=r;dx++){
+      if(dx*dx+dy*dy>r2) continue;
+      const nx=cx+dx,ny=cy+dy;
+      if(nx<0||nx>=WIDTH||ny<0||ny>=HEIGHT) continue;
+      const i=ny*WIDTH+nx;
+      // Don't paint over bedrock in generated mode
+      if(gameMode==='generated'){
+        const wy=ny+camY;
+        if(wy>=BEDROCK_Y) continue;
+      }
+      if(sel===M.EMPTY){grid[i]=0;extra[i]=0;extra2[i]=0;}
+      else if(!grid[i]||isRepl){
+        const ti=T[sel];
+        if(ti&&ti.cat==='powder'&&Math.random()<0.15) continue;
+        grid[i]=sel;extra[i]=0;extra2[i]=0;
+        if(sel===M.TENTACLE) extra[i]=Math.floor(Math.random()*8);
       }
     }
   }
 }
 
 // ── SIM HELPERS ──
-function ii(x, y) { return y * WIDTH + x; }
-function inB(x, y) { return x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT; }
-function gv(x, y) { return inB(x, y) ? grid[ii(x, y)] : M.WALL; }
+function ii(x,y){ return y*WIDTH+x; }
+function inB(x,y){ return x>=0&&x<WIDTH&&y>=0&&y<HEIGHT; }
+function gv(x,y){ return inB(x,y)?grid[ii(x,y)]:M.WALL; }
 
-function swap(x1, y1, x2, y2) {
-  const i1 = ii(x1, y1), i2 = ii(x2, y2);
-  if (moved[i1] || moved[i2]) return false;
+function swap(x1,y1,x2,y2) {
+  const i1=ii(x1,y1),i2=ii(x2,y2);
+  if(moved[i1]||moved[i2]) return false;
   let t;
-  t = grid[i1];   grid[i1]   = grid[i2];   grid[i2]   = t;
-  t = extra[i1];  extra[i1]  = extra[i2];  extra[i2]  = t;
-  t = extra2[i1]; extra2[i1] = extra2[i2]; extra2[i2] = t;
-  moved[i1] = 1; moved[i2] = 1;
+  t=grid[i1];grid[i1]=grid[i2];grid[i2]=t;
+  t=extra[i1];extra[i1]=extra[i2];extra[i2]=t;
+  t=extra2[i1];extra2[i1]=extra2[i2];extra2[i2]=t;
+  moved[i1]=1;moved[i2]=1;
   return true;
 }
 
 function dens(t) {
-  if (t === M.EMPTY) return 0;
-  if (t === M.STEAM || t === M.SMOKE || t === M.GAS || t === M.TOXIC || t === M.CLOUD) return -1;
-  if (t === M.FIRE || t === M.SPARK || t === M.LIGHT || t === M.PLASMA) return -0.5;
-  if (t === M.OIL || t === M.NAPALM) return 2;
-  if (t === M.WATER || t === M.ACID || t === M.BLOOD || t === M.SLIME || t === M.BUBBLE) return 3;
-  if (t === M.HONEY) return 4;
-  if (t === M.LAVA) return 5;
-  if (t === M.MUD) return 5.5;
-  if (t === M.SAND || t === M.DIRT || t === M.SALT || t === M.ASH || t === M.SNOW ||
-      t === M.GUNPOW || t === M.SAND_DARK || t === M.COAL) return 6;
-  if (t === M.MERCURY) return 8;
+  if(t===M.EMPTY) return 0;
+  if(t===M.STEAM||t===M.SMOKE||t===M.GAS||t===M.TOXIC||t===M.CLOUD) return -1;
+  if(t===M.FIRE||t===M.SPARK||t===M.LIGHT||t===M.PLASMA) return -0.5;
+  if(t===M.OIL||t===M.NAPALM) return 2;
+  if(t===M.WATER||t===M.ACID||t===M.BLOOD||t===M.SLIME||t===M.BUBBLE) return 3;
+  if(t===M.HONEY) return 4;
+  if(t===M.LAVA) return 5;
+  if(t===M.MUD) return 5.5;
+  if(t===M.SAND||t===M.DIRT||t===M.SALT||t===M.ASH||t===M.SNOW||t===M.GUNPOW||t===M.SAND_DARK||t===M.COAL) return 6;
+  if(t===M.MERCURY) return 8;
   return 100;
 }
 
-function isConductor(t) {
-  return t === M.WIRE || t === M.METAL || t === M.GOLD || t === M.WATER || t === M.BLOOD;
-}
-function isFlammable(t) {
-  return t === M.WOOD || t === M.OIL || t === M.GUNPOW || t === M.GAS || t === M.FUSE ||
-         t === M.PLANT || t === M.COAL || t === M.PAPER || t === M.COTTON || t === M.NAPALM ||
-         t === M.GRASS || t === M.SEED;
+function isConductor(t){ return t===M.WIRE||t===M.METAL||t===M.GOLD||t===M.WATER||t===M.BLOOD; }
+function isFlammable(t){ return t===M.WOOD||t===M.OIL||t===M.GUNPOW||t===M.GAS||t===M.FUSE||t===M.PLANT||t===M.COAL||t===M.PAPER||t===M.COTTON||t===M.NAPALM||t===M.GRASS||t===M.SEED; }
+
+function burn(x,y,ch=0.1) {
+  const i=ii(x,y),t=grid[i];
+  if(t===M.WOOD&&Math.random()<ch*0.5){grid[i]=M.FIRE;return;}
+  if(t===M.OIL&&Math.random()<ch*2){grid[i]=M.FIRE;return;}
+  if(t===M.NAPALM&&Math.random()<ch*2){grid[i]=M.FIRE;return;}
+  if(t===M.GUNPOW&&Math.random()<ch*3){boom(x,y,6);return;}
+  if(t===M.GAS&&Math.random()<ch*2){boom(x,y,4);return;}
+  if(t===M.FUSE&&Math.random()<ch*1.5){grid[i]=M.FIRE;return;}
+  if(t===M.PLANT&&Math.random()<ch){grid[i]=M.FIRE;return;}
+  if(t===M.GRASS&&Math.random()<ch*1.5){grid[i]=M.FIRE;return;}
+  if(t===M.SEED&&Math.random()<ch){grid[i]=M.FIRE;return;}
+  if(t===M.COAL&&Math.random()<ch*0.3){grid[i]=M.FIRE;return;}
+  if(t===M.PAPER&&Math.random()<ch*2){grid[i]=M.FIRE;return;}
+  if(t===M.COTTON&&Math.random()<ch*2){grid[i]=M.FIRE;return;}
+  if(t===M.TNT&&Math.random()<ch*2){boom(x,y,10);return;}
+  if(t===M.C4&&Math.random()<ch*2){boom(x,y,14);return;}
+  if(t===M.NUKE&&Math.random()<ch*1.5){boom(x,y,32);return;}
+  if(t===M.MINE&&Math.random()<ch*1.8){boom(x,y,9);return;}
+  if(t===M.ICE&&Math.random()<ch){grid[i]=M.WATER;return;}
+  if(t===M.SNOW&&Math.random()<ch*1.5){grid[i]=M.WATER;return;}
+  if(t===M.WATER&&Math.random()<ch*2){grid[i]=M.STEAM;return;}
+  if(t===M.BLOOD&&Math.random()<ch*1.5){grid[i]=M.FIRE;return;}
+  if(t===M.ALGAE&&Math.random()<ch){grid[i]=M.ASH;return;}
+  if(t===M.SAND&&Math.random()<ch*0.08){grid[i]=M.GLASS;return;}
+  if(t===M.RUBBER&&Math.random()<ch*0.5){grid[i]=M.FIRE;return;}
+  if(t===M.MUD&&Math.random()<ch*0.3){grid[i]=M.DIRT;return;}
 }
 
-function burn(x, y, ch = 0.1) {
-  const i = ii(x, y), t = grid[i];
-  if (t === M.WOOD    && Math.random() < ch * 0.5) { grid[i] = M.FIRE; return; }
-  if (t === M.OIL     && Math.random() < ch * 2)   { grid[i] = M.FIRE; return; }
-  if (t === M.NAPALM  && Math.random() < ch * 2)   { grid[i] = M.FIRE; return; }
-  if (t === M.GUNPOW  && Math.random() < ch * 3)   { boom(x, y, 6);    return; }
-  if (t === M.GAS     && Math.random() < ch * 2)   { boom(x, y, 4);    return; }
-  if (t === M.FUSE    && Math.random() < ch * 1.5) { grid[i] = M.FIRE; return; }
-  if (t === M.PLANT   && Math.random() < ch)       { grid[i] = M.FIRE; return; }
-  if (t === M.GRASS   && Math.random() < ch * 1.5) { grid[i] = M.FIRE; return; }
-  if (t === M.SEED    && Math.random() < ch)       { grid[i] = M.FIRE; return; }
-  if (t === M.COAL    && Math.random() < ch * 0.3) { grid[i] = M.FIRE; return; }
-  if (t === M.PAPER   && Math.random() < ch * 2)   { grid[i] = M.FIRE; return; }
-  if (t === M.COTTON  && Math.random() < ch * 2)   { grid[i] = M.FIRE; return; }
-  if (t === M.TNT     && Math.random() < ch * 2)   { boom(x, y, 10);   return; }
-  if (t === M.C4      && Math.random() < ch * 2)   { boom(x, y, 14);   return; }
-  if (t === M.NUKE    && Math.random() < ch * 1.5) { boom(x, y, 32);   return; }
-  if (t === M.MINE    && Math.random() < ch * 1.8) { boom(x, y, 9);    return; }
-  if (t === M.ICE     && Math.random() < ch)       { grid[i] = M.WATER; return; }
-  if (t === M.SNOW    && Math.random() < ch * 1.5) { grid[i] = M.WATER; return; }
-  if (t === M.WATER   && Math.random() < ch * 2)   { grid[i] = M.STEAM; return; }
-  if (t === M.BLOOD   && Math.random() < ch * 1.5) { grid[i] = M.FIRE;  return; }
-  if (t === M.ALGAE   && Math.random() < ch)       { grid[i] = M.ASH;   return; }
-  if (t === M.SAND    && Math.random() < ch * 0.08){ grid[i] = M.GLASS; return; }
-  if (t === M.RUBBER  && Math.random() < ch * 0.5) { grid[i] = M.FIRE;  return; }
-  if (t === M.MUD     && Math.random() < ch * 0.3) { grid[i] = M.DIRT;  return; }
-}
-
-function boom(cx, cy, rad) {
+function boom(cx,cy,rad) {
   exCnt++;
-  const r2 = rad * rad;
-  for (let dy = -rad; dy <= rad; dy++) {
-    for (let dx = -rad; dx <= rad; dx++) {
-      const d2 = dx * dx + dy * dy;
-      if (d2 > r2) continue;
-      const nx = cx + dx, ny = cy + dy;
-      if (!inB(nx, ny)) continue;
-      const i = ii(nx, ny), t = grid[i];
-      if (t === M.WALL || t === M.BHOLE || t === M.CONCRETE || t === M.DIAMOND) continue;
-      const r = Math.random();
-      if (d2 < r2 * 0.3)       grid[i] = r < 0.5 ? M.FIRE : r < 0.8 ? M.SMOKE : r < 0.95 ? M.EMBER : 0;
-      else if (d2 < r2 * 0.7)  grid[i] = r < 0.3 ? M.FIRE : r < 0.6 ? M.EMBER : r < 0.85 ? M.SMOKE : 0;
-      else                     grid[i] = r < 0.15 ? M.FIRE : r < 0.45 ? M.SMOKE : 0;
-      extra[i] = 0; extra2[i] = 0;
+  const r2=rad*rad;
+  for(let dy=-rad;dy<=rad;dy++){
+    for(let dx=-rad;dx<=rad;dx++){
+      const d2=dx*dx+dy*dy;
+      if(d2>r2) continue;
+      const nx=cx+dx,ny=cy+dy;
+      if(!inB(nx,ny)) continue;
+      const i=ii(nx,ny),t=grid[i];
+      if(t===M.WALL||t===M.BHOLE||t===M.CONCRETE||t===M.DIAMOND) continue;
+      const r=Math.random();
+      if(d2<r2*0.3)      grid[i]=r<0.5?M.FIRE:r<0.8?M.SMOKE:r<0.95?M.EMBER:0;
+      else if(d2<r2*0.7) grid[i]=r<0.3?M.FIRE:r<0.6?M.EMBER:r<0.85?M.SMOKE:0;
+      else               grid[i]=r<0.15?M.FIRE:r<0.45?M.SMOKE:0;
+      extra[i]=0;extra2[i]=0;
     }
   }
 }
 
-function canInfect(t) {
-  return t && t !== M.VIRUS && t !== M.TENTACLE && t !== M.WALL && t !== M.BHOLE &&
-         t !== M.METAL && t !== M.CONCRETE && t !== M.DIAMOND && t !== M.GOLD;
-}
-
-function spawnTent(x, y, d) {
-  const nx = x + DX8[d], ny = y + DY8[d];
-  if (!inB(nx, ny) || grid[ii(nx, ny)] !== 0) return;
-  grid[ii(nx, ny)] = M.TENTACLE;
-  extra[ii(nx, ny)] = d;
-  extra2[ii(nx, ny)] = 0;
-}
+function canInfect(t){ return t&&t!==M.VIRUS&&t!==M.TENTACLE&&t!==M.WALL&&t!==M.BHOLE&&t!==M.METAL&&t!==M.CONCRETE&&t!==M.DIAMOND&&t!==M.GOLD; }
+function spawnTent(x,y,d){ const nx=x+DX8[d],ny=y+DY8[d]; if(!inB(nx,ny)||grid[ii(nx,ny)]!==0) return; grid[ii(nx,ny)]=M.TENTACLE;extra[ii(nx,ny)]=d;extra2[ii(nx,ny)]=0; }
 
 // ── MAIN UPDATE ──
 function update() {
   moved.fill(0);
-  pCnt = 0; vCnt = 0; tick++;
+  pCnt=0;vCnt=0;tick++;
+  let portalAx=-1,portalAy=-1,portalBx=-1,portalBy=-1;
 
-  // Portal locator (find first A and B each tick - simple pairing)
-  let portalAx = -1, portalAy = -1, portalBx = -1, portalBy = -1;
-
-  for (let y = HEIGHT - 1; y >= 0; y--) {
-    const lr = Math.random() < 0.5;
-    const x0 = lr ? 0 : WIDTH - 1;
-    const xe = lr ? WIDTH : -1;
-    const xs = lr ? 1 : -1;
-
-    for (let x = x0; x !== xe; x += xs) {
-      const i = ii(x, y);
-      const t = grid[i];
-      if (!t || moved[i]) continue;
+  for(let y=HEIGHT-1;y>=0;y--){
+    const lr=Math.random()<0.5;
+    const x0=lr?0:WIDTH-1,xe=lr?WIDTH:-1,xs=lr?1:-1;
+    for(let x=x0;x!==xe;x+=xs){
+      const i=ii(x,y);
+      const t=grid[i];
+      if(!t||moved[i]) continue;
       pCnt++;
-      const cat = T[t] ? T[t].cat : null;
+      const cat=T[t]?T[t].cat:null;
 
-      // ── POWDERS ──
-      if (cat === 'powder') {
-        if (y + 1 < HEIGHT) {
-          const b = grid[ii(x, y + 1)];
-          if (!b) { swap(x, y, x, y + 1); continue; }
-          if (dens(b) < dens(t) && dens(b) > 0) { swap(x, y, x, y + 1); continue; }
-          // Angle of repose: only slide diagonally some of the time (friction)
-          if (Math.random() < 0.7) {
-            const d = Math.random() < 0.5 ? 1 : -1;
-            if (x + d >= 0 && x + d < WIDTH && !grid[ii(x + d, y + 1)] && !grid[ii(x + d, y)]) { swap(x, y, x + d, y + 1); continue; }
-            if (x - d >= 0 && x - d < WIDTH && !grid[ii(x - d, y + 1)] && !grid[ii(x - d, y)]) { swap(x, y, x - d, y + 1); continue; }
+      if(cat==='powder'){
+        if(y+1<HEIGHT){
+          const b=grid[ii(x,y+1)];
+          if(!b){swap(x,y,x,y+1);continue;}
+          if(dens(b)<dens(t)&&dens(b)>0){swap(x,y,x,y+1);continue;}
+          if(Math.random()<0.7){
+            const d=Math.random()<0.5?1:-1;
+            if(x+d>=0&&x+d<WIDTH&&!grid[ii(x+d,y+1)]&&!grid[ii(x+d,y)]){swap(x,y,x+d,y+1);continue;}
+            if(x-d>=0&&x-d<WIDTH&&!grid[ii(x-d,y+1)]&&!grid[ii(x-d,y)]){swap(x,y,x-d,y+1);continue;}
           }
         }
-        // Special powder reactions
-        if (t === M.SALT) {
-          for (const [dx, dy] of N4) {
-            if (gv(x + dx, y + dy) === M.WATER && Math.random() < 0.02) {
-              grid[ii(x + dx, y + dy)] = M.WATER; grid[i] = 0; break;
-            }
-          }
-        }
-        if (t === M.SNOW && Math.random() < 0.003) grid[i] = M.WATER;
-        if (t === M.DIRT) {
-          for (const [dx, dy] of N4) {
-            if (gv(x + dx, y + dy) === M.WATER && Math.random() < 0.02) {
-              grid[i] = M.MUD; grid[ii(x + dx, y + dy)] = 0; break;
-            }
-          }
-        }
-        if (t === M.MUD && Math.random() < 0.0005) grid[i] = M.DIRT;
+        if(t===M.SALT){for(const[dx,dy]of N4){if(gv(x+dx,y+dy)===M.WATER&&Math.random()<0.02){grid[ii(x+dx,y+dy)]=M.WATER;grid[i]=0;break;}}}
+        if(t===M.SNOW&&Math.random()<0.003) grid[i]=M.WATER;
+        if(t===M.DIRT){for(const[dx,dy]of N4){if(gv(x+dx,y+dy)===M.WATER&&Math.random()<0.02){grid[i]=M.MUD;grid[ii(x+dx,y+dy)]=0;break;}}}
+        if(t===M.MUD&&Math.random()<0.0005) grid[i]=M.DIRT;
         continue;
       }
 
-      // ── LIQUIDS ──
-      if (cat === 'liquid') {
-        const vs = t === M.HONEY ? 0.4 : t === M.OIL ? 0.85 : t === M.LAVA ? 0.6 :
-                   t === M.BLOOD ? 0.75 : t === M.NAPALM ? 0.7 : 1;
-        if (Math.random() < vs) {
-          if (y + 1 < HEIGHT) {
-            const b = grid[ii(x, y + 1)];
-            if (!b) { swap(x, y, x, y + 1); continue; }
-            if (dens(b) < dens(t) && dens(b) > 0) { swap(x, y, x, y + 1); continue; }
-            const d = Math.random() < 0.5 ? 1 : -1;
-            if (x + d >= 0 && x + d < WIDTH && !grid[ii(x + d, y + 1)]) { swap(x, y, x + d, y + 1); continue; }
-            if (x - d >= 0 && x - d < WIDTH && !grid[ii(x - d, y + 1)]) { swap(x, y, x - d, y + 1); continue; }
+      if(cat==='liquid'){
+        const vs=t===M.HONEY?0.4:t===M.OIL?0.85:t===M.LAVA?0.6:t===M.BLOOD?0.75:t===M.NAPALM?0.7:1;
+        if(Math.random()<vs){
+          if(y+1<HEIGHT){
+            const b=grid[ii(x,y+1)];
+            if(!b){swap(x,y,x,y+1);continue;}
+            if(dens(b)<dens(t)&&dens(b)>0){swap(x,y,x,y+1);continue;}
+            const d=Math.random()<0.5?1:-1;
+            if(x+d>=0&&x+d<WIDTH&&!grid[ii(x+d,y+1)]){swap(x,y,x+d,y+1);continue;}
+            if(x-d>=0&&x-d<WIDTH&&!grid[ii(x-d,y+1)]){swap(x,y,x-d,y+1);continue;}
           }
-          // Horizontal flow with variable speed
-          const sp = t === M.HONEY ? 1 : t === M.OIL ? 2 : t === M.LAVA ? 1 :
-                     t === M.BLOOD ? 2 : t === M.MERCURY ? 4 : 3;
-          const ds = Math.random() < 0.5 ? 1 : -1;
-          for (let s = 1; s <= sp; s++) {
-            const nx = x + ds * s;
-            if (nx < 0 || nx >= WIDTH) break;
-            if (grid[ii(nx, y)]) break;
-            if (s === sp || grid[ii(nx + ds, y)] || (y + 1 < HEIGHT && !grid[ii(nx, y + 1)])) {
-              swap(x, y, nx, y); break;
-            }
+          const sp=t===M.HONEY?1:t===M.OIL?2:t===M.LAVA?1:t===M.BLOOD?2:t===M.MERCURY?4:3;
+          const ds=Math.random()<0.5?1:-1;
+          for(let s=1;s<=sp;s++){
+            const nx=x+ds*s;
+            if(nx<0||nx>=WIDTH) break;
+            if(grid[ii(nx,y)]) break;
+            if(s===sp||grid[ii(nx+ds,y)]||(y+1<HEIGHT&&!grid[ii(nx,y+1)])){swap(x,y,nx,y);break;}
           }
         }
-
-        // Water reactions
-        if (t === M.WATER) {
-          for (const [dx, dy] of N4) {
-            const nt = gv(x + dx, y + dy);
-            if (nt === M.LAVA) { grid[ii(x + dx, y + dy)] = M.STONE; grid[i] = M.STEAM; break; }
-            if (nt === M.FIRE) { grid[ii(x + dx, y + dy)] = M.STEAM; grid[i] = M.STEAM; break; }
-            if (nt === M.EMBER && Math.random() < 0.3) { grid[ii(x + dx, y + dy)] = M.ASH; grid[i] = M.STEAM; break; }
-          }
-        }
-
-        // Lava reactions
-        if (t === M.LAVA) {
-          if (Math.random() < 0.04) {
-            for (const [dx, dy] of N8) burn(x + dx, y + dy, 0.6);
-            // Sand → glass
-            for (const [dx, dy] of N4) {
-              if (gv(x + dx, y + dy) === M.SAND && Math.random() < 0.15) {
-                grid[ii(x + dx, y + dy)] = M.GLASS;
-              }
-            }
-          }
-          if (Math.random() < 0.004) grid[i] = M.STONE;
-        }
-
-        // Acid dissolves
-        if (t === M.ACID) {
-          for (const [dx, dy] of N4) {
-            const nx = x + dx, ny = y + dy;
-            if (!inB(nx, ny)) continue;
-            const nt = grid[ii(nx, ny)];
-            if (nt && nt !== M.ACID && nt !== M.WALL && nt !== M.GLASS && nt !== M.BHOLE &&
-                nt !== M.CONCRETE && nt !== M.DIAMOND && nt !== M.GOLD && Math.random() < 0.08) {
-              grid[ii(nx, ny)] = 0;
-              if (Math.random() < 0.3) grid[i] = 0;
-              break;
-            }
-          }
-        }
-
-        // Oil ignites
-        if (t === M.OIL || t === M.NAPALM) {
-          for (const [dx, dy] of N4) {
-            const nt = gv(x + dx, y + dy);
-            if ((nt === M.FIRE || nt === M.LAVA || nt === M.SPARK) && Math.random() < 0.2) {
-              grid[i] = M.FIRE; break;
-            }
-          }
-        }
-
-        // Mercury conducts
-        if (t === M.MERCURY && Math.random() < 0.1) {
-          for (const [dx, dy] of N4) {
-            if (gv(x + dx, y + dy) === M.SPARK) { grid[i] = M.SPARK; break; }
-          }
-        }
+        if(t===M.WATER){for(const[dx,dy]of N4){const nt=gv(x+dx,y+dy);if(nt===M.LAVA){grid[ii(x+dx,y+dy)]=M.STONE;grid[i]=M.STEAM;break;}if(nt===M.FIRE){grid[ii(x+dx,y+dy)]=M.STEAM;grid[i]=M.STEAM;break;}if(nt===M.EMBER&&Math.random()<0.3){grid[ii(x+dx,y+dy)]=M.ASH;grid[i]=M.STEAM;break;}}}
+        if(t===M.LAVA){if(Math.random()<0.04){for(const[dx,dy]of N8)burn(x+dx,y+dy,0.6);for(const[dx,dy]of N4){if(gv(x+dx,y+dy)===M.SAND&&Math.random()<0.15)grid[ii(x+dx,y+dy)]=M.GLASS;}}if(Math.random()<0.004)grid[i]=M.STONE;}
+        if(t===M.ACID){for(const[dx,dy]of N4){const nx=x+dx,ny=y+dy;if(!inB(nx,ny))continue;const nt=grid[ii(nx,ny)];if(nt&&nt!==M.ACID&&nt!==M.WALL&&nt!==M.GLASS&&nt!==M.BHOLE&&nt!==M.CONCRETE&&nt!==M.DIAMOND&&nt!==M.GOLD&&Math.random()<0.08){grid[ii(nx,ny)]=0;if(Math.random()<0.3)grid[i]=0;break;}}}
+        if((t===M.OIL||t===M.NAPALM)){for(const[dx,dy]of N4){const nt=gv(x+dx,y+dy);if((nt===M.FIRE||nt===M.LAVA||nt===M.SPARK)&&Math.random()<0.2){grid[i]=M.FIRE;break;}}}
+        if(t===M.MERCURY&&Math.random()<0.1){for(const[dx,dy]of N4){if(gv(x+dx,y+dy)===M.SPARK){grid[i]=M.SPARK;break;}}}
         continue;
       }
 
-      // ── GASES ──
-      if (cat === 'gas') {
-        if (Math.random() < 0.8) {
-          if (y - 1 >= 0 && !grid[ii(x, y - 1)]) { swap(x, y, x, y - 1); continue; }
-          const dg = Math.random() < 0.5 ? 1 : -1;
-          if (y - 1 >= 0 && x + dg >= 0 && x + dg < WIDTH && !grid[ii(x + dg, y - 1)]) { swap(x, y, x + dg, y - 1); continue; }
-          if (x + dg >= 0 && x + dg < WIDTH && !grid[ii(x + dg, y)]) { swap(x, y, x + dg, y); continue; }
+      if(cat==='gas'){
+        if(Math.random()<0.8){
+          if(y-1>=0&&!grid[ii(x,y-1)]){swap(x,y,x,y-1);continue;}
+          const dg=Math.random()<0.5?1:-1;
+          if(y-1>=0&&x+dg>=0&&x+dg<WIDTH&&!grid[ii(x+dg,y-1)]){swap(x,y,x+dg,y-1);continue;}
+          if(x+dg>=0&&x+dg<WIDTH&&!grid[ii(x+dg,y)]){swap(x,y,x+dg,y);continue;}
         }
-        if (t === M.STEAM && Math.random() < 0.002) grid[i] = M.WATER;
-        if (t === M.SMOKE && Math.random() < 0.01) grid[i] = 0;
-        if ((t === M.GAS || t === M.TOXIC || t === M.CLOUD) && Math.random() < 0.0015) grid[i] = 0;
-        if (t === M.CLOUD && Math.random() < 0.002 && y + 1 < HEIGHT && !grid[ii(x, y + 1)]) {
-          grid[ii(x, y + 1)] = M.WATER;
-        }
-        if (t === M.GAS) {
-          for (const [dx, dy] of N4) {
-            const nt = gv(x + dx, y + dy);
-            if (nt === M.FIRE || nt === M.LAVA || nt === M.SPARK) { boom(x, y, 3); break; }
-          }
-        }
+        if(t===M.STEAM&&Math.random()<0.002) grid[i]=M.WATER;
+        if(t===M.SMOKE&&Math.random()<0.01) grid[i]=0;
+        if((t===M.GAS||t===M.TOXIC||t===M.CLOUD)&&Math.random()<0.0015) grid[i]=0;
+        if(t===M.CLOUD&&Math.random()<0.002&&y+1<HEIGHT&&!grid[ii(x,y+1)]) grid[ii(x,y+1)]=M.WATER;
+        if(t===M.GAS){for(const[dx,dy]of N4){const nt=gv(x+dx,y+dy);if(nt===M.FIRE||nt===M.LAVA||nt===M.SPARK){boom(x,y,3);break;}}}
         continue;
       }
 
-      // ── ENERGY ──
-      if (cat === 'energy') {
-        if (t === M.FIRE) {
-          for (const [dx, dy] of N8) burn(x + dx, y + dy, 0.15);
-          if (Math.random() < 0.3 && y - 1 >= 0 && !grid[ii(x, y - 1)]) swap(x, y, x, y - 1);
-          if (Math.random() < 0.09) grid[i] = Math.random() < 0.5 ? M.SMOKE : 0;
+      if(cat==='energy'){
+        if(t===M.FIRE){
+          for(const[dx,dy]of N8) burn(x+dx,y+dy,0.15);
+          if(Math.random()<0.3&&y-1>=0&&!grid[ii(x,y-1)]) swap(x,y,x,y-1);
+          if(Math.random()<0.09) grid[i]=Math.random()<0.5?M.SMOKE:0;
         }
-        if (t === M.PLASMA) {
-          for (const [dx, dy] of N4) burn(x + dx, y + dy, 0.4);
-          if (Math.random() < 0.25 && y - 1 >= 0 && !grid[ii(x, y - 1)]) swap(x, y, x, y - 1);
-          if (Math.random() < 0.03) grid[i] = M.FIRE;
+        if(t===M.PLASMA){
+          for(const[dx,dy]of N4) burn(x+dx,y+dy,0.4);
+          if(Math.random()<0.25&&y-1>=0&&!grid[ii(x,y-1)]) swap(x,y,x,y-1);
+          if(Math.random()<0.03) grid[i]=M.FIRE;
         }
-        if (t === M.SPARK) {
-          // Electric spark: travels through conductors, ignites flammables
-          for (const [dx, dy] of N4) {
-            const nx = x + dx, ny = y + dy;
-            if (!inB(nx, ny)) continue;
-            const ni = ii(nx, ny), nt = grid[ni];
-            if (isFlammable(nt) && Math.random() < 0.4) burn(nx, ny, 0.6);
-            if (isConductor(nt) && !grid[ni + 0] !== M.SPARK && extra2[ni] === 0 && Math.random() < 0.35) {
-              // Mark as just-sparked via extra2 to prevent instant back-flow
-              if (nt === M.WIRE || nt === M.METAL || nt === M.GOLD) {
-                grid[ni] = M.SPARK; extra2[ni] = 3; moved[ni] = 1;
-              }
+        if(t===M.SPARK){
+          for(const[dx,dy]of N4){
+            const nx=x+dx,ny=y+dy;if(!inB(nx,ny))continue;
+            const ni=ii(nx,ny),nt=grid[ni];
+            if(isFlammable(nt)&&Math.random()<0.4) burn(nx,ny,0.6);
+            if(isConductor(nt)&&extra2[ni]===0&&Math.random()<0.35){
+              if(nt===M.WIRE||nt===M.METAL||nt===M.GOLD){grid[ni]=M.SPARK;extra2[ni]=3;moved[ni]=1;}
             }
           }
-          if (Math.random() < 0.35) grid[i] = 0;
+          if(Math.random()<0.35) grid[i]=0;
         }
-        if (t === M.EMBER) {
-          if (Math.random() < 0.06) grid[i] = Math.random() < 0.6 ? M.FIRE : M.ASH;
-          if (y + 1 < HEIGHT && !grid[ii(x, y + 1)]) swap(x, y, x, y + 1);
-        }
-        if (t === M.LIGHT) {
-          if (Math.random() < 0.35) grid[i] = 0;
-        }
+        if(t===M.EMBER){if(Math.random()<0.06)grid[i]=Math.random()<0.6?M.FIRE:M.ASH;if(y+1<HEIGHT&&!grid[ii(x,y+1)])swap(x,y,x,y+1);}
+        if(t===M.LIGHT&&Math.random()<0.35) grid[i]=0;
         continue;
       }
 
-      // ── LIFE ──
-      if (cat === 'life') {
-        if (t === M.VIRUS) {
+      if(cat==='life'){
+        if(t===M.VIRUS){
           vCnt++;
-          if (extra[i] < 65000) extra[i]++;
-          const age = extra[i];
-          const ir = Math.min(0.08 + age * 0.00005, 0.25);
-          for (const [dx, dy] of N8) {
-            const nx = x + dx, ny = y + dy;
-            if (!inB(nx, ny)) continue;
-            const ni = ii(nx, ny), nt = grid[ni];
-            if (!canInfect(nt)) continue;
-            if (Math.random() < ir) {
-              grid[ni] = M.VIRUS; extra[ni] = 0;
-              if (Math.random() < 0.2) spawnTent(nx, ny, Math.floor(Math.random() * 8));
-            }
-          }
-          if (Math.random() < 0.008) spawnTent(x, y, Math.floor(Math.random() * 8));
-          if (age > 400 && Math.random() < 0.0012) { boom(x, y, 5); }
+          if(extra[i]<65000) extra[i]++;
+          const age=extra[i];
+          const ir=Math.min(0.08+age*0.00005,0.25);
+          for(const[dx,dy]of N8){const nx=x+dx,ny=y+dy;if(!inB(nx,ny))continue;const ni=ii(nx,ny),nt=grid[ni];if(!canInfect(nt))continue;if(Math.random()<ir){grid[ni]=M.VIRUS;extra[ni]=0;if(Math.random()<0.2)spawnTent(nx,ny,Math.floor(Math.random()*8));}}
+          if(Math.random()<0.008) spawnTent(x,y,Math.floor(Math.random()*8));
+          if(age>400&&Math.random()<0.0012) boom(x,y,5);
           continue;
         }
-        if (t === M.TENTACLE) {
+        if(t===M.TENTACLE){
           vCnt++;
-          if (extra2[i] < 250) extra2[i]++;
-          const age = extra2[i], dir = extra[i] & 7;
-          if (Math.random() < 0.16) {
-            const tryD = [dir, (dir + 1) % 8, (dir + 7) % 8, (dir + 2) % 8, (dir + 6) % 8];
-            let grew = false;
-            for (const d of tryD) {
-              const nx = x + DX8[d], ny = y + DY8[d];
-              if (!inB(nx, ny)) continue;
-              const ni = ii(nx, ny), nt = grid[ni];
-              if (!nt) {
-                grid[i] = M.VIRUS; extra[i] = 0; extra2[i] = 0;
-                grid[ni] = M.TENTACLE; extra[ni] = d; extra2[ni] = Math.max(0, age - 4);
-                moved[ni] = 1; grew = true; break;
-              } else if (canInfect(nt) && Math.random() < 0.3) {
-                grid[ni] = M.VIRUS; extra[ni] = 0; extra2[ni] = 0;
-                grid[i] = M.VIRUS; extra[i] = 0; extra2[i] = 0;
-                grew = true; break;
-              }
+          if(extra2[i]<250) extra2[i]++;
+          const age=extra2[i],dir=extra[i]&7;
+          if(Math.random()<0.16){
+            const tryD=[dir,(dir+1)%8,(dir+7)%8,(dir+2)%8,(dir+6)%8];
+            let grew=false;
+            for(const d of tryD){
+              const nx=x+DX8[d],ny=y+DY8[d];
+              if(!inB(nx,ny)) continue;
+              const ni=ii(nx,ny),nt=grid[ni];
+              if(!nt){grid[i]=M.VIRUS;extra[i]=0;extra2[i]=0;grid[ni]=M.TENTACLE;extra[ni]=d;extra2[ni]=Math.max(0,age-4);moved[ni]=1;grew=true;break;}
+              else if(canInfect(nt)&&Math.random()<0.3){grid[ni]=M.VIRUS;extra[ni]=0;extra2[ni]=0;grid[i]=M.VIRUS;extra[i]=0;extra2[i]=0;grew=true;break;}
             }
-            if (!grew && Math.random() < 0.05) { grid[i] = M.VIRUS; extra[i] = 0; extra2[i] = 0; }
+            if(!grew&&Math.random()<0.05){grid[i]=M.VIRUS;extra[i]=0;extra2[i]=0;}
           }
-          if (age > 200 && Math.random() < 0.003) boom(x, y, 3);
+          if(age>200&&Math.random()<0.003) boom(x,y,3);
           continue;
         }
-        if (t === M.PLANT) {
-          if (Math.random() < 0.05) {
-            for (const [dx, dy] of N4) {
-              const nx = x + dx, ny = y + dy;
-              if (!inB(nx, ny)) continue;
-              const nt = grid[ii(nx, ny)];
-              if (!nt) {
-                let hw = false;
-                for (const [dx2, dy2] of [[-1, 0], [1, 0], [0, -1], [0, 1], [-2, 0], [2, 0]]) {
-                  if (gv(nx + dx2, ny + dy2) === M.WATER) { hw = true; break; }
-                }
-                if (hw && Math.random() < 0.35) grid[ii(nx, ny)] = M.PLANT;
-              }
-              if (nt === M.WATER && Math.random() < 0.05) { grid[ii(nx, ny)] = M.PLANT; break; }
+        if(t===M.PLANT){
+          if(Math.random()<0.05){
+            for(const[dx,dy]of N4){
+              const nx=x+dx,ny=y+dy;if(!inB(nx,ny))continue;
+              const nt=grid[ii(nx,ny)];
+              if(!nt){let hw=false;for(const[dx2,dy2]of[[-1,0],[1,0],[0,-1],[0,1],[-2,0],[2,0]]){if(gv(nx+dx2,ny+dy2)===M.WATER){hw=true;break;}}if(hw&&Math.random()<0.35)grid[ii(nx,ny)]=M.PLANT;}
+              if(nt===M.WATER&&Math.random()<0.05){grid[ii(nx,ny)]=M.PLANT;break;}
             }
           }
           continue;
         }
-        if (t === M.GRASS) {
-          if (Math.random() < 0.03) {
-            for (const [dx, dy] of N4) {
-              const nx = x + dx, ny = y + dy;
-              if (!inB(nx, ny)) continue;
-              if (gv(nx, ny) === M.DIRT && gv(nx, ny - 1) === 0) {
-                grid[ii(nx, ny - 1)] = M.GRASS; break;
-              }
-            }
-          }
+        if(t===M.GRASS){
+          if(Math.random()<0.03){for(const[dx,dy]of N4){const nx=x+dx,ny=y+dy;if(!inB(nx,ny))continue;if(gv(nx,ny)===M.DIRT&&gv(nx,ny-1)===0){grid[ii(nx,ny-1)]=M.GRASS;break;}}}
           continue;
         }
-        if (t === M.SEED) {
-          if (y + 1 < HEIGHT) {
-            if (!grid[ii(x, y + 1)]) { swap(x, y, x, y + 1); continue; }
-            const d = Math.random() < 0.5 ? 1 : -1;
-            if (x + d >= 0 && x + d < WIDTH && !grid[ii(x + d, y + 1)]) { swap(x, y, x + d, y + 1); continue; }
-          }
-          let td = false, tw = false;
-          for (const [dx, dy] of N4) {
-            if (gv(x + dx, y + dy) === M.DIRT || gv(x + dx, y + dy) === M.MUD) td = true;
-            if (gv(x + dx, y + dy) === M.WATER) tw = true;
-          }
-          if (td && tw && Math.random() < 0.12) grid[i] = M.PLANT;
+        if(t===M.SEED){
+          if(y+1<HEIGHT){if(!grid[ii(x,y+1)]){swap(x,y,x,y+1);continue;}const d=Math.random()<0.5?1:-1;if(x+d>=0&&x+d<WIDTH&&!grid[ii(x+d,y+1)]){swap(x,y,x+d,y+1);continue;}}
+          let td=false,tw=false;
+          for(const[dx,dy]of N4){if(gv(x+dx,y+dy)===M.DIRT||gv(x+dx,y+dy)===M.MUD)td=true;if(gv(x+dx,y+dy)===M.WATER)tw=true;}
+          if(td&&tw&&Math.random()<0.12) grid[i]=M.PLANT;
           continue;
         }
-        if (t === M.FUNGUS) {
-          if (Math.random() < 0.025) {
-            for (const [dx, dy] of N4) {
-              const nx = x + dx, ny = y + dy;
-              if (gv(nx, ny) === M.DIRT || gv(nx, ny) === M.WOOD || gv(nx, ny) === M.MUD) {
-                grid[ii(nx, ny)] = M.FUNGUS; break;
-              }
-            }
-          }
-          continue;
-        }
-        if (t === M.ALGAE) {
-          if (Math.random() < 0.04) {
-            for (const [dx, dy] of N4) {
-              const nx = x + dx, ny = y + dy;
-              if (gv(nx, ny) === M.WATER) { grid[ii(nx, ny)] = M.ALGAE; break; }
-            }
-          }
-          continue;
-        }
+        if(t===M.FUNGUS){if(Math.random()<0.025){for(const[dx,dy]of N4){const nx=x+dx,ny=y+dy;if(gv(nx,ny)===M.DIRT||gv(nx,ny)===M.WOOD||gv(nx,ny)===M.MUD){grid[ii(nx,ny)]=M.FUNGUS;break;}}}continue;}
+        if(t===M.ALGAE){if(Math.random()<0.04){for(const[dx,dy]of N4){const nx=x+dx,ny=y+dy;if(gv(nx,ny)===M.WATER){grid[ii(nx,ny)]=M.ALGAE;break;}}}continue;}
         continue;
       }
 
-      // ── SPECIAL ──
-      if (t === M.BHOLE) {
-        const R = 11;
-        for (let dy2 = -R; dy2 <= R; dy2++) {
-          for (let dx2 = -R; dx2 <= R; dx2++) {
-            if (!dx2 && !dy2) continue;
-            const d2 = dx2 * dx2 + dy2 * dy2;
-            if (d2 > R * R) continue;
-            const nx = x + dx2, ny = y + dy2;
-            if (!inB(nx, ny)) continue;
-            const nt = grid[ii(nx, ny)];
-            if (!nt || nt === M.BHOLE || nt === M.WALL || nt === M.CONCRETE || nt === M.DIAMOND) continue;
-            if (Math.random() < 0.5 / (d2 + 1)) grid[ii(nx, ny)] = 0;
-          }
-        }
+      if(t===M.BHOLE){
+        const R=11;
+        for(let dy2=-R;dy2<=R;dy2++){for(let dx2=-R;dx2<=R;dx2++){if(!dx2&&!dy2)continue;const d2=dx2*dx2+dy2*dy2;if(d2>R*R)continue;const nx=x+dx2,ny=y+dy2;if(!inB(nx,ny))continue;const nt=grid[ii(nx,ny)];if(!nt||nt===M.BHOLE||nt===M.WALL||nt===M.CONCRETE||nt===M.DIAMOND)continue;if(Math.random()<0.5/(d2+1))grid[ii(nx,ny)]=0;}}
         continue;
       }
-      if (t === M.SOURCE_W) {
-        for (const [dx, dy] of [[0, 1], [-1, 0], [1, 0], [0, -1]]) {
-          if (!gv(x + dx, y + dy)) { grid[ii(x + dx, y + dy)] = M.WATER; break; }
-        }
+      if(t===M.SOURCE_W){for(const[dx,dy]of[[0,1],[-1,0],[1,0],[0,-1]]){if(!gv(x+dx,y+dy)){grid[ii(x+dx,y+dy)]=M.WATER;break;}}continue;}
+      if(t===M.SOURCE_L){for(const[dx,dy]of[[0,1],[-1,0],[1,0],[0,-1]]){if(!gv(x+dx,y+dy)){grid[ii(x+dx,y+dy)]=M.LAVA;break;}}continue;}
+      if(t===M.BUBBLE){if(y-1>=0&&!grid[ii(x,y-1)]){swap(x,y,x,y-1);continue;}if(Math.random()<0.015)grid[i]=0;continue;}
+      if(t===M.CLONE){
+        if(!extra[i]){for(const[dx,dy]of N4){const nt=gv(x+dx,y+dy);if(nt&&nt!==M.CLONE&&nt!==M.WALL&&nt<250){extra[i]=nt;break;}}}
+        if(extra[i]){for(const[dx,dy]of N4){const nx=x+dx,ny=y+dy;if(inB(nx,ny)&&!grid[ii(nx,ny)]&&Math.random()<0.3)grid[ii(nx,ny)]=extra[i];}}
         continue;
       }
-      if (t === M.SOURCE_L) {
-        for (const [dx, dy] of [[0, 1], [-1, 0], [1, 0], [0, -1]]) {
-          if (!gv(x + dx, y + dy)) { grid[ii(x + dx, y + dy)] = M.LAVA; break; }
-        }
+      if(t===M.BATTERY){
+        for(const[dx,dy]of N4){const nx=x+dx,ny=y+dy;if(!inB(nx,ny))continue;const ni=ii(nx,ny);if((grid[ni]===M.WIRE||grid[ni]===M.METAL)&&Math.random()<0.5){grid[ni]=M.SPARK;extra2[ni]=3;moved[ni]=1;}}
         continue;
       }
-      if (t === M.BUBBLE) {
-        if (y - 1 >= 0 && !grid[ii(x, y - 1)]) { swap(x, y, x, y - 1); continue; }
-        if (Math.random() < 0.015) grid[i] = 0;
+      if(t===M.PORTAL_A||t===M.PORTAL_B){
+        if(t===M.PORTAL_A&&portalAx<0){portalAx=x;portalAy=y;}
+        if(t===M.PORTAL_B&&portalBx<0){portalBx=x;portalBy=y;}
         continue;
       }
-      if (t === M.CLONE) {
-        // Find first non-clone, non-empty neighbor and duplicate into empty neighbors
-        if (extra[i] === 0) {
-          for (const [dx, dy] of N4) {
-            const nt = gv(x + dx, y + dy);
-            if (nt && nt !== M.CLONE && nt !== M.WALL && nt < 250) { extra[i] = nt; break; }
-          }
-        }
-        if (extra[i]) {
-          for (const [dx, dy] of N4) {
-            const nx = x + dx, ny = y + dy;
-            if (inB(nx, ny) && !grid[ii(nx, ny)] && Math.random() < 0.3) {
-              grid[ii(nx, ny)] = extra[i];
-            }
-          }
-        }
+      if(cat==='bomb'){
+        if((t===M.TNT||t===M.C4||t===M.NUKE||t===M.MINE)&&y+1<HEIGHT&&!grid[ii(x,y+1)]){swap(x,y,x,y+1);continue;}
+        if(t===M.FUSE){for(const[dx,dy]of N4){const nt=gv(x+dx,y+dy);if(nt===M.FIRE||nt===M.LAVA||nt===M.SPARK||nt===M.EMBER){if(Math.random()<0.4){grid[i]=M.FIRE;break;}}}}
+        if(t===M.MINE){for(const[dx,dy]of N8){const nt=gv(x+dx,y+dy);if(nt&&nt!==M.MINE&&T[nt]&&(T[nt].cat==='powder'||T[nt].cat==='liquid')){if(Math.random()<0.05){boom(x,y,9);break;}}}}
         continue;
       }
-      if (t === M.BATTERY) {
-        // Emit sparks into adjacent wires
-        for (const [dx, dy] of N4) {
-          const nx = x + dx, ny = y + dy;
-          if (!inB(nx, ny)) continue;
-          const ni = ii(nx, ny);
-          if ((grid[ni] === M.WIRE || grid[ni] === M.METAL) && Math.random() < 0.5) {
-            grid[ni] = M.SPARK; extra2[ni] = 3; moved[ni] = 1;
-          }
-        }
-        continue;
-      }
-      if (t === M.PORTAL_A || t === M.PORTAL_B) {
-        // Remember positions; handled after loop
-        if (t === M.PORTAL_A && portalAx < 0) { portalAx = x; portalAy = y; }
-        if (t === M.PORTAL_B && portalBx < 0) { portalBx = x; portalBy = y; }
-        continue;
-      }
-
-      // ── BOMBS ──
-      if (cat === 'bomb') {
-        if ((t === M.TNT || t === M.C4 || t === M.NUKE || t === M.MINE) &&
-            y + 1 < HEIGHT && !grid[ii(x, y + 1)]) {
-          swap(x, y, x, y + 1); continue;
-        }
-        if (t === M.FUSE) {
-          for (const [dx, dy] of N4) {
-            const nt = gv(x + dx, y + dy);
-            if (nt === M.FIRE || nt === M.LAVA || nt === M.SPARK || nt === M.EMBER) {
-              if (Math.random() < 0.4) { grid[i] = M.FIRE; break; }
-            }
-          }
-        }
-        if (t === M.MINE) {
-          for (const [dx, dy] of N8) {
-            const nt = gv(x + dx, y + dy);
-            if (nt && nt !== M.MINE && T[nt] && (T[nt].cat === 'powder' || T[nt].cat === 'liquid')) {
-              if (Math.random() < 0.05) { boom(x, y, 9); break; }
-            }
-          }
-        }
-        continue;
-      }
-
-      // ICE slowly melts
-      if (t === M.ICE && Math.random() < 0.0008) grid[i] = M.WATER;
-
-      // Decay spark-marker on conductors
-      if ((t === M.WIRE || t === M.METAL || t === M.GOLD) && extra2[i] > 0) extra2[i]--;
+      if(t===M.ICE&&Math.random()<0.0008) grid[i]=M.WATER;
+      if((t===M.WIRE||t===M.METAL||t===M.GOLD)&&extra2[i]>0) extra2[i]--;
     }
   }
 
-  // Portal teleportation: if both exist, any empty neighbor of A teleports particles from near B
-  // Simpler: move particles that fall into portal A out of portal B
-  if (portalAx >= 0 && portalBx >= 0) {
-    // Check cell above A
-    for (const [dx, dy] of N4) {
-      const ax = portalAx + dx, ay = portalAy + dy;
-      if (!inB(ax, ay)) continue;
-      const ai = ii(ax, ay);
-      const t = grid[ai];
-      if (!t || t === M.PORTAL_A || t === M.PORTAL_B || t === M.WALL) continue;
-      // Find free spot around B
-      for (const [dx2, dy2] of N4) {
-        const bx = portalBx + dx2, by = portalBy + dy2;
-        if (!inB(bx, by)) continue;
-        const bi = ii(bx, by);
-        if (!grid[bi]) {
-          grid[bi] = t; extra[bi] = extra[ai]; extra2[bi] = extra2[ai];
-          grid[ai] = 0; extra[ai] = 0; extra2[ai] = 0;
-          break;
-        }
+  if(portalAx>=0&&portalBx>=0){
+    for(const[dx,dy]of N4){
+      const ax=portalAx+dx,ay=portalAy+dy;
+      if(!inB(ax,ay))continue;
+      const ai=ii(ax,ay),t=grid[ai];
+      if(!t||t===M.PORTAL_A||t===M.PORTAL_B||t===M.WALL)continue;
+      for(const[dx2,dy2]of N4){
+        const bx=portalBx+dx2,by=portalBy+dy2;
+        if(!inB(bx,by))continue;
+        const bi=ii(bx,by);
+        if(!grid[bi]){grid[bi]=t;extra[bi]=extra[ai];extra2[bi]=extra2[ai];grid[ai]=0;extra[ai]=0;extra2[ai]=0;break;}
       }
       break;
     }
   }
 }
 
-// ── RENDERING (with textured noise) ──
-// Stable per-cell hash for texture noise
-function hash2(x, y) {
-  let h = (x * 374761393 + y * 668265263) | 0;
-  h = (h ^ (h >>> 13)) * 1274126177 | 0;
-  return ((h ^ (h >>> 16)) & 0xff) / 255;
-}
+// ── RENDERING ──
+function hash2(x,y){ let h=(x*374761393+y*668265263)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))&0xff)/255; }
 
 function render() {
-  const now = performance.now();
+  const now=performance.now();
   fCnt++;
-  if (now - lastT >= 500) {
-    fps = Math.round(fCnt * 1000 / (now - lastT));
-    fCnt = 0; lastT = now;
-  }
-  const pS = Math.sin(now * 0.004) * 0.5 + 0.5;
-  const pF = Math.sin(now * 0.014) * 0.5 + 0.5;
-  const len = WIDTH * HEIGHT;
+  if(now-lastT>=500){ fps=Math.round(fCnt*1000/(now-lastT)); fCnt=0; lastT=now; }
+  const pS=Math.sin(now*0.004)*0.5+0.5;
+  const pF=Math.sin(now*0.014)*0.5+0.5;
+  const len=WIDTH*HEIGHT;
 
-  for (let i = 0; i < len; i++) {
-    const t = grid[i];
-    if (!t) { buf32[i] = 0xff0a0a0a; continue; }
-    const TI = T[t];
-    if (!TI) { buf32[i] = 0xff0a0a0a; continue; }
-    let c = TI.color;
-    let r = c & 0xff, g = (c >> 8) & 0xff, b = (c >> 16) & 0xff;
+  for(let i=0;i<len;i++){
+    const t=grid[i];
+    if(!t){ buf32[i]=0xff0a0a0a; continue; }
+    const TI=T[t];
+    if(!TI){ buf32[i]=0xff0a0a0a; continue; }
+    let c=TI.color;
+    let r=c&0xff,g=(c>>8)&0xff,b=(c>>16)&0xff;
+    const x=i%WIDTH,y=(i/WIDTH)|0;
+    const noiseAmt=TI.noise;
 
-    const x = i % WIDTH, y = (i / WIDTH) | 0;
-    const noiseAmt = TI.noise;
-
-    if (t === M.FIRE || t === M.LAVA || t === M.PLASMA || t === M.SPARK || t === M.EMBER) {
-      // Animated flicker
-      const f = 0.7 + Math.random() * 0.5;
-      r = Math.min(255, (r * f) | 0);
-      g = Math.min(255, (g * f) | 0);
-      b = Math.min(255, (b * f) | 0);
-    } else if (t === M.VIRUS) {
-      const ag = Math.min(1, extra[i] / 300);
-      const p = 0.6 + pS * 0.55;
-      const n = (Math.random() - 0.5) * 32;
-      r = Math.min(255, Math.max(0, ((190 + ag * 60 + n) * p) | 0));
-      g = Math.min(255, Math.max(0, ((25 + ag * 20 + n * 0.4) * p) | 0));
-      b = Math.min(255, (255 * p) | 0);
-    } else if (t === M.TENTACLE) {
-      const ag = Math.min(1, extra2[i] / 200);
-      const p = 0.65 + pF * 0.45;
-      const n = (Math.random() - 0.5) * 25;
-      r = Math.min(255, Math.max(0, ((110 - ag * 40 + n) * p) | 0));
-      g = Math.min(255, Math.max(0, ((8 + ag * 75 + n * 0.6) * p) | 0));
-      b = Math.min(255, ((165 - ag * 35) * p) | 0);
-    } else if (t === M.LIGHT) {
-      const f = 0.5 + Math.random() * 0.8;
-      r = Math.min(255, (r * f) | 0);
-      g = Math.min(255, (g * f) | 0);
-      b = Math.min(255, (b * f) | 0);
-    } else if (t === M.DIAMOND) {
-      // Sparkle
-      const s = hash2(x + (tick >> 4), y) > 0.94 ? 60 : 0;
-      r = Math.min(255, r + s); g = Math.min(255, g + s); b = Math.min(255, b + s);
-    } else if (t === M.GOLD) {
-      // Subtle shimmer
-      const n = (hash2(x, y) - 0.5) * 20;
-      r = Math.min(255, Math.max(0, r + n | 0));
-      g = Math.min(255, Math.max(0, g + n * 0.8 | 0));
-    } else if (noiseAmt > 0) {
-      // Stable per-cell texture noise
-      const n = (hash2(x, y) - 0.5) * noiseAmt;
-      r = Math.min(255, Math.max(0, r + n | 0));
-      g = Math.min(255, Math.max(0, g + n | 0));
-      b = Math.min(255, Math.max(0, b + n | 0));
+    if(t===M.FIRE||t===M.LAVA||t===M.PLASMA||t===M.SPARK||t===M.EMBER){
+      const f=0.7+Math.random()*0.5;
+      r=Math.min(255,(r*f)|0);g=Math.min(255,(g*f)|0);b=Math.min(255,(b*f)|0);
+    } else if(t===M.VIRUS){
+      const ag=Math.min(1,extra[i]/300);
+      const p=0.6+pS*0.55;
+      const n=(Math.random()-0.5)*32;
+      r=Math.min(255,Math.max(0,((190+ag*60+n)*p)|0));
+      g=Math.min(255,Math.max(0,((25+ag*20+n*0.4)*p)|0));
+      b=Math.min(255,(255*p)|0);
+    } else if(t===M.TENTACLE){
+      const ag=Math.min(1,extra2[i]/200);
+      const p=0.65+pF*0.45;
+      const n=(Math.random()-0.5)*25;
+      r=Math.min(255,Math.max(0,((110-ag*40+n)*p)|0));
+      g=Math.min(255,Math.max(0,((8+ag*75+n*0.6)*p)|0));
+      b=Math.min(255,((165-ag*35)*p)|0);
+    } else if(t===M.LIGHT){
+      const f=0.5+Math.random()*0.8;
+      r=Math.min(255,(r*f)|0);g=Math.min(255,(g*f)|0);b=Math.min(255,(b*f)|0);
+    } else if(t===M.DIAMOND){
+      const s=hash2(x+(tick>>4),y)>0.94?60:0;
+      r=Math.min(255,r+s);g=Math.min(255,g+s);b=Math.min(255,b+s);
+    } else if(t===M.GOLD){
+      const n=(hash2(x,y)-0.5)*20;
+      r=Math.min(255,Math.max(0,r+n|0));g=Math.min(255,Math.max(0,g+n*0.8|0));
+    } else if(t===M.WALL){
+      // Bedrock: dark with subtle texture
+      if(gameMode==='generated'){
+        const wy=y+camY;
+        if(wy>=BEDROCK_Y){
+          const n=(hash2(x,y)-0.5)*15;
+          r=Math.min(255,Math.max(0,30+n|0));
+          g=Math.min(255,Math.max(0,20+n*0.8|0));
+          b=Math.min(255,Math.max(0,35+n|0));
+          buf32[i]=0xff000000|(b<<16)|(g<<8)|r;
+          continue;
+        }
+      }
+      // Normal wall
+      if(noiseAmt>0){const n=(hash2(x,y)-0.5)*noiseAmt;r=Math.min(255,Math.max(0,r+n|0));g=Math.min(255,Math.max(0,g+n|0));b=Math.min(255,Math.max(0,b+n|0));}
+    } else if(noiseAmt>0){
+      const n=(hash2(x,y)-0.5)*noiseAmt;
+      r=Math.min(255,Math.max(0,r+n|0));g=Math.min(255,Math.max(0,g+n|0));b=Math.min(255,Math.max(0,b+n|0));
     }
 
-    buf32[i] = 0xff000000 | (b << 16) | (g << 8) | r;
+    buf32[i]=0xff000000|(b<<16)|(g<<8)|r;
   }
-  ctx.putImageData(imageData, 0, 0);
+  ctx.putImageData(imageData,0,0);
 
-  document.getElementById('hud-fps').textContent = fps;
-  document.getElementById('hud-p').textContent = pCnt;
-  document.getElementById('hud-ex').textContent = exCnt;
-  document.getElementById('hud-v').textContent = vCnt;
+  // Draw NPCs on top
+  if(gameMode==='generated') renderNPCs();
 
-  const va = document.getElementById('virus-alert');
-  if (vCnt > 100) {
-    va.style.display = 'block';
-    va.textContent = vCnt > 700 ? '☣ KRITISCHE INFEKTION' : vCnt > 400 ? '⚠⚠ STARKE INFEKTION' : '⚠ VIRUS';
-  } else if (va.textContent.includes('INFEKTION') || va.textContent === '⚠ VIRUS') {
-    va.style.display = 'none';
+  // HUD
+  document.getElementById('hud-fps').textContent=fps;
+  document.getElementById('hud-p').textContent=pCnt;
+  document.getElementById('hud-ex').textContent=exCnt;
+  document.getElementById('hud-v').textContent=vCnt;
+  if(gameMode==='generated'){
+    document.getElementById('hud-cam').textContent=`${camX+Math.round(WIDTH/2)}, ${camY+Math.round(HEIGHT/2)}`;
+    document.getElementById('hud-npc').textContent=NPCs.length;
+  }
+
+  const va=document.getElementById('virus-alert');
+  if(vCnt>100){
+    va.style.display='block';
+    va.textContent=vCnt>700?'☣ KRITISCHE INFEKTION':vCnt>400?'⚠⚠ STARKE INFEKTION':'⚠ VIRUS';
+  } else if(va.textContent.includes('INFEKTION')||va.textContent==='⚠ VIRUS'){
+    va.style.display='none';
   }
 }
 
 // ── MAIN LOOP ──
-let acc = 0, prev = performance.now();
+let acc=0,prev=performance.now();
+
 function loop() {
-  const now = performance.now();
-  acc += now - prev;
-  prev = now;
-  if (!paused && acc > 16) { update(); acc = 0; }
+  const now=performance.now();
+
+  if(gameMode==='generated'){
+    // Camera movement
+    const spd=cameraKeys['Shift']?8:3;
+    let moved=false;
+    if(cameraKeys['ArrowLeft'])  { camX-=spd; moved=true; }
+    if(cameraKeys['ArrowRight']) { camX+=spd; moved=true; }
+    if(cameraKeys['ArrowUp'])    { camY=Math.max(0,camY-spd); moved=true; }
+    if(cameraKeys['ArrowDown'])  { camY=Math.min(WORLD_H-HEIGHT,camY+spd); moved=true; }
+    if(moved){
+      saveView();
+      ensureChunks();
+      loadView();
+    }
+  }
+
+  acc+=now-prev;
+  prev=now;
+  if(!paused&&acc>16){
+    update();
+    acc=0;
+    if(gameMode==='generated') saveView();
+  }
+
+  if(gameMode==='generated') updateNPCs();
+
   render();
+
+  // Refresh NPC count in tab if visible
+  if(CATS[activeTab]&&CATS[activeTab].isNPCTab){
+    const cbar=matEl.querySelector('.npc-count-bar span');
+    if(cbar) cbar.textContent=NPCs.length;
+  }
+
   requestAnimationFrame(loop);
 }
 
 // ── INIT ──
-const ro = new ResizeObserver(() => resize());
+const ro=new ResizeObserver(()=>resize());
 ro.observe(document.getElementById('right'));
-window.addEventListener('resize', resize);
-window.addEventListener('orientationchange', () => setTimeout(resize, 100));
+window.addEventListener('resize',resize);
+window.addEventListener('orientationchange',()=>setTimeout(resize,100));
 
 resize();
-refreshMats();
-pick(M.SAND);
-loop();
+buildTabs();
+
+// Don't start loop until mode is selected — startGame() does it
 </script>
 </body>
 </html>
